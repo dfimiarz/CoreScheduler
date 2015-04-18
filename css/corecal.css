@@ -1,0 +1,469 @@
+@charset "utf-8";
+/* CSS Document */
+
+body{
+	background-color: #FFFFFF;
+	display: none;
+	overflow-y: scroll;
+}
+
+a, img
+{
+	border: none;
+}
+
+.page_element
+{
+	
+	width: 1024px;
+	margin-left: auto;
+	margin-right:auto;
+	
+}
+
+.ui-dialog-title
+{
+	font-size: .8em;
+	
+}
+
+
+#credits
+{
+	font-family: arial,sans-serif;
+	font-size: small;
+	margin-top: 5px;
+}
+
+.ui-widget 
+{
+	font-size: 1em;
+}
+
+.login_txt_box
+{
+	
+	font-family: arial,sans-serif;
+	margin: 2px;
+	width: 90%;
+}
+
+.corecal_select
+{
+	
+	width: 200px;
+	padding: 3px;
+	font-size: 1.2em;
+	margin: 0px;
+
+}
+
+.corecal_gen_container
+{
+	
+	font-family: arial,sans-serif;
+	font-size: 1em;
+	border: 1px solid;
+	border-color: #c0c0c0 #D9D9D9 #D9D9D9;
+	border-radius: 5px;
+	background: #deedf7 url(../images/panelbackground.png) 70% 70%;
+	overflow: hidden;
+	vertical-align: middle;
+}
+
+//Properties of the stats window elements
+
+img.help_icon
+{
+   vertical-align: top;
+}
+
+img.help_icon_small
+{
+   vertical-align: top;
+   width: 12px;
+   height: 12px;
+}
+
+#role_txt_cont
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 2px;
+	font-size: 1.1em;
+	text-align: center;
+	display: none;
+}
+
+#user_role{
+	font-weight: bold;
+}
+
+.navigation_panel
+{
+	font-size: .7em;
+	height: 120px;
+}
+
+.dashboard_panel
+{
+	font-size: .7em;
+}
+
+
+#logged_in_panel{
+	display: none;
+}
+
+#log_in_panel{
+	display: none;
+}
+
+
+#req_access_cont
+{
+	display: none;
+	text-align: center;
+}
+
+#req_access_btn
+{
+	padding: .2em .5em;
+}
+
+#dashboard_role_panel
+{
+	display: none;
+	border-width: 0px;
+}
+
+#dashboard_control_panel
+{
+	text-align: right;
+	margin-right: 10px;
+	
+}
+
+#dashboard_control_panel img
+{
+	width: 24px;
+	height: 24px;
+
+}
+
+.login_form_element
+{
+	width: 100%;
+}
+
+.login_form_fld
+{
+	text-align: center;
+}
+
+.login_form_lbl
+{
+	text-align: left;
+	margin-left: 10px;
+}
+
+.login_form_btn
+{
+	text-align: right;
+	margin-right: 10px;
+}
+
+
+
+.login_wrapper
+{
+	padding: 5px;
+}
+
+#logged_in_btn_cont
+{
+	width: 100%;
+	text-align: right;
+}
+
+#logged_in_lbl_cont
+{
+	margin-bottom: 5px;
+}
+
+.logged_in_field
+{
+	font-size: 1em;
+	margin-bottom: 2px;
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.larger_label
+{
+	font-size: medium;
+	font-weight: bold;
+}
+
+.small_label
+{
+	font-size: x-small;
+}
+
+#services_wrapper
+{
+	padding: 3px;
+	text-align: center;
+}
+
+//--START--Info panel styles--
+
+#info{
+
+width: 100%;
+
+}
+
+//--END--Info Panel Styles--
+
+.left_aligned_panel{
+
+float: left;
+
+}
+
+#service_selector_header
+{
+	font-size: medium;
+	width: 100%;
+	margin-bottom: 2px;
+	font-weight: bold;
+}
+
+#service_selector
+{
+
+	width:100%;
+	margin-bottom: 4px;
+}
+
+.field_value
+{
+
+	
+	font-weight: bold;
+
+}
+
+#dialog_container{
+	padding : 4px; 
+	overflow : auto; 
+	
+}
+
+
+#logo_container{
+
+	width: 100%;
+	text-align: center;
+
+}
+
+.signup_label_row
+{
+	width: 50%;
+	font-size: small;
+ 	
+}
+
+.signup_field_row
+{
+	width: 50%;
+	font-size: small;
+ 	
+}
+
+#reg_error_msg
+{
+	font-size: smaller;
+	color: red;
+	width: 100%;
+	text-align: center;
+}
+
+.signup_section_column
+{
+	width: 50%;
+	vertical-align: top;
+ 	
+}
+
+#help_view_icon{
+	
+	width: 30px;
+	float: right;
+}
+
+
+
+
+#ctrl_pannel_1
+{
+	width: 100%;
+	overflow: hidden;
+}
+#ctrl_pannel_2
+{
+	width: 100%;
+	overflow: hidden;
+}
+
+.ctrl_pannel_right
+{
+	width: 600px;		
+}
+
+.ctrl_pannel_middle
+{
+	width: 220px;
+}
+
+.ctrl_pannel_left
+{
+	width: 180px;	
+}
+
+.top_bar_element
+{
+	margin: 1px;
+	float: left;
+}
+
+.corecal_simple_gen_container
+{
+	margin: 2px;
+	overflow: hidden;
+}
+
+#acc_tools_nav_bar
+{
+	width: 95%;
+	text-align:right;
+}
+
+#acc_tools_nav_cont
+{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+#acc_tools_nav_cont li
+{
+	border: solid 1px;
+	border-radius: 4px 4px 0px 0px;
+	border-color: #c0c0c0 #D9D9D9 #D9D9D9;
+	background: #deedf7 url(../images/panelbackground.png) 70% 70%;
+	color: #2779aa;
+	overflow: hidden;
+	display: inline;
+	padding-left: 4px;
+	padding-right: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	font-weight: bold;
+	font-family: arial,sans-serif;
+	font-size: 0.7em;
+}
+
+#register_btn
+{
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+#session_info_functions
+{
+	font-size: .8em;
+	text-align: right;
+
+}
+
+.dialog_item
+{
+	
+}
+
+.session_info_cntrl_pannel
+{
+	clear: both;
+	font-size: .8em;
+	text-align: center;
+}
+
+#session_info_fields
+{
+	font-size: .7em;
+	
+}
+
+.corecal_btn_sm
+{
+	padding: 2px;
+	width: 25px;
+	text-align: center;
+	float: right;
+}
+
+.corecal_btn_lg
+{
+	padding: 2px;
+	text-align: center;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+.corecal_btn
+{
+	
+	border: 1px solid;
+	border-color: #c0c0c0 #D9D9D9 #D9D9D9;
+	border-radius: 5px;
+	background: #deedf7 url(../images/btn-bg-low.png) 70% 70%;
+	overflow: hidden;
+	vertical-align: middle;
+	margin-right: 2px;
+	margin-left: 2px;
+}
+
+.corecal_btn:hover
+{
+	background: #deedf7 url(../images/btn-bg-high.png) 70% 70%;
+	cursor: pointer;
+}
+
+.corecal_btn_sm img
+{
+	width: 20px;
+	
+}
+
+#s_info_cancel_panel
+{
+	display: none;
+}
+
+.confirm_msg
+{
+	font-size: 1em;
+	color: red;
+	font-weight: bold;
+}
+
+.confirm_btn_panel
+{
+	margin-top: 5px;
+}
+
