@@ -716,21 +716,15 @@ class ScheduleDataHandler extends CoreComponent {
     }
 
     public function changeNote($encrypted_record_id, $text) {
-        //returns 1 when succeded
-
-        $is_logged_in = false;
+        //returns 1 when succede
         $is_owner = false;
-        $logged_in_user_id = null;
         $service_id = null;
 
         //Get current time
-        $now_dt = new DateTime();
+        $now_dt = new \DateTime();
 
-        if (isset($_SESSION['user_id'])) {
-            $logged_in_user_id = $_SESSION['user_id'];
-            $user_logged_in = true;
-        }
-
+        $logged_in_user_id = $this->user->getUserID();
+        
         //Decrypt session id
         $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
         $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
@@ -743,26 +737,30 @@ class ScheduleDataHandler extends CoreComponent {
         //---Get session details
         $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cs.state FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
 
-        $stmt = mysqli_prepare($this->connection, $query);
-        $this->throwExceptionOnError();
+        if( ! $stmt = mysqli_prepare($this->connection, $query)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_bind_param($stmt, 'i', $record_id);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_bind_param($stmt, 'i', $record_id)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_execute($stmt);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_execute($stmt)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
         //$session_info stores info returned by the query
-        $session_info = new stdClass();
+        $session_info = new \stdClass();
 
-        $temp = new stdClass();
-        mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id, $temp->service_state);
-        $this->throwExceptionOnError();
+        $temp = new \stdClass();
+        if( ! mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id, $temp->service_state)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
 
         if (mysqli_stmt_fetch($stmt)) {
-            $session_info->start_dt = new DateTime($temp->start);
-            $session_info->end_dt = new DateTime($temp->end);
+            $session_info->start_dt = new \DateTime($temp->start);
+            $session_info->end_dt = new \DateTime($temp->end);
             $session_info->service_id = $temp->service_id;
             $session_info->user_id = $temp->user_id;
             $session_info->service_state = $temp->service_state;
@@ -773,39 +771,43 @@ class ScheduleDataHandler extends CoreComponent {
         //---
 
 
-        if ($logged_in_user_id == $session_info->user_id)
+        if ($logged_in_user_id == $session_info->user_id) {
             $is_owner = true;
+        }
 
-        $user_roles = $this->login_manager->getUserRoles($session_info->service_id, $is_owner);
-
+        $user_roles = UserRoleManager::getUserRolesForService($this->user, $session_info->service_id, $is_owner);  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $session_info->service_id);
 
         //Check for DB_PERM_CHANGE_NOTE permission
-        if ($this->permission_manager->hasPermission($permissions_a, DB_PERM_CHANGE_NOTE)) {
+        if ($this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_NOTE)) {
             //Check if user can edit past event: DB_PERM_EDIT_PAST_EVENT
-            if ($session_info->start_dt <= $now_dt)
-                if (!$this->permission_manager->hasPermission($permissions_a, DB_PERM_EDIT_PAST_EVENT))
-                    $this->throwCustomExceptionOnError(__FUNCTION__ . ": Past sessions cannot be modified");
-        } else
-            $this->throwCustomExceptionOnError(__FUNCTION__ . ": Insufficient user permission");
+            if ($session_info->start_dt <= $now_dt) {
+                if (!$this->permission_manager->hasPermission($permissions_a, DB_PERM_EDIT_PAST_EVENT)) {
+                    $this->throwExceptionOnError ("Past sessions cannot be modified", 0, \SECURITY_LOG_TYPE);
+                }
+            }
+        } else {
+             $this->throwExceptionOnError ("Missing permission: DB_PERM_CHANGE_NOTE ", 0, \SECURITY_LOG_TYPE);
+        }
 
 
         //Update info
         $change_note_q = "UPDATE `core_timed_activity` SET note = ? WHERE id = ?";
 
-        $stmt = mysqli_prepare($this->connection, $change_note_q);
-        $this->throwExceptionOnError();
+        if( ! $stmt = mysqli_prepare($this->connection, $change_note_q)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_bind_param($stmt, 'si', $clean_text, $record_id);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_bind_param($stmt, 'si', $clean_text, $record_id)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_execute($stmt);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_execute($stmt)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_free_result($stmt);
-
-        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " - NOTE FOR SESSION ID: " . $record_id . " CHANGED";
-        $this->logger->log($log_text, ACTIVITY_LOG_TYPE);
+        $log_text = __CLASS__ . ":" . __FUNCTION__ . " - Note for session: " . $record_id . " changed";
+        $this->log($log_text, \ACTIVITY_LOG_TYPE);
 
         return 1;
     }
@@ -918,18 +920,18 @@ class ScheduleDataHandler extends CoreComponent {
         mysqli_stmt_close($stmt);
 
         $log_text = __CLASS__ . ":" . __FUNCTION__ . " - User for session: " . $record_id . " changed";
-        $this->log($log_text, ACTIVITY_LOG_TYPE);
+        $this->log($log_text, \ACTIVITY_LOG_TYPE);
 
         return 1;
     }
 
     public function getAuthorizedUsers($encrypted_record_id) {
 
-        $is_owner = FALSE;
+        $is_owner = false;
         $logged_in_user_id = $this->user->getUserID();
         $service_id = null;
 
-        if ($encrypted_record_id == null) {
+        if (is_null($encrypted_record_id)) {
             $this->throwExceptionOnError( __FUNCTION__ . " Invalid record ID ", 0, \SECURITY_LOG_TYPE);
         }
         
@@ -974,8 +976,9 @@ class ScheduleDataHandler extends CoreComponent {
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $service_id, $is_owner);  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $service_id);
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_OWNER))
-            $this->throwCustomExceptionOnError("GET_AUTHORIZED_USERS: Insufficient user permissions");
+        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_OWNER)) {
+            $this->throwExceptionOnError("Permission DB_PERM_CHANGE_OWNER missing", 0, \SECURITY_LOG_TYPE);
+        }
 
 
         //Get users with a role for a given service

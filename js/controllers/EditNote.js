@@ -7,7 +7,7 @@ function EditNoteCntrl()
 		$('#e_note').editable({
 			type: 'textarea',
 			toggle: 'manual',
-			url: './ccny/scidiv/cores/ctrl/changeNotes.php',
+			url: './ccny/scidiv/cores/ctrl/changeNote.php',
 			title: 'Session notes:',
 			pk: getRecordID,
 			disabled: false,

@@ -38,7 +38,7 @@ try {
     $datahandler = new ScheduleDataHandler($user);
     $datahandler->changeUser($record_id, $new_user_id);
     
-} catch (Exception $e) {
+} catch (\Exception $e) {
     $err_msg = "Operation failed: Error code " . $e->getCode();
 
     //Code 0 means that this is none-system error.
