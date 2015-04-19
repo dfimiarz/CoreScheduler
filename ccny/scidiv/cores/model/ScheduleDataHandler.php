@@ -811,22 +811,16 @@ class ScheduleDataHandler extends CoreComponent {
     }
 
     public function changeUser($encrypted_record_id, $encrypted_user_id) {
-        $is_logged_in = false;
         $is_owner = false;
-        $logged_in_user_id = null;
+        $logged_in_user_id = $this->user->getUserID();
         $service_id = null;
 
-        $new_user_id = null;
+        if (is_null($encrypted_record_id) ) {
+            $this->throwExceptionOnError("Record ID is invalid", 0, \SECURITY_LOG_TYPE);
+        }
 
-        if ($encrypted_record_id == null)
-            $this->throwCustomExceptionOnError("CHANGE_USER: Record ID invalid");
-
-        if ($encrypted_user_id == null)
-            $this->throwCustomExceptionOnError("CHANGE_USER: User ID invalid");
-
-        if (isset($_SESSION['user_id'])) {
-            $logged_in_user_id = $_SESSION['user_id'];
-            $is_logged_in = true;
+        if (is_null($encrypted_user_id)) {
+             $this->throwExceptionOnError("New user ID is invalid", 0, \SECURITY_LOG_TYPE);
         }
 
         $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
@@ -840,79 +834,91 @@ class ScheduleDataHandler extends CoreComponent {
         //---Get session service_id
         $query_id = "SELECT cta.user,cta.service_id,cs.state FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
 
-        $stmt = mysqli_prepare($this->connection, $query_id);
-        $this->throwExceptionOnError();
+        if( ! $stmt = mysqli_prepare($this->connection, $query_id)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_bind_param($stmt, 'i', $record_id);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_bind_param($stmt, 'i', $record_id)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_execute($stmt);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_execute($stmt)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        $temp = new stdClass();
-        mysqli_stmt_bind_result($stmt, $temp->user_id, $temp->service_id, $temp->service_state);
-        $this->throwExceptionOnError();
+        $temp = new \stdClass();
+        if( ! mysqli_stmt_bind_result($stmt, $temp->user_id, $temp->service_id, $temp->service_state)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
         if (mysqli_stmt_fetch($stmt)) {
             $service_id = $temp->service_id;
             $service_state = $temp->service_state;
             $user_id = $temp->user_id;
         }
-
-        mysqli_stmt_free_result($stmt);
+        
         mysqli_stmt_close($stmt);
 
-        if ($logged_in_user_id == $user_id)
+        if ($logged_in_user_id == $user_id) {
             $is_owner = true;
+        }
 
-        $user_roles = $this->login_manager->getUserRoles($service_id, $is_owner);
-
+        $user_roles = UserRoleManager::getUserRolesForService($this->user, $service_id, $is_owner);  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $service_id);
 
 
-        if (!$this->permission_manager->hasPermission($permissions_a, DB_PERM_CHANGE_OWNER))
-            $this->throwCustomExceptionOnError("CHANGE_USER: Insufficient user permissions");
+        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_OWNER)) {
+            $this->throwExceptionOnError (__CLASS__ . ":" . __FUNCTION__ . " - Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
+        }
 
 
         //Check if the new users has a role for a given service_id
         $check_user_q = "SELECT role FROM core_user_role WHERE user_id = ? and service_id = ?";
 
-        $stmt = mysqli_prepare($this->connection, $check_user_q);
-        $this->throwExceptionOnError();
+        if( ! $stmt = mysqli_prepare($this->connection, $check_user_q)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_bind_param($stmt, 'ii', $new_user_id, $service_id);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_bind_param($stmt, 'ii', $new_user_id, $service_id)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_execute($stmt);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_execute($stmt)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_store_result($stmt);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_store_result($stmt)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
         $rows = mysqli_stmt_num_rows($stmt);
 
         mysqli_stmt_free_result($stmt);
         mysqli_stmt_close($stmt);
 
-        if ($rows < 1)
-            $this->throwCustomExceptionOnError("CHANGE_USER: No user role assigned");
+        if ($rows < 1) {
+             $this->throwExceptionOnError (__CLASS__ . ":" . __FUNCTION__ . " - New user without roles.", 0, \SECURITY_LOG_TYPE);
+        }
 
 
         $change_user_q = "UPDATE core_timed_activity SET user = ? WHERE id = ?";
 
-        $stmt = mysqli_prepare($this->connection, $change_user_q);
-        $this->throwExceptionOnError();
+        if( ! $stmt = mysqli_prepare($this->connection, $change_user_q)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_bind_param($stmt, 'ii', $new_user_id, $record_id);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_bind_param($stmt, 'ii', $new_user_id, $record_id)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
-        mysqli_stmt_execute($stmt);
-        $this->throwExceptionOnError();
+        if( ! mysqli_stmt_execute($stmt)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
 
         mysqli_stmt_close($stmt);
 
-        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " - USER FOR SESSION ID: " . $record_id . " CHANGED";
-        $this->logger->log($log_text, ACTIVITY_LOG_TYPE);
+        $log_text = __CLASS__ . ":" . __FUNCTION__ . " - User for session: " . $record_id . " changed";
+        $this->log($log_text, ACTIVITY_LOG_TYPE);
 
         return 1;
     }
