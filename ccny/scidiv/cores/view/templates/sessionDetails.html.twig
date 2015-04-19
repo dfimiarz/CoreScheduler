@@ -1,26 +1,26 @@
 <div id="session_info_fields">
-    {% if record_id %}
+    {% if record_id is defined %}
     <input type="hidden" value="{{record_id}}" name="s_rec_id" id="s_rec_id">
     {% endif %}
-    {% if username %}
+    {% if username is defined %}
     <div class="dialog_item">User Name:&nbsp;<a id="e_user_name" data-value="{{user_id|e}}" class="field_value">{{username|e}}</a></div>
     {% endif %}
-    {% if email %}
-    <div class="dialog_item">User E-mail:&nbsp;<span id="e_user_email" class="field_value">{{email}}</span></div>
+    {% if email is defined %}
+    <div class="dialog_item">User E-mail:&nbsp;<span id="e_user_email" class="field_value">{{email|e}}</span></div>
     {% endif %}
-    {% if pi %}
-    <div class="dialog_item">Mentor:&nbsp;<span id="e_piname" class="field_value">{{pi}}</span></div>
+    {% if pi is defined %}
+    <div class="dialog_item">Mentor:&nbsp;<span id="e_piname" class="field_value">{{pi|e}}</span></div>
     {% endif %}
-    {% if start %}
-    <div class="dialog_item">Session Start:&nbsp;<span id="e_start" class="field_value">{{start}}</span></div>
+    {% if start is defined %}
+    <div class="dialog_item">Session Start:&nbsp;<span id="e_start" class="field_value">{{start|e}}</span></div>
     {% endif %}
-    {% if end %}
-    <div class="dialog_item">Session End:&nbsp;<span id="e_end" class="field_value">{{end}}</span></div>
+    {% if end is defined %}
+    <div class="dialog_item">Session End:&nbsp;<span id="e_end" class="field_value">{{end|e}}</span></div>
     {% endif %}
-    {% if type %}
-    <div class="dialog_item">Service Type:&nbsp;<span id="e_type" class="field_value">{{type}}</span></div>
+    {% if type is defined %}
+    <div class="dialog_item">Service Type:&nbsp;<span id="e_type" class="field_value">{{type|e}}</span></div>
     {% endif %}
-    {% if note %}    
+    {% if note is defined %}    
     <div class="dialog_item">Notes:&nbsp;<span id="e_note">{{note|e}}</span></div>
     {% endif %}
 </div>
