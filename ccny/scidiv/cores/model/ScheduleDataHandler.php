@@ -25,8 +25,6 @@ class ScheduleDataHandler extends CoreComponent {
     private $color_selector;
    
     private $permission_manager;
-    private $stateInfo = null;
-    private $time_requested = null;
     private $key = "lENb2bPRk)c&k0ebY0nSxiq9iKgg8WYU";
 
     //Class constructor
@@ -605,9 +603,9 @@ class ScheduleDataHandler extends CoreComponent {
 
         $interval_minutes = $dayDelta * 1440 + $minuteDelta;
 
-        $query = "UPDATE core_timed_activity SET end = DATE_ADD( end, INTERVAL ? MINUTE ) WHERE id = ?";
+        $update_query = "UPDATE core_timed_activity SET end = DATE_ADD( end, INTERVAL ? MINUTE ) WHERE id = ?";
 
-        if( ! $stmt = mysqli_prepare($this->connection, $query)){
+        if( ! $stmt = mysqli_prepare($this->connection, $update_query)){
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
@@ -928,17 +926,14 @@ class ScheduleDataHandler extends CoreComponent {
     public function getAuthorizedUsers($encrypted_record_id) {
 
         $is_owner = false;
-        $logged_in_user_id = $this->user->getUserID();
-        $service_id = null;
+
 
         if (is_null($encrypted_record_id)) {
             $this->throwExceptionOnError( __FUNCTION__ . " Invalid record ID ", 0, \SECURITY_LOG_TYPE);
         }
         
-
         $result_array = [];
         $service_id = null;
-        $user_role = null;
 
         $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
         $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
