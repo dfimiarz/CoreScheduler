@@ -19,6 +19,7 @@ use ccny\scidiv\cores\components\Utils as Utils;
 <script language="javascript" type="text/javascript" src="jquery/jquery-ui-1.10.3.custom.min.js" /></script>
 <script language="javascript" type="text/javascript" src="jquery/jqueryui-editable/js/jqueryui-editable.min.js" /></script>
 <script language="javascript" type="text/javascript" src="fullcalendar/fullcalendar.min.js" /></script>
+<script language="javascript" type="text/javascript" src="js/noty/packaged/jquery.noty.packaged.min.js" /></script>
 <script language="javascript" type="text/javascript" src="js/components.js" /></script>
 <script language="javascript" type="text/javascript" src="js/corecal.js" ></script>
 
@@ -130,24 +131,11 @@ use ccny\scidiv\cores\components\Utils as Utils;
         </div>
     </div>
 </div>
-<div id="session_info_d" title="Session details...">
-		<div id="session_info">
+    <div id="session_info_d" title="Details...">
+        <div id="session_info">
 
-		</div>
-</div>
-<div id="error_dialog" title="Notification...">
-  <p>
-    <span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 25px 0;"></span>
-    <div id="error_msg" class="dialog_item"></div>
-  </p>
-</div>
-<div id="confirm_dialog" title="Success...">
-  <p>
-    <span class="ui-icon ui-icon-circle-check" style="float: left; margin: 0 7px 0 0;"></span>
-    <div id="confirm_msg_head" class="dialog_item"></div>
-  </p>
-  <div id="confirm_msg_body" class="dialog_item"></div>
-</div>
+        </div>
+    </div>
 <div id="signup_dialog" title="Create an account">
   <p id="reg_error_msg"></p>
   <form id="registration_form">

@@ -9,7 +9,7 @@ namespace ccny\scidiv\cores\view;
 include_once __DIR__ . '/../autoloader.php';
 include_once __DIR__ . '/../components/SystemConstants.php';
 
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Response as Response;
 
 interface iMessageSender {
 
