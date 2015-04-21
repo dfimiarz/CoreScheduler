@@ -6,8 +6,8 @@ include_once __DIR__ . '/../components/ColorSelector.php';
 include_once __DIR__ . '/../components/CoreComponent.php';
 include_once __DIR__ . '/../components/SystemConstants.php';
 include_once __DIR__ . '/../components/UserRoleManager.php';
-include_once __DIR__ . './PermissionManager.php';
-include_once __DIR__ . './CoreUser.php';
+include_once __DIR__ . '/PermissionManager.php';
+include_once __DIR__ . '/CoreUser.php';
 
 use ccny\scidiv\cores\components\ColorSelector as ColorSelector;
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
