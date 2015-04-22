@@ -58,7 +58,6 @@ try{
         throw new \Exception("Could not locate user account", 0);
     }
         
-    
 } catch (\Exception $e) {
     $err_msg = "Login failed: Error code " . $e->getCode();
 

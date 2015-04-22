@@ -102,20 +102,24 @@ class LoginManager extends CoreComponent
 
         //get number of rows returned
         $rows = $stmt->num_rows;
+       
+        $temp = new \stdClass();
+        $stmt->bind_result($temp->id, $temp->name, $temp->last_active, $temp->pi, $temp->type);
 
-        if ($rows == 1) {
-            $temp = new \stdClass();
-            $stmt->bind_result($temp->id, $temp->name, $temp->last_active, $temp->pi, $temp->type);
-
-            if ($stmt->fetch()) {
-                $this->user->updateUserInfo($temp->id, $temp->type, $temp->last_active, $temp->pi);
-            }
-        } else {
-            $this->throwExceptionOnError("Failed to extract user information", 0 , \ERROR_LOG_TYPE);
+        if ($stmt->fetch()) {
+            $this->user->updateUserInfo($temp->id, $temp->type, $temp->last_active, $temp->pi);
         }
         
         $stmt->free_result();
         $stmt->close();
+        
+        /*
+         * If number of rows is not 1, singal that user info cannot not be loaded
+         */
+        if( $rows != 1 )
+        {
+            return false;
+        }
         
         //Get user roles
         $user_id = $this->user->getUserID();
