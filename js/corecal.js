@@ -18,39 +18,7 @@ $(document).ready(function ()
                 },
             }
     );
-
-
-    $('#signup_dialog').dialog(
-            {
-                autoOpen: false,
-                resizable: false,
-                width: 640,
-                modal: false,
-                show: {
-                    effect: "fade",
-                    duration: 200
-                },
-                hide: {
-                    effect: "fade",
-                    duration: 200
-                },
-                buttons: {
-                    Cancel: function () {
-                        $(this).dialog("close");
-                    },
-                    Register: function () {
-                        registerUser();
-                    }
-
-                },
-                close: function (event, ui)
-                {
-                    resetRegistrationFormErrors();
-                    $('#registration_form')[0].reset();
-                }
-            }
-    );
-
+    
     showCalendarView();
 
     setUpLoginPannel();
@@ -1050,106 +1018,6 @@ function setUserRole(user_role_string, color_str)
 {
     $('#user_role').fadeOut().text(user_role_string).fadeIn('slow');
     $("#user_role").css("color", color_str);
-}
-
-//Register user functions
-function resetRegistrationFormErrors()
-{
-    //This function removes the error state from each of the fields in the registration form
-    var allFields = $([]).add($("#uname")).add($("#psw1")).add($("#psw2")).add($("#fname")).add($("#lname")).add($("#phone")).add($("#email1")).add($("#email2")).add($("#pi_name")).add($("#pi_email")).add($("#pi_phone")).add($("#pi_address_1")).add($("#pi_address_2")).add($("#pi_city")).add($("#pi_state")).add($("#pi_zip"));
-    allFields.removeClass("ui-state-error");
-
-    $("#reg_error_msg").text("");
-}
-
-function registerUser()
-{
-    //This function sends the request to the server and handles any possible errors returned
-
-    var user_data = {}
-
-    user_data.uname = $("#uname").val();
-    user_data.psw1 = $("#psw1").val();
-    user_data.psw2 = $("#psw2").val();
-    user_data.fname = $("#fname").val();
-    user_data.lname = $("#lname").val();
-    user_data.phone = $("#phone").val();
-    user_data.email1 = $("#email1").val();
-    user_data.email2 = $("#email2").val();
-    user_data.pi_name = $("#pi_name").val();
-    user_data.pi_email = $("#pi_email").val();
-    user_data.pi_phone = $("#pi_phone").val();
-    user_data.pi_address_1 = $("#pi_address_1").val();
-    user_data.pi_address_2 = $("#pi_address_2").val();
-    user_data.pi_city = $("#pi_city").val();
-    user_data.pi_state = $("#pi_state").val();
-    user_data.pi_zip = $("#pi_zip").val();
-
-    resetRegistrationFormErrors();
-
-    $.ajax({
-        type: "POST",
-        url: "./php/userRegistration.php",
-        dataType: "json",
-        data: user_data,
-        cache: false,
-        success: function (data)
-        {
-            if (data.hasOwnProperty('error'))
-            {
-                if (data.error)
-                {
-                    if (data.hasOwnProperty('data'))
-                    {
-                        var error_details = data.data;
-
-                        var err_field = error_details.field;
-                        var err_msg = error_details.msg;
-                        var err_code = error_details.code;
-                        var err_type = error_details.type;
-
-                        switch (err_type)
-                        {
-                            case 1:
-                                var element = '#' + err_field;
-                                $(element).addClass("ui-state-error");
-
-                                $("#reg_error_msg").text(err_msg);
-
-                                break;
-                            case 2:
-                                $("#reg_error_msg").text("Database error: " + err_msg);
-                                break;
-                            default:
-                                $("#reg_error_msg").text('Unknown error');
-                        }
-                    }
-                    else {
-                        notifyError("Invalid reponse from the servers. No error info sent.");
-                    }
-                }
-                else
-                {
-                    $('#signup_dialog').dialog("close");
-                    showConfirmMsg("Registration completed successfully.", "You will be notified by e-mail when your account is approved by system administrator.");
-                }
-            }
-            else
-            {
-
-                notifyError("Error: Invalid reponse from the server. Operation failed");
-
-            }
-
-        },
-        error: function ()
-        {
-            notifyError("Error creating an account. Please try again later");
-
-        }
-    });
-
-
 }
 
 function requestServiceAccess()
