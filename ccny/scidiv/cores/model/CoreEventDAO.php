@@ -51,10 +51,10 @@ class CoreEventDAO extends CoreComponent{
     public function getCoreEvent($dec_record_id)
     {
         /* @var $event CoreEvent */
-        $event = new CoreEvent($dec_record_id);
+        $event = null;
         
          //---Get session details
-        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cta.state as eventstate,cs.state servicestate FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
+        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cta.state as eventstate,cs.state servicestate,cta.time_modified FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
 
         if( ! $stmt = mysqli_prepare($this->connection, $query)){
             $this->throwDBError($this->connection->error, $this->connection->errno);
@@ -70,17 +70,21 @@ class CoreEventDAO extends CoreComponent{
 
         $temp = new \stdClass();
         
-        if( ! mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id,$temp->event_state, $temp->service_state)){
+        if( ! mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id,$temp->event_state, $temp->service_state,$temp->time_modified)){
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
         
         if (mysqli_stmt_fetch($stmt)) {
+            
+            $event = new CoreEvent($dec_record_id,new \DateTime($temp->time_modified));
+            
             $event->setStart(new \DateTime($temp->start));
             $event->setEnd(new \DateTime($temp->end));
             $event->setServiceId($temp->service_id);
             $event->setUserId($temp->user_id);
             $event->setServiceState($temp->service_state);
             $event->setEventState($temp->event_state);
+            
         }
 
         mysqli_stmt_close($stmt);
@@ -88,10 +92,11 @@ class CoreEventDAO extends CoreComponent{
         return $event;
     }
     
-     /** Saves the event in the database
+    /** Saves CoreEvent to the database.
      * 
      * @param CoreEvent $event
-     */
+     * @return boolean
+     */ 
     public function saveCoreEvent(CoreEvent $event)
     {
         $user_id = $event->getUserId();
@@ -100,17 +105,19 @@ class CoreEventDAO extends CoreComponent{
         $end = $event->getEnd();
         $state = $event->getEventState();
         $record_id = $event->getId();
+        $timestamp = $event->getTimestamp();
         
         $start_str = $start->format('Y-m-d H:i:s');
         $end_str = $end->format('Y-m-d H:i:s');
+        $timestamp_str = $timestamp->format('Y-m-d H:i:s');
         
-        $change_user_q = "UPDATE core_timed_activity SET user = ?,note = ?,start = ?,end = ?,state = ? WHERE id = ?";
+        $change_user_q = "UPDATE core_timed_activity SET user = ?,note = ?,start = ?,end = ?,state = ? WHERE id = ? AND time_modified = ?";
 
         if( ! $stmt = mysqli_prepare($this->connection, $change_user_q)){
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
-        if( ! mysqli_stmt_bind_param($stmt, 'isssii', $user_id, $note, $start_str, $end_str ,$state ,$record_id)){
+        if( ! mysqli_stmt_bind_param($stmt, 'isssiis', $user_id, $note, $start_str, $end_str ,$state ,$record_id,$timestamp_str)){
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
@@ -118,6 +125,14 @@ class CoreEventDAO extends CoreComponent{
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
+        $rows = $stmt->affected_rows;
+        
         mysqli_stmt_close($stmt);
+        
+        if ($rows != 1) {
+            return false;
+        }
+
+        return true;
     }
 }

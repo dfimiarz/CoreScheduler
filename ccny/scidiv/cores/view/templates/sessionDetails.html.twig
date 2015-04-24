@@ -2,6 +2,9 @@
     {% if record_id is defined %}
     <input type="hidden" value="{{record_id}}" name="s_rec_id" id="s_rec_id">
     {% endif %}
+    {% if timestamp is defined %}
+    <input type="hidden" value="{{timestamp}}" name="s_timestamp" id="s_timestamp">
+    {% endif %}
     {% if username is defined %}
     <div class="dialog_item">User Name:&nbsp;<a id="e_user_name" data-value="{{user_id|e}}" class="field_value">{{username|e}}</a></div>
     {% endif %}

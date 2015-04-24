@@ -35,6 +35,8 @@ class CoreEvent {
     
     
     private $id;
+    /* @var $timestamp \DateTime */
+    private $timestamp;
     /* @var $start \DateTime */
     protected $start;
     /* @var $end \DateTime */
@@ -45,8 +47,10 @@ class CoreEvent {
     protected $serviceState;
     protected $eventState;
     
-    public function __construct($id) {
+    
+    public function __construct($id,  \DateTime $timestamp) {
         $this->id = $id;
+        $this->timestamp = $timestamp;
     }
     
     public function getId()
@@ -123,6 +127,12 @@ class CoreEvent {
     {
         return $this->eventState;
     }
+    
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+            
     
     public function isOwner($user_id)
     {

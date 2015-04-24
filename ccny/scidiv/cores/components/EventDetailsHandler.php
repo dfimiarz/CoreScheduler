@@ -112,6 +112,7 @@ class EventDetailsHandler extends CoreComponent {
         $ArrDetails['start'] = $start_dt->format("m/d/y g:i a");
         $ArrDetails['end'] = $end_dt->format("m/d/y g:i a");
         $ArrDetails['type'] = $raw_details->type;
+        $ArrDetails['timestamp'] = $raw_details->timestamp;
 
 
         if ($this->pm->hasPermission($permissions_a, \DB_PERM_VIEW_DETAILS)) {
@@ -174,7 +175,7 @@ class EventDetailsHandler extends CoreComponent {
         
         $details = new EventDetails();
         
-        $query = "SELECT cs.state,cs.short_name,cu.id,cu.firstname,cu.lastname,cu.username,cu.email,concat(p.first_name,' ',p.last_name) as piname,cta.service_id,cta.start,cta.end,cta.note FROM core_timed_activity cta, core_users cu,core_services cs, people p WHERE cta.id = ? AND cu.id = cta.user AND cs.id = cta.service_id AND p.individual_id = cu.pi";
+        $query = "SELECT cs.state,cs.short_name,cu.id,cu.firstname,cu.lastname,cu.username,cu.email,concat(p.first_name,' ',p.last_name) as piname,cta.time_modified,cta.service_id,cta.start,cta.end,cta.note FROM core_timed_activity cta, core_users cu,core_services cs, people p WHERE cta.id = ? AND cu.id = cta.user AND cs.id = cta.service_id AND p.individual_id = cu.pi";
 
         if (!$stmt = mysqli_prepare($this->connection, $query)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
@@ -188,7 +189,7 @@ class EventDetailsHandler extends CoreComponent {
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
-        if (!mysqli_stmt_bind_result($stmt, $details->service_state, $details->type, $details->user_id, $details->firstname, $details->lastname, $details->username, $details->email, $details->pi, $details->serv_id, $details->start, $details->end, $details->note)) {
+        if (!mysqli_stmt_bind_result($stmt, $details->service_state, $details->type, $details->user_id, $details->firstname, $details->lastname, $details->username, $details->email, $details->pi, $details->timestamp, $details->serv_id, $details->start, $details->end, $details->note)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 

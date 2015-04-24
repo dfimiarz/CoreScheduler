@@ -259,7 +259,7 @@ class ScheduleDataHandler extends CoreComponent {
         $eq_id = $event_options->eq_id;
 
         //Get all sessions for given service
-        $query = "SELECT cta.id,cta.service_id,cs.short_name,cu.id,cu.username,cta.start,cta.end,cta.note,cs.state FROM core_timed_activity cta, core_users cu,core_services cs WHERE cta.start <= ? AND cta.end >= ? AND cta.service_id IN (SELECT id from core_services WHERE resource_id = ? ) AND cta.state = 1 AND cu.id = cta.user AND cs.id = cta.service_id";
+        $query = "SELECT cta.id,cta.time_modified,cta.service_id,cs.short_name,cu.id,cu.username,cta.start,cta.end,cta.note,cs.state FROM core_timed_activity cta, core_users cu,core_services cs WHERE cta.start <= ? AND cta.end >= ? AND cta.service_id IN (SELECT id from core_services WHERE resource_id = ? ) AND cta.state = 1 AND cu.id = cta.user AND cs.id = cta.service_id";
 
         if (!$stmt = $this->connection->prepare($query)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
@@ -278,7 +278,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         $temp = new \stdClass();
 
-        $stmt->bind_result($temp->id, $temp->service_id, $temp->short_name, $temp->user_id, $temp->username, $temp->start, $temp->end, $temp->note, $temp->service_state);
+        $stmt->bind_result($temp->id, $temp->timestamp,$temp->service_id,$temp->short_name, $temp->user_id, $temp->username, $temp->start, $temp->end, $temp->note, $temp->service_state);
         
         while ($stmt->fetch()) {
 
@@ -292,6 +292,7 @@ class ScheduleDataHandler extends CoreComponent {
             $event_object->end = $temp->end;
             $event_object->note = $temp->note;
             $event_object->service_state = $temp->service_state;
+            $event_object->timestamp = $temp->timestamp;
 
             $temp_event_array[] = $event_object;
         }
@@ -323,6 +324,7 @@ class ScheduleDataHandler extends CoreComponent {
             $event->description = $temp_event->short_name;
             $event->start = $t_start->format("Y-m-d\TH:i:s\Z");
             $event->end = $t_end->format("Y-m-d\TH:i:s\Z");
+            $event->timestamp = $temp_event->timestamp;
 
             $event->allDay = false;
 
@@ -658,56 +660,14 @@ class ScheduleDataHandler extends CoreComponent {
 
     public function cancelEvent($encrypted_record_id) {
         
-        $is_owner = false;
-        $service_id = null;
-
-        
         $logged_in_user_id = $this->user->getUserID();
         
-        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+        $dec_record_id = $this->decryptValue($encrypted_record_id);
 
-        $dec_record_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_record_id), MCRYPT_MODE_ECB, $iv));
+        $event = $this->coreEventDAO->getCoreEvent($dec_record_id);
 
-        //---Get session details
-        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cs.state FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
-
-        if( ! $stmt = mysqli_prepare($this->connection, $query)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_bind_param($stmt, 'i', $dec_record_id)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_execute($stmt)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        $temp = new \stdClass();
-        
-        if( ! mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id, $temp->service_state)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-        
-        if (mysqli_stmt_fetch($stmt)) {
-            $start_dt = new \DateTime($temp->start);
-            $end_dt = new \DateTime($temp->end);
-            $service_id = $temp->service_id;
-            $user_id = $temp->user_id;
-            $service_state = $temp->service_state;
-        }
-
-        mysqli_stmt_close($stmt);
-
-        //---
-
-        if ($logged_in_user_id == $user_id) {
-            $is_owner = true;
-        }
-
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $service_id, $is_owner);  
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $service_id);
+        $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
+        $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
 
 
         //Check if user can delete an event
@@ -718,27 +678,15 @@ class ScheduleDataHandler extends CoreComponent {
 
         //Check if user can edit events in the past
         $now_dt = new \DateTime();
-        if ($start_dt < $now_dt) {
+        if ($event->getStart() < $now_dt) {
             if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
                 $this->throwExceptionOnError ("Past session cannot be cancelled", 0, \SECURITY_LOG_TYPE);
             }
         }
 
-        $cancel_q = "UPDATE `core_timed_activity` SET state = 0 WHERE id = ?";
-
-        if( ! $stmt = mysqli_prepare($this->connection, $cancel_q)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_bind_param($stmt, 'i', $dec_record_id)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_execute($stmt)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        mysqli_stmt_close($stmt);
+        $event->setEventState(0);
+        
+        $this->coreEventDAO->saveCoreEvent($event);
 
         $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . "- SESSION ID: " . $dec_record_id . " CANCELED";
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
@@ -746,21 +694,34 @@ class ScheduleDataHandler extends CoreComponent {
         return 1;
     }
 
-    public function changeNote($encrypted_record_id, $text) {
+    public function changeNote(\stdClass $eventoptions) {
         
         //Get current time
         $now_dt = new \DateTime();
 
+        $timestamp_dt = new \DateTime($eventoptions->timestamp);
+        
         $logged_in_user_id = $this->user->getUserID();
         
-        $record_id = $this->decryptRecordId($encrypted_record_id);
+        $encrypted_record_id = $eventoptions->record_id;
+        $record_id = $this->decryptValue($encrypted_record_id);
 
         //Filter text
-        $clean_text = filter_var($text, FILTER_SANITIZE_STRING);
+        $clean_text = filter_var($eventoptions->note, FILTER_SANITIZE_STRING);
         
        /* @var $event CoreEvent */
         $event = $this->coreEventDAO->getCoreEvent($record_id);
 
+        if(! $event instanceof CoreEvent)
+        {
+            $this->throwExceptionOnError ("Event not found", 0, \ERROR_LOG_TYPE);
+        }
+        
+        if( $timestamp_dt != $event->getTimestamp())
+        {
+            $this->throwExceptionOnError ("Event already modified", 0, \ERROR_LOG_TYPE);
+        }
+        
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
 
@@ -778,7 +739,10 @@ class ScheduleDataHandler extends CoreComponent {
 
         $event->setNote($clean_text);
         
-        $this->coreEventDAO->saveCoreEvent($event);
+        if( ! $this->coreEventDAO->saveCoreEvent($event))
+        {
+            $this->throwExceptionOnError ("Data could not be saved.", 0, \ERROR_LOG_TYPE);
+        }
 
         $log_text = __CLASS__ . ":" . __FUNCTION__ . " - Note for session: " . $record_id . " changed";
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
@@ -990,94 +954,16 @@ class ScheduleDataHandler extends CoreComponent {
         return $result_array;
     }
     
-    /** Retrieves information about the event from the database
-     * 
-     * @param type $dec_record_id
-     * @return CoreEvent
-     */
-    private function getCoreEvent($dec_record_id)
-    {
-        /* @var $event CoreEvent */
-        $event = new CoreEvent($dec_record_id);
-        
-         //---Get session details
-        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cta.state as eventstate,cs.state servicestate FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
-
-        if( ! $stmt = mysqli_prepare($this->connection, $query)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_bind_param($stmt, 'i', $dec_record_id)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_execute($stmt)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        $temp = new \stdClass();
-        
-        if( ! mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id,$temp->event_state, $temp->service_state)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-        
-        if (mysqli_stmt_fetch($stmt)) {
-            $event->setStart(new \DateTime($temp->start));
-            $event->setEnd(new \DateTime($temp->end));
-            $event->setServiceId($temp->service_id);
-            $event->setUserId($temp->user_id);
-            $event->setServiceState($temp->service_state);
-            $event->setEventState($temp->event_state);
-        }
-
-        mysqli_stmt_close($stmt);
-        
-        return $event;
-    }
-    
-    /** Saves the event in the database
-     * 
-     * @param CoreEvent $event
-     */
-    private function saveCoreEvent(CoreEvent $event)
-    {
-        $user_id = $event->getUserId();
-        $note = $event->getNote();
-        $start = $event->getStart();
-        $end = $event->getEnd();
-        $state = $event->getEventState();
-        $record_id = $event->getId();
-        
-        $start_str = $start->format('Y-m-d H:i:s');
-        $end_str = $end->format('Y-m-d H:i:s');
-        
-        $change_user_q = "UPDATE core_timed_activity SET user = ?,note = ?,start = ?,end = ?,state = ? WHERE id = ?";
-
-        if( ! $stmt = mysqli_prepare($this->connection, $change_user_q)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_bind_param($stmt, 'isssii', $user_id, $note, $start_str, $end_str ,$state ,$record_id)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_execute($stmt)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        mysqli_stmt_close($stmt);
-    }
-    
     /** Decrypts record id sent by the client
      * 
-     * @param type $encrypted_record_id
+     * @param type $encrypted_value
      * @return type int
      */
-    private function decryptRecordId($encrypted_record_id)
+    private function decryptValue($encrypted_value)
     {
         $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
         $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-        $record_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_record_id), MCRYPT_MODE_ECB, $iv));
+        $record_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_value), MCRYPT_MODE_ECB, $iv));
         
         return $record_id;
         

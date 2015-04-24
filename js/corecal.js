@@ -456,9 +456,8 @@ function newEventCreateErrorHandler(jqXHR, textStatus, errorThrown)
 
 function handleEventClick(calEvent, jsEvent, view)
 {
-
     resetDialogContent();
-
+    
     var data = {"id": calEvent.id};
 
     $.ajax({
@@ -478,6 +477,25 @@ function handleEventClick(calEvent, jsEvent, view)
 
 }
 //===END:
+
+function reloadEventDetails(data)
+{
+    resetDialogContent();
+
+    $.ajax({
+        type: "POST",
+        url: "./ccny/scidiv/cores/ctrl/getEventDetails.php",
+        data: data,
+        dataType: "html",
+        cache: false,
+        success: function (data) {
+            $("#session_info").append(data);
+        },
+        error: function () {
+            notifyError("Could not load event information.");
+        }
+    });
+}
 
 function showEventDetails(jsEvent)
 {

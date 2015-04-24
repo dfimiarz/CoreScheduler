@@ -14,6 +14,12 @@ function EditNoteCntrl()
             ajaxOptions: {
                 dataType: 'json'
             },
+            params: function(params){
+                
+                params.timestamp = getTimestamp();
+                return params;
+                
+            },
             success: function (response, newValue) {
 
 
@@ -26,6 +32,8 @@ function EditNoteCntrl()
                     else
                     {
                         notifySuccess("Note updated.");
+                        var data = {"id": getRecordID()};
+                        reloadEventDetails(data);
                     }
                 }
                 else
@@ -46,6 +54,12 @@ function EditNoteCntrl()
     function getRecordID()
     {
         return $('input#s_rec_id').val();
+    }
+    ;
+    
+    function getTimestamp()
+    {
+        return $('input#s_timestamp').val();
     }
     ;
 
