@@ -17,6 +17,7 @@ use ccny\scidiv\cores\model\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\UserRoleManager as UserRoleManager;
 use ccny\scidiv\cores\model\CoreEvent as CoreEvent;
+use ccny\scidiv\cores\model\CoreEventDAO as CoreEventDAO;
 
 class ScheduleDataHandler extends CoreComponent {
 
@@ -28,6 +29,9 @@ class ScheduleDataHandler extends CoreComponent {
    
     private $permission_manager;
     private $key = "lENb2bPRk)c&k0ebY0nSxiq9iKgg8WYU";
+    
+    /* @var $coreEventDAO Used to access database tables */
+    private $coreEventDAO;
 
     //Class constructor
     public function __construct(CoreUser $core_user) {
@@ -47,6 +51,7 @@ class ScheduleDataHandler extends CoreComponent {
         }
 
         $this->permission_manager = new PermissionManager($this->connection);
+        $this->coreEventDAO = new CoreEventDAO($this->connection);
     }
 
     function __destruct() {
@@ -726,9 +731,9 @@ class ScheduleDataHandler extends CoreComponent {
 
         //Filter text
         $clean_text = filter_var($text, FILTER_SANITIZE_STRING);
-
+        
        /* @var $event CoreEvent */
-        $event = $this->getCoreEvent($record_id);
+        $event = $this->coreEventDAO->getCoreEvent($record_id);
 
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
@@ -747,7 +752,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         $event->setNote($clean_text);
         
-        $this->saveCoreEvent($event);
+        $this->coreEventDAO->saveCoreEvent($event);
 
         $log_text = __CLASS__ . ":" . __FUNCTION__ . " - Note for session: " . $record_id . " changed";
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
