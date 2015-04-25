@@ -5,8 +5,8 @@ function EditNoteCntrl()
     function init()
     {
         $('#e_note').editable({
-            type: 'textarea',
-            toggle: 'manual',
+            type: 'text',
+            toggle: 'click',
             url: './ccny/scidiv/cores/ctrl/changeNote.php',
             title: 'Session notes:',
             pk: getRecordID,
@@ -32,8 +32,7 @@ function EditNoteCntrl()
                     else
                     {
                         notifySuccess("Note updated.");
-                        var data = {"id": getRecordID()};
-                        reloadEventDetails(data);
+                        clearUI();
                     }
                 }
                 else

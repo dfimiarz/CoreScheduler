@@ -637,7 +637,7 @@ function clearUI()
     if ($("#session_info_d").dialog("isOpen"))
         $("#session_info_d").dialog('close');
 
-    $('#user_options_window').dialog('close');
+    //$('#user_options_window').dialog('close');
 }
 
 //---BEGIN Functions that change viewport settings

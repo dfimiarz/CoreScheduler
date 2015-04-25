@@ -6,9 +6,9 @@ function EditUserCntrl() {
     {
         $('#e_user_name').editable({
             type: 'select',
-            toggle: 'manual',
+            toggle: 'click',
             url: './ccny/scidiv/cores/ctrl/changeUser.php',
-            title: 'Select new user:',
+            title: 'Select a new user:',
             pk: getRecordID,
             disabled: false,
             sourceCache: false,
