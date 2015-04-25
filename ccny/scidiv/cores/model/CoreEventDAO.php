@@ -48,19 +48,20 @@ class CoreEventDAO extends CoreComponent{
      * @param type $dec_record_id
      * @return CoreEvent
      */
-    public function getCoreEvent($dec_record_id)
+    public function getCoreEvent($dec_record_id,\DateTime $timestamp)
     {
         /* @var $event CoreEvent */
         $event = null;
+        $timestamp_str = $timestamp->format('Y-m-d H:i:s');
         
          //---Get session details
-        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cta.state as eventstate,cs.state servicestate,cta.time_modified FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
+        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cta.state as eventstate,cs.state servicestate,cta.time_modified FROM core_timed_activity cta,core_services cs WHERE cta.id = ? AND cta.time_modified = ? AND cta.service_id = cs.id";
 
         if( ! $stmt = mysqli_prepare($this->connection, $query)){
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
-        if( ! mysqli_stmt_bind_param($stmt, 'i', $dec_record_id)){
+        if( ! mysqli_stmt_bind_param($stmt, 'is', $dec_record_id,$timestamp_str)){
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 

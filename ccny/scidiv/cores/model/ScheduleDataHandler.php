@@ -710,16 +710,11 @@ class ScheduleDataHandler extends CoreComponent {
         $clean_text = filter_var($eventoptions->note, FILTER_SANITIZE_STRING);
         
        /* @var $event CoreEvent */
-        $event = $this->coreEventDAO->getCoreEvent($record_id);
+        $event = $this->coreEventDAO->getCoreEvent($record_id,$timestamp_dt);
 
         if(! $event instanceof CoreEvent)
         {
-            $this->throwExceptionOnError ("Event not found", 0, \ERROR_LOG_TYPE);
-        }
-        
-        if( $timestamp_dt != $event->getTimestamp())
-        {
-            $this->throwExceptionOnError ("Event already modified", 0, \ERROR_LOG_TYPE);
+            $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
         }
         
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
