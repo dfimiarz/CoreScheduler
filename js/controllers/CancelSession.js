@@ -4,17 +4,11 @@ function CancelSessionCntrl()
 
     function init()
     {
-        $('#cancel_btn').click(function () {
-            showCancelConfirm();
-        });
-        $('#cancel_back_btn').click(function () {
-            hideCancelConfirm();
-        });
-        $('#cancel_conf_btn').click(function ()
+        $('#cancel_btn').click(function ()
         {
             var record_id = getRecordID();
 
-            var data = {'id': record_id};
+            var data = {'id': record_id,timestamp: getTimestamp};
 
             $.ajax({
                 type: 'POST',
@@ -61,30 +55,16 @@ function CancelSessionCntrl()
     function getRecordID()
     {
         return $('input#s_rec_id').val();
-    }
-    ;
-
-    function showCancelConfirm()
+    };
+    
+    function getTimestamp()
     {
-        $('#session_info_fields').css({'opacity': 0.5});
-        $('#s_info_cancel_panel').show();
-        $('#s_info_cntr_panel').hide();
-    }
-    ;
-
-    function hideCancelConfirm()
-    {
-        $('#s_info_cancel_panel').hide();
-        $('#s_info_cntr_panel').show();
-        $('#session_info_fields').css({'opacity': 1.0});
-    }
-    ;
+        return $('input#s_timestamp').val();
+    };
 
     function destroy()
     {
         $('#cancel_btn').off();
-        $('#cancel_back_btn').off();
-        $('#cancel_conf_btn').off();
     }
 
     return{

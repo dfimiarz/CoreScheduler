@@ -131,7 +131,7 @@ use ccny\scidiv\cores\components\Utils as Utils;
         </div>
     </div>
 </div>
-<div id="session_info_d" title="Details...">
+<div id="session_info_d" title="Event properties">
     <div id="session_info">
 
     </div>

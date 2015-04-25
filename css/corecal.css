@@ -250,12 +250,9 @@ img.help_icon_small
     margin-bottom: 4px;
 }
 
-.field_value
+#session_info_fields .field_label
 {
-
-
     font-weight: bold;
-
 }
 
 #dialog_container{
@@ -394,7 +391,31 @@ img.help_icon_small
 
 .dialog_item
 {
+    padding-top: 3px;
+}
 
+#dialog_time_cont
+{
+    padding-top: 5px;
+}
+
+.large_dialog_txt
+{
+    font-size: 1.7em;
+    font-family: arial,sans-serif;
+    
+}
+
+.medium_dialog_txt
+{
+    font-size: 1.2em;
+    font-family: arial,sans-serif;
+}
+
+.medium_dialog_txt
+{
+    font-size: small;
+    font-family: arial,sans-serif;
 }
 
 .session_info_cntrl_pannel

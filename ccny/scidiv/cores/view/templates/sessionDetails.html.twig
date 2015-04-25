@@ -6,50 +6,36 @@
     <input type="hidden" value="{{timestamp}}" name="s_timestamp" id="s_timestamp">
     {% endif %}
     {% if username is defined %}
-    <div class="dialog_item">User Name:&nbsp;<a id="e_user_name" data-value="{{user_id|e}}" class="field_value">{{username|e}}</a></div>
+    <div class="dialog_item">
+        <a id="e_user_name" data-value="{{user_id|e}}" class="field_value large_dialog_txt">{{username|e}}</a>
+    </div>
     {% endif %}
-    {% if email is defined %}
-    <div class="dialog_item">User E-mail:&nbsp;<span id="e_user_email" class="field_value">{{email|e}}</span></div>
+    {% if time is defined %}
+    <div class="dialog_item medium_dialog_txt" id="dialog_time_cont">
+        <span id="s_time" class="field_value">{{time|e}}</span>
+    </div>
     {% endif %}
-    {% if pi is defined %}
-    <div class="dialog_item">Mentor:&nbsp;<span id="e_piname" class="field_value">{{pi|e}}</span></div>
-    {% endif %}
-    {% if start is defined %}
-    <div class="dialog_item">Session Start:&nbsp;<span id="e_start" class="field_value">{{start|e}}</span></div>
-    {% endif %}
-    {% if end is defined %}
-    <div class="dialog_item">Session End:&nbsp;<span id="e_end" class="field_value">{{end|e}}</span></div>
-    {% endif %}
-    {% if type is defined %}
-    <div class="dialog_item">Service Type:&nbsp;<span id="e_type" class="field_value">{{type|e}}</span></div>
-    {% endif %}
+    <div class="dialog_item small_dialog_txt">
+        <span class="field_label">Type:</span>
+        <span id="s_time" class="field_value">Confocal Imaging, LSM 510</span>
+    </div>
     {% if note is defined %}    
-    <div class="dialog_item">Notes:&nbsp;<span id="e_note">{{note|e}}</span></div>
+        <div class="dialog_item small_dialog_txt">
+            <span class="field_label">Note:&nbsp;</span>
+            <span id="e_note" class="field_value">{{note|e}}</span>
+        </div>
     {% endif %}
 </div>
 <!-- If editing is enabled -->
 {% if can_cancel or can_edit_user or can_edit_note %}
 <hr>
 <div class="session_info_cntrl_pannel" id="s_info_cntr_panel">
-    {% if can_edit_note %}
-    <div class="corecal_btn corecal_btn_sm"><img src="images/notes.png" title="Edit Note" alt="Edit Note" id="edit_note_btn"/></div>
-    {% endif %}
-    {% if can_edit_user %}
-    <div class="corecal_btn corecal_btn_sm"><img src="images/user.png" title="Change User" alt="Change User" id="edit_user_btn"/></div>
-    {% endif %}
     {% if can_cancel %}
-    <div class="corecal_btn corecal_btn_sm"><img src="images/cancel.png" title="Cancel" alt="Cancel" id="cancel_btn"/></div>
+    <span id="cancel_btn" style="text-decoration: underline;font-weight: bold; cursor: pointer; float: right;">Delete</span>
     {% endif %}
 </div>
 {% endif %}
 {% if can_cancel %}
-<div class="session_info_cntrl_pannel" id="s_info_cancel_panel">
-    <span class="confirm_msg">Are you sure you want to cancel?</span>
-    <div class="confirm_btn_panel">
-        <span class="corecal_btn_lg corecal_btn" id="cancel_conf_btn">Yes</span>
-        <span class="corecal_btn_lg corecal_btn" id="cancel_back_btn">No</span>
-    </div>
-</div>
 <script type="text/javascript" src="js/controllers/CancelSession.js"></script>
 {% endif %} 
 

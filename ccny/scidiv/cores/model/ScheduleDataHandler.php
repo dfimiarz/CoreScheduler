@@ -658,13 +658,20 @@ class ScheduleDataHandler extends CoreComponent {
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
     }
 
-    public function cancelEvent($encrypted_record_id) {
+    public function cancelEvent(\stdClass $eventoptions) {
         
         $logged_in_user_id = $this->user->getUserID();
         
-        $dec_record_id = $this->decryptValue($encrypted_record_id);
+        $dec_record_id = $this->decryptValue($eventoptions->record_id);
+        
+        $timestamp_dt = new \DateTime($eventoptions->timestamp);
 
-        $event = $this->coreEventDAO->getCoreEvent($dec_record_id);
+        $event = $this->coreEventDAO->getCoreEvent($dec_record_id,$timestamp_dt);
+        
+        if(! $event instanceof CoreEvent)
+        {
+            $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
+        }
 
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());

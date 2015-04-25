@@ -44,7 +44,10 @@ $session = new Session();
 $session->start();
 
 $request = Request::createFromGlobals();
-$record_id = $request->request->get('id',null);
+
+$event = new \stdClass();
+$event->record_id = $request->request->get('id',null);
+$event->timestamp = $request->request->get('timestamp',null);
 
 /* @var $user ccny\scidiv\cores\model\CoreUser */
 $user = $session->get('coreuser', null);
@@ -58,7 +61,7 @@ try {
     
     //Create the datahandler and insert the data
     $datahandler = new ScheduleDataHandler($user);
-    $datahandler->cancelEvent($record_id);
+    $datahandler->cancelEvent($event);
     
 } catch (\Exception $e) {
     $err_msg = "Operation failed: Error code " . $e->getCode();

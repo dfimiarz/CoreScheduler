@@ -109,8 +109,18 @@ class EventDetailsHandler extends CoreComponent {
         $ArrDetails = [];
         
         $ArrDetails['username'] = $raw_details->username;
-        $ArrDetails['start'] = $start_dt->format("m/d/y g:i a");
-        $ArrDetails['end'] = $end_dt->format("m/d/y g:i a");
+        /*
+         * Compare dates to decide on the format of the time
+         */
+        $start_d = $start_dt->format("m/d/y");
+        $end_d = $end_dt->format("m/d/y");
+        
+        if (\strcmp($start_d, $end_d) == 0) {
+            $ArrDetails['time'] = $start_dt->format("M j, Y g:ia") . " - " . $end_dt->format("g:ia");
+        } else {
+            $ArrDetails['time'] = $start_dt->format("M j, Y g:ia") . " - " . $end_dt->format("M j, Y g:ia");
+        }
+
         $ArrDetails['type'] = $raw_details->type;
         $ArrDetails['timestamp'] = $raw_details->timestamp;
 
@@ -122,8 +132,6 @@ class EventDetailsHandler extends CoreComponent {
             /*
              * Show full name and username with DB_PERM_VIEW_DETAILS
              */
-            $user_name_str = $raw_details->firstname . " " . substr($raw_details->lastname, 0, 1) . ". (" . $raw_details->username . ")";
-            $ArrDetails['username'] = $user_name_str;
 
             $ArrDetails['email'] = $raw_details->email;
             $ArrDetails['pi'] = $raw_details->pi;

@@ -47,6 +47,11 @@ function EditUserCntrl() {
     }
     ;
 
+    function getTimestamp()
+    {
+        return $('input#s_timestamp').val();
+    };
+    
     function getRecordID()
     {
         return $('input#s_rec_id').val();
