@@ -31,8 +31,10 @@ function EditNoteCntrl()
                     }
                     else
                     {
-                        notifySuccess("Note updated.");
+                        
                         clearUI();
+                        $('#calendar').fullCalendar('refetchEvents');
+                        notifySuccess("Note updated.");
                     }
                 }
                 else

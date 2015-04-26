@@ -94,7 +94,6 @@ $(document).ready(function ()
 function showCalendar(display_state)
 {
 
-
     var selectable = false;
     var curr_hour = new Date().getHours();
 
@@ -456,7 +455,7 @@ function newEventCreateErrorHandler(jqXHR, textStatus, errorThrown)
 
 function handleEventClick(calEvent, jsEvent, view)
 {
-    resetDialogContent();
+    
     
     var data = {"id": calEvent.id};
 
@@ -467,6 +466,7 @@ function handleEventClick(calEvent, jsEvent, view)
         dataType: "html",
         cache: false,
         success: function (data) {
+            resetDialogContent();
             $("#session_info").append(data);
             showEventDetails(jsEvent);
         },
