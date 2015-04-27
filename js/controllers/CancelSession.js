@@ -20,9 +20,9 @@ function CancelSessionCntrl()
                 {
                     if (data.hasOwnProperty('error'))
                     {
-                        if (data.error == 1)
+                        if (parseInt(data.error) === 1)
                         {
-                            alert(data.message);
+                            notifyError(data.message);
 
                         }
                         else

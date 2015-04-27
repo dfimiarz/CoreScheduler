@@ -79,9 +79,12 @@ class EventDetailsHandler extends CoreComponent {
      * @param type $encrypted_record_id
      * @return Array
      */
-    public function getEventDetails($encrypted_record_id) {
+    public function getEventDetails(\stdClass $params) {
 
-
+        
+        $encrypted_record_id = (isset($params->encrypted_event_id) ? $params->encrypted_event_id : null);
+        $timestamp = (isset($params->timestamp) ? $params->timestamp : null);
+        
         $is_owner = false;
         $logged_in_user_id = $this->user->getUserID();
 
@@ -93,7 +96,7 @@ class EventDetailsHandler extends CoreComponent {
         $record_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_record_id), MCRYPT_MODE_ECB, $iv));
         
         /* @var $raw_details EventDetails */
-        $raw_details = $this->getData($record_id);
+        $raw_details = $this->getData($record_id,$timestamp);
         
         $start_dt = new \DateTime($raw_details->start);
         $end_dt = new \DateTime($raw_details->end);
@@ -178,18 +181,18 @@ class EventDetailsHandler extends CoreComponent {
      * 
      *   
      */
-    private function getData($record_id)
+    private function getData($record_id,$timestamp)
     {
         
         $details = new EventDetails();
         
-        $query = "SELECT cs.state,cs.short_name,cu.id,cu.firstname,cu.lastname,cu.username,cu.email,concat(p.first_name,' ',p.last_name) as piname,cta.time_modified,cta.service_id,cta.start,cta.end,cta.note FROM core_timed_activity cta, core_users cu,core_services cs, people p WHERE cta.id = ? AND cu.id = cta.user AND cs.id = cta.service_id AND p.individual_id = cu.pi";
+        $query = "SELECT cs.state,cs.short_name,cu.id,cu.firstname,cu.lastname,cu.username,cu.email,concat(p.first_name,' ',p.last_name) as piname,cta.time_modified,cta.service_id,cta.start,cta.end,cta.note FROM core_timed_activity cta, core_users cu,core_services cs, people p WHERE cta.id = ? AND cta.time_modified = ? AND cu.id = cta.user AND cs.id = cta.service_id AND p.individual_id = cu.pi";
 
         if (!$stmt = mysqli_prepare($this->connection, $query)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
-        if (!mysqli_stmt_bind_param($stmt, 'i', $record_id)) {
+        if (!mysqli_stmt_bind_param($stmt, 'is', $record_id,$timestamp)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 

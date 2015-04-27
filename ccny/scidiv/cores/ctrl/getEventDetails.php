@@ -43,7 +43,9 @@ $session->start();
 $html = "";
 
 $request = Request::createFromGlobals();
-$encrypted_event_id = $request->request->get('id',null);
+$params = new \stdClass();
+$params->encrypted_event_id = $request->request->get('id',null);
+$params->timestamp = $request->request->get('timestamp',null);
 
 /* @var $user ccny\scidiv\cores\model\CoreUser */
 $user = $session->get('coreuser', null);
@@ -56,7 +58,7 @@ if( ! $user instanceof CoreUser )
 try {
 
     $handler = new EventDetailsHandler($user);
-    $ArrDetails = $handler->getEventDetails($encrypted_event_id);
+    $ArrDetails = $handler->getEventDetails($params);
 
     if (!is_array($ArrDetails)) {
         $ArrDetails = [];
