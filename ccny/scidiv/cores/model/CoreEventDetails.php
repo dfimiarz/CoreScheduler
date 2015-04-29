@@ -34,16 +34,76 @@ use ccny\scidiv\cores\model\CoreEvent as CoreEvent;
  * @author Daniel F
  */
 class CoreEventDetails extends CoreEvent {
-   
-    protected $userfirstname;
-    protected $userlastname;
-    protected $servicename;
-    protected $resourcename;
-    protected $piname;
+    
+    protected $firstname;
+    protected $lastname;
+    protected $username;
+    protected $email;
+    protected $service;
+    protected $resource;
+    protected $pi;
     
     
     public function __construct($id, \DateTime $timestamp) {
         parent::__construct($id, $timestamp);
     }
+    
+    public function getFirstname() {
+        return $this->firstname;
+    }
+
+    public function getLastname() {
+        return $this->lastname;
+    }
+
+    public function getUsername() {
+        return $this->username;
+    }
+
+    public function getEmail() {
+        return $this->email;
+    }
+
+    public function getService() {
+        return $this->service;
+    }
+
+    public function getResource() {
+        return $this->resource;
+    }
+
+    public function getPi() {
+        return $this->pi;
+    }
+
+    public function setFirstname($firstname) {
+        $this->firstname = $firstname;
+    }
+
+    public function setLastname($lastname) {
+        $this->lastname = $lastname;
+    }
+
+    public function setUsername($username) {
+        $this->username = $username;
+    }
+
+    public function setEmail($email) {
+        $this->email = $email;
+    }
+
+    public function setService($service) {
+        $this->service = $service;
+    }
+
+    public function setResource($resource) {
+        $this->resource = $resource;
+    }
+
+    public function setPi($pi) {
+        $this->pi = $pi;
+    }
+
+    
     
 }

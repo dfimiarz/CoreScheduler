@@ -250,11 +250,6 @@ img.help_icon_small
     margin-bottom: 4px;
 }
 
-#session_info_fields .field_label
-{
-    font-weight: bold;
-}
-
 #dialog_container{
     padding : 4px; 
     overflow : auto; 
@@ -412,9 +407,9 @@ img.help_icon_small
     font-family: arial,sans-serif;
 }
 
-.medium_dialog_txt
+.small_dialog_txt
 {
-    font-size: small;
+    font-size: x-small;
     font-family: arial,sans-serif;
 }
 

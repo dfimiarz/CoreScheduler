@@ -44,7 +44,6 @@ class CoreEvent {
     protected $service_id;
     protected $user_id;
     protected $note;
-    protected $serviceState;
     protected $eventState;
     
     
@@ -106,16 +105,6 @@ class CoreEvent {
     public function getNote()
     {
         return $this->note;
-    }
-    
-    public function setServiceState($serviceState)
-    {
-        $this->serviceState = $serviceState;
-    }
-    
-    public function getServiceState()
-    {
-        return $this->serviceState;
     }
     
     public function setEventState($eventState)

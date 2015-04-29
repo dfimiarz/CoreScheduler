@@ -68,8 +68,7 @@ try {
 
     $html = $view->render($ArrDetails);
     
-} catch(\Exception $e)
-{
+} catch(\Exception $e){
 	$err_msg = "Fetching data failed: Error code " . $e->getCode();
 
 	//Code 0 means that this is none-system error.

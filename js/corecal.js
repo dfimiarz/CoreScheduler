@@ -457,7 +457,7 @@ function handleEventClick(calEvent, jsEvent, view)
 {
     
     
-    var data = {"id": calEvent.id};
+    var data = {"id": calEvent.id,"timestamp":calEvent.timestamp};
 
     $.ajax({
         type: "POST",
