@@ -41,7 +41,7 @@ class CoreEventDetails extends CoreEvent {
     protected $email;
     protected $service;
     protected $resource;
-    protected $pi;
+    protected $piname;
     
     
     public function __construct($id, \DateTime $timestamp) {
@@ -72,8 +72,8 @@ class CoreEventDetails extends CoreEvent {
         return $this->resource;
     }
 
-    public function getPi() {
-        return $this->pi;
+    public function getPiname() {
+        return $this->piname;
     }
 
     public function setFirstname($firstname) {
@@ -100,8 +100,8 @@ class CoreEventDetails extends CoreEvent {
         $this->resource = $resource;
     }
 
-    public function setPi($pi) {
-        $this->pi = $pi;
+    public function setPiname($pi) {
+        $this->piname = $pi;
     }
 
     

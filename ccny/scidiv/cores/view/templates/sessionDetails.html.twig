@@ -15,10 +15,12 @@
         <span id="s_time" class="field_value">{{time|e}}</span>
     </div>
     {% endif %}
+    {% if activity is defined %}
     <div class="dialog_item small_dialog_txt">
         <span class="field_label">Activity:</span>
-        <span id="s_time" class="field_value">Confocal Imaging, LSM 510</span>
+        <span id="s_time" class="field_value">{{activity}}</span>
     </div>
+    {% endif %}
     {% if note is defined %}    
         <div class="dialog_item small_dialog_txt">
             <span class="field_label">Note:&nbsp;</span>

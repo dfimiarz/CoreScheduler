@@ -33,14 +33,16 @@ include_once __DIR__ . '/SystemConstants.php';
 include_once __DIR__ . '/UserRoleManager.php';
 include_once __DIR__ . '/../model/PermissionManager.php';
 include_once __DIR__ . '/../model/CoreUser.php';
-include_once __DIR__ . '/../model/EventDetails.php';
+include_once __DIR__ . '/../model/CoreEventDetails.php';
+include_once __DIR__ . '/../model/CoreEventDetailsDAO.php';
 
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
-use ccny\scidiv\cores\model\EventDetails as EventDetails;
 use ccny\scidiv\cores\model\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\UserRoleManager as UserRoleManager;
+use ccny\scidiv\cores\model\CoreEventDetails as CoreEventDetails;
+use ccny\scidiv\cores\model\CoreEventDetailsDAO as CoreEventDetailsDAO;
 
 /**
  * Description of EventDetailsHandler
@@ -53,6 +55,10 @@ class EventDetailsHandler extends CoreComponent {
     private $pm;
     
     private $key = "lENb2bPRk)c&k0ebY0nSxiq9iKgg8WYU";
+    
+    private $connection;
+
+    private $detailsDAO;
 
     public function __construct(CoreUser $core_user) {
 
@@ -69,6 +75,7 @@ class EventDetailsHandler extends CoreComponent {
         }
 
         $this->pm = new PermissionManager($this->connection);
+        $this->detailsDAO = new CoreEventDetailsDAO($this->connection);
     }
 
     /**
@@ -83,6 +90,7 @@ class EventDetailsHandler extends CoreComponent {
 
         
         $encrypted_record_id = (isset($params->encrypted_event_id) ? $params->encrypted_event_id : null);
+        /* @var $timestamp \DateTime */
         $timestamp = (isset($params->timestamp) ? $params->timestamp : null);
         
         $is_owner = false;
@@ -95,23 +103,24 @@ class EventDetailsHandler extends CoreComponent {
 
         $record_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_record_id), MCRYPT_MODE_ECB, $iv));
         
-        /* @var $raw_details EventDetails */
-        $raw_details = $this->getData($record_id,$timestamp);
         
-        $start_dt = new \DateTime($raw_details->start);
-        $end_dt = new \DateTime($raw_details->end);
+        /* @var $details CoreEventDetails */
+        $details = $this->detailsDAO->getCoreEventDetails($record_id,new \DateTime($timestamp));
+        
+        $start_dt = $details->getStart();
+        $end_dt = $details->getEnd();
         
         
-        if ($logged_in_user_id == $raw_details->user_id) {
+        if ($logged_in_user_id == $details->getUserId()) {
             $is_owner = true;
         }
 
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $raw_details->serv_id, $is_owner);
-        $permissions_a = $this->pm->getPermissions($user_roles, $raw_details->serv_id);
+        $user_roles = UserRoleManager::getUserRolesForService($this->user, $details->getServiceId(), $is_owner);
+        $permissions_a = $this->pm->getPermissions($user_roles, $details->getServiceId());
 
         $ArrDetails = [];
         
-        $ArrDetails['username'] = $raw_details->username;
+        $ArrDetails['username'] = $details->getUsername();
         /*
          * Compare dates to decide on the format of the time
          */
@@ -124,8 +133,10 @@ class EventDetailsHandler extends CoreComponent {
             $ArrDetails['time'] = $start_dt->format("M j, Y g:ia") . " - " . $end_dt->format("M j, Y g:ia");
         }
 
-        $ArrDetails['type'] = $raw_details->type;
-        $ArrDetails['timestamp'] = $raw_details->timestamp;
+        $ArrDetails['activity'] = $details->getService() . ', ' . $details->getResource();
+        /* @var $timestamp_dt \DateTime */
+        $timestamp_dt = $details->getTimestamp();
+        $ArrDetails['timestamp'] = $timestamp_dt->format('Y-m-d H:i:s');
 
 
         if ($this->pm->hasPermission($permissions_a, \DB_PERM_VIEW_DETAILS)) {
@@ -136,9 +147,9 @@ class EventDetailsHandler extends CoreComponent {
              * Show full name and username with DB_PERM_VIEW_DETAILS
              */
 
-            $ArrDetails['email'] = $raw_details->email;
-            $ArrDetails['pi'] = $raw_details->pi;
-            $ArrDetails['note'] = $raw_details->note;
+            $ArrDetails['email'] = $details->getEmail();
+            $ArrDetails['pi'] = $details->getPiname();
+            $ArrDetails['note'] = $details->getNote();
         }
 
         if ($this->pm->hasPermission($permissions_a, \DB_PERM_DELETE_EVENT)) {
@@ -152,7 +163,7 @@ class EventDetailsHandler extends CoreComponent {
         }
 
         if ($this->pm->hasPermission($permissions_a, \DB_PERM_CHANGE_OWNER)) {
-            $user_id_enc = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $this->key, $raw_details->user_id, MCRYPT_MODE_ECB, $iv));
+            $user_id_enc = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $this->key, $details->getUserId(), MCRYPT_MODE_ECB, $iv));
             $ArrDetails['user_id'] = $user_id_enc;
             $ArrDetails['can_edit_user'] = true;
         }
@@ -170,47 +181,6 @@ class EventDetailsHandler extends CoreComponent {
         }
 
         return $ArrDetails;
-    }
-    
-    /**
-     * getData()
-     *
-     * Returns EventDetails.
-     * 
-     * @param int $record_id Integer Unique session id in the DB
-     * 
-     *   
-     */
-    private function getData($record_id,$timestamp)
-    {
-        
-        $details = new EventDetails();
-        
-        $query = "SELECT cs.state,cs.short_name,cu.id,cu.firstname,cu.lastname,cu.username,cu.email,concat(p.first_name,' ',p.last_name) as piname,cta.time_modified,cta.service_id,cta.start,cta.end,cta.note FROM core_timed_activity cta, core_users cu,core_services cs, people p WHERE cta.id = ? AND cta.time_modified = ? AND cu.id = cta.user AND cs.id = cta.service_id AND p.individual_id = cu.pi";
-
-        if (!$stmt = mysqli_prepare($this->connection, $query)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if (!mysqli_stmt_bind_param($stmt, 'is', $record_id,$timestamp)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if (!mysqli_stmt_execute($stmt)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if (!mysqli_stmt_bind_result($stmt, $details->service_state, $details->type, $details->user_id, $details->firstname, $details->lastname, $details->username, $details->email, $details->pi, $details->timestamp, $details->serv_id, $details->start, $details->end, $details->note)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if (! mysqli_stmt_fetch($stmt)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-        
-        mysqli_stmt_close($stmt);
-        
-        return $details;
     }
 
 }

@@ -71,7 +71,7 @@ class CoreEventDAO extends CoreComponent{
 
         $temp = new \stdClass();
         
-        if( ! mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id,$tmep->note,$temp->event_state,$temp->time_modified)){
+        if( ! mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id,$temp->note,$temp->event_state,$temp->time_modified)){
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
         
@@ -84,7 +84,7 @@ class CoreEventDAO extends CoreComponent{
             $event->setServiceId($temp->service_id);
             $event->setUserId($temp->user_id);
             $event->setEventState($temp->event_state);
-            $event->setNote($tmep->note);
+            $event->setNote($temp->note);
         }
 
         mysqli_stmt_close($stmt);
