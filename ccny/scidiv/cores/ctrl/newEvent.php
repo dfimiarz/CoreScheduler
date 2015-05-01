@@ -53,10 +53,10 @@ if( ! $user instanceof CoreUser )
 }
 
 //Expecting unix time stamp is s_time and e_time
-$start_time = trim($request->request->get('s_time',null));
-$end_time = trim($request->request->get('e_time',null));
-$all_day = trim($request->request->get('all_day',0));
-$service_id = trim($request->request->get('serv_id',null));
+$start_time = trim($request->request->get('start',null));
+$end_time = trim($request->request->get('end',null));
+$all_day = trim($request->request->get('allday',0));
+$service_id = trim($request->request->get('service',null));
 
 //validate the service_id
 if (!filter_var($service_id, FILTER_VALIDATE_INT))

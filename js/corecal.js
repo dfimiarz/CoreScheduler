@@ -399,14 +399,14 @@ function createNewEvent(s_time, e_time, allDay)
 
     //pass the data to the server. Time should be a unix timestamp
     var event_data = {};
-    event_data.s_time = Math.round(s_time.getTime() / 1000);
-    event_data.e_time = Math.round(e_time.getTime() / 1000);
-    event_data.serv_id = serv_id;
+    event_data.start = Math.round(s_time.getTime() / 1000);
+    event_data.end = Math.round(e_time.getTime() / 1000);
+    event_data.service = serv_id;
 
     if (allDay)
-        event_data.all_day = 1;
+        event_data.allday = 1;
     else
-        event_data.all_day = 0;
+        event_data.allday = 0;
 
     if (serv_id == null)
         notifyError("Service type not selected.");

@@ -55,7 +55,7 @@ class CoreEventDAO extends CoreComponent{
         $timestamp_str = $timestamp->format('Y-m-d H:i:s');
         
          //---Get session details
-        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cta.note,cta.state as eventstate,cta.time_modified FROM core_timed_activity cta,core_services cs WHERE cta.id = ? AND cta.time_modified = ? AND cta.service_id = cs.id";
+        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cta.note,cta.state as eventstate,cta.time_modified FROM core_timed_activity cta WHERE cta.id = ? AND cta.time_modified = ?";
 
         if( ! $stmt = mysqli_prepare($this->connection, $query)){
             $this->throwDBError($this->connection->error, $this->connection->errno);

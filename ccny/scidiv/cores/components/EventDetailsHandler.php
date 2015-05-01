@@ -107,6 +107,11 @@ class EventDetailsHandler extends CoreComponent {
         /* @var $details CoreEventDetails */
         $details = $this->detailsDAO->getCoreEventDetails($record_id,new \DateTime($timestamp));
         
+        if( ! $details instanceof CoreEventDetails)
+        {
+            $this->throwExceptionOnError("Event not found", 0, \ERROR_LOG_TYPE);
+        }
+        
         $start_dt = $details->getStart();
         $end_dt = $details->getEnd();
         
