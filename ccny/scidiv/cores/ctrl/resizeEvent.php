@@ -55,8 +55,8 @@ if( ! $user instanceof CoreUser )
 $params = new \stdClass();
 $params->record_id = trim($request->request->get('record_id',null));
 $params->dayDelta = trim($request->request->get('dayDelta',null));
-$params->minuteDelta = trim($request->request->get('minuteDelta',null));
-$params->timestamp = trim($request->request->get('timestamp',null));
+$params->minuteDelta = trim($request->request->get('minuteDelta',0));
+$params->timestamp = trim($request->request->get('timestamp',0));
 
 try {
 
