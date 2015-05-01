@@ -526,9 +526,7 @@ function handleEventResize(event, dayDelta, minuteDelta, revertFunc)
     event_data.record_id = event.id;
     event_data.dayDelta = dayDelta;
     event_data.minuteDelta = minuteDelta;
-
-
-    //alert(dayDelta + " " + minuteDelta);
+    event_data.timestamp = event.timestamp;
 
     $.ajax({
         type: "POST",
@@ -548,7 +546,6 @@ function handleEventResize(event, dayDelta, minuteDelta, revertFunc)
                 else
                 {
                     //alert("Event is resized done");
-                    $('#calendar').fullCalendar('refetchEvents');
                     notifySuccess("Event resized.");
                 }
             }
@@ -557,6 +554,8 @@ function handleEventResize(event, dayDelta, minuteDelta, revertFunc)
                 notifyError("Invalid reponse from the server. Operation failed");
                 revertFunc();
             }
+            
+            $('#calendar').fullCalendar('refetchEvents');
 
         },
         error: function ()

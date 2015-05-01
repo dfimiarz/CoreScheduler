@@ -52,15 +52,16 @@ if( ! $user instanceof CoreUser )
     $user = new CoreUser('anonymous');
 }
 
-
-$record_id = trim($request->request->get('record_id',null));
-$dayDelta = trim($request->request->get('dayDelta',null));
-$minuteDelta = trim($request->request->get('minuteDelta',null));
+$params = new \stdClass();
+$params->record_id = trim($request->request->get('record_id',null));
+$params->dayDelta = trim($request->request->get('dayDelta',null));
+$params->minuteDelta = trim($request->request->get('minuteDelta',null));
+$params->timestamp = trim($request->request->get('timestamp',null));
 
 try {
 
-    $dayDelta = intval($dayDelta);
-    $minuteDelta = intval($minuteDelta);
+    $params->dayDelta = intval($params->dayDelta);
+    $params->minuteDelta = intval($params->minuteDelta);
 } catch (\Exception $e) {
     $msg_sender->onError(null, "New date info is not valid");
 }
@@ -68,7 +69,7 @@ try {
 try {
     //Create the datahandler and insert the data
     $datahandler = new ScheduleDataHandler($user);
-    $datahandler->resizeEvent($record_id, $dayDelta, $minuteDelta);
+    $datahandler->resizeEvent($params);
 } catch (\Exception $e) {
     $err_msg = "Operation failed: Error code " . $e->getCode();
 
