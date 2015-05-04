@@ -36,6 +36,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\ScheduleDataHandler as ScheduleDataHandler;
+use ccny\scidiv\cores\model\CoreEventHTTPParams as CoreEventHTTPParams;
 
 $msg_sender = new JSONMessageSender();
 
@@ -52,19 +53,11 @@ if( ! $user instanceof CoreUser )
     $user = new CoreUser('anonymous');
 }
 
-$params = new \stdClass();
-$params->record_id = trim($request->request->get('record_id',null));
-$params->dayDelta = trim($request->request->get('dayDelta',null));
-$params->minuteDelta = trim($request->request->get('minuteDelta',0));
-$params->timestamp = trim($request->request->get('timestamp',0));
-
-try {
-
-    $params->dayDelta = intval($params->dayDelta);
-    $params->minuteDelta = intval($params->minuteDelta);
-} catch (\Exception $e) {
-    $msg_sender->onError(null, "New date info is not valid");
-}
+$params = new CoreEventHTTPParams();
+$params->setEncrypted_record_id(\trim($request->request->get('record_id',"0")));
+$params->setDayDelta(\trim($request->request->get('dayDelta',0)));
+$params->setMinuteDelta(\trim($request->request->get('minuteDelta',0)));
+$params->setTimestamp(\trim($request->request->get('timestamp',0)));
 
 try {
     //Create the datahandler and insert the data

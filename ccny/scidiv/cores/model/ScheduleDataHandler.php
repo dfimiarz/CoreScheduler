@@ -44,6 +44,7 @@ use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\UserRoleManager as UserRoleManager;
 use ccny\scidiv\cores\model\CoreEvent as CoreEvent;
 use ccny\scidiv\cores\model\CoreEventDAO as CoreEventDAO;
+use ccny\scidiv\cores\model\CoreEventHTTPParams as CoreEventHTTPParams;
 
 class ScheduleDataHandler extends CoreComponent {
 
@@ -511,23 +512,17 @@ class ScheduleDataHandler extends CoreComponent {
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
     }
 
-    public function resizeEvent(\stdClass $params) {
+    public function resizeEvent(CoreEventHTTPParams $params) {
 
-        /**
-         * Check if parameters are set. If not assign default values
-         */
-        $encrypted_record_id = (isset($params->record_id) ? $params->record_id : null);
-        $timestamp = (isset($params->timestamp) ? $params->timestamp : null);
-        $dayDelta = (isset($params->dayDelta) ? $params->dayDelta : 0);
-        $minuteDelta = (isset($params->minuteDelta) ? $params->minuteDelta : 0);
-        
+        $dayDelta = $params->getDayDelta();
+        $minuteDelta = $params->getMinuteDelta();
         
         $logged_in_user_id = $this->user->getUserID();
 
-        $dec_record_id = $this->decryptValue($encrypted_record_id);
+        $dec_record_id = $this->decryptValue($params->getEncrypted_record_id());
 
         /* @var $event CoreEvent */
-        $event = $this->coreEventDAO->getCoreEvent($dec_record_id, new \DateTime($timestamp));
+        $event = $this->coreEventDAO->getCoreEvent($dec_record_id, $params->getTimestamp());
         
         if(! $event instanceof CoreEvent )
         {
@@ -540,9 +535,6 @@ class ScheduleDataHandler extends CoreComponent {
         if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_EVENT)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
         }
-
-        //Only DB_ADMIN can modify past session
-        $now_dt = new \DateTime();
 
         $new_start_dt = $event->getStart();
         $new_end_dt = $event->getEnd();
@@ -571,7 +563,7 @@ class ScheduleDataHandler extends CoreComponent {
         
         $this->coreEventDAO->modifyEventTime($event);
 
-        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " SESSION ID: " . $dec_record_id . " RESIZED";
+        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " Event : " . $dec_record_id . " resized";
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
     }
 
@@ -880,9 +872,9 @@ class ScheduleDataHandler extends CoreComponent {
      */
     private function decryptValue($encrypted_value)
     {
-        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-        $record_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_value), MCRYPT_MODE_ECB, $iv));
+        $iv_size = \mcrypt_get_iv_size(\MCRYPT_RIJNDAEL_128, \MCRYPT_MODE_ECB);
+        $iv = \mcrypt_create_iv($iv_size, \MCRYPT_RAND);
+        $record_id = \trim(\mcrypt_decrypt(\MCRYPT_RIJNDAEL_128, $this->key, \base64_decode($encrypted_value), \MCRYPT_MODE_ECB, $iv));
         
         return $record_id;
         
