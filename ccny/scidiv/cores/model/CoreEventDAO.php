@@ -136,4 +136,80 @@ class CoreEventDAO extends CoreComponent{
 
         return true;
     }
+    
+    private function lockTables()
+    {
+        //Lock tables
+        $lock_q = "LOCK TABLES core_timed_activity WRITE, core_services AS cs1 READ, core_services AS cs2 READ";
+       
+        if (!$this->connection->query($lock_q)) {
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+    }
+    
+    private function unlockTables()
+    {
+        //Unlock tables
+        $unlock_q = "UNLOCK TABLES";
+       
+        if (!$this->connection->query($unlock_q)) {
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+    }
+    
+    private function isTimeslotAvailable(CoreEvent $event)
+    {
+        //check if the selected timeframe is already taken
+        $check_q = "SELECT IF( COUNT(1),0,1 ) AS Available FROM core_timed_activity WHERE service_id in (SELECT id FROM core_services AS cs1 WHERE resource_id = (SELECT resource_id FROM core_services AS cs2 WHERE id = ?)) AND state = 1 AND start < ? AND end > ? AND id <> ?";
+        $new_start_time_str = $event->getStart()->format('Y-m-d H:i:s');
+        $new_end_time_str = $event->getEnd()->format('Y-m-d H:i:s');
+
+        if( ! $stmt = mysqli_prepare($this->connection, $check_q)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+
+        if( ! mysqli_stmt_bind_param($stmt, 'issi', $event->getServiceId(), $new_end_time_str, $new_start_time_str, $event->getId())){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+
+        if( ! mysqli_stmt_execute($stmt)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+
+        $available = 0;
+
+        if( ! mysqli_stmt_bind_result($stmt, $available)){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+
+        mysqli_stmt_fetch($stmt);
+
+        mysqli_stmt_free_result($stmt);
+        mysqli_stmt_close($stmt);
+        
+        return $available;
+    }
+    
+    /** Modifies event time. The function checks for new time availibility
+     * 
+     * @param CoreEvent $event
+     */
+     
+    public function modifyEventTime(CoreEvent $event)
+    {
+        $this->lockTables();
+        
+        if( ! $this->isTimeslotAvailable($event))
+        {
+            $this->throwExceptionOnError("Timeslot already taken", 0, \ACTIVITY_LOG_TYPE);
+        }
+        
+        if( ! $this->saveCoreEvent($event))
+        {
+            $this->throwExceptionOnError("Could not modify the event", 0, \ERROR_LOG_TYPE);
+        }
+        
+        $this->unlockTables();
+    }
+            
 }

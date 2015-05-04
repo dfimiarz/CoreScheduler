@@ -122,7 +122,7 @@ class ScheduleDataHandler extends CoreComponent {
         }
 
         //Lock tables
-        $lock_q = "LOCK TABLES core_timed_activity WRITE, core_services AS cs1 WRITE, core_services AS cs2 WRITE";
+        $lock_q = "LOCK TABLES core_timed_activity WRITE, core_services AS cs1 READ, core_services AS cs2 READ";
        
         if (!$this->connection->query($lock_q)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
@@ -513,6 +513,9 @@ class ScheduleDataHandler extends CoreComponent {
 
     public function resizeEvent(\stdClass $params) {
 
+        /**
+         * Check if parameters are set. If not assign default values
+         */
         $encrypted_record_id = (isset($params->record_id) ? $params->record_id : null);
         $timestamp = (isset($params->timestamp) ? $params->timestamp : null);
         $dayDelta = (isset($params->dayDelta) ? $params->dayDelta : 0);
@@ -530,8 +533,6 @@ class ScheduleDataHandler extends CoreComponent {
         {
             $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
         }
-        
-        $service_id = $event->getServiceId();
 
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
@@ -568,48 +569,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         $event->setEnd($new_end_dt);
         
-        //Lock tables before edit
-        $lock_q = "LOCK TABLES core_timed_activity WRITE, core_services AS cs1 WRITE, core_services AS cs2 WRITE";
-        if( ! mysqli_query($this->connection, $lock_q)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        //check if the selected timeframe is already taken
-        $check_q = "SELECT IF( COUNT(1),0,1 ) AS Available FROM core_timed_activity WHERE service_id in (SELECT id FROM core_services AS cs1 WHERE resource_id = (SELECT resource_id FROM core_services AS cs2 WHERE id = ?)) AND state = 1 AND start < ? AND end > ? AND id <> ?";
-        $new_start_time_str = $event->getStart()->format('Y-m-d H:i:s');
-        $new_end_time_str = $event->getEnd()->format('Y-m-d H:i:s');
-
-        if( ! $stmt = mysqli_prepare($this->connection, $check_q)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_bind_param($stmt, 'issi', $service_id, $new_end_time_str, $new_start_time_str, $dec_record_id)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_execute($stmt)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        $available = 0;
-
-        if( ! mysqli_stmt_bind_result($stmt, $available)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        mysqli_stmt_fetch($stmt);
-
-        mysqli_stmt_free_result($stmt);
-        mysqli_stmt_close($stmt);
-
-        if (!$available) {
-             $this->throwExceptionOnError ("Timeslot already reserved", 0, \ACTIVITY_LOG_TYPE);
-        }
-
-        if( ! $this->coreEventDAO->saveCoreEvent($event))
-        {
-            $this->throwExceptionOnError ("Resize event failed", 0, \ERROR_LOG_TYPE);
-        }
+        $this->coreEventDAO->modifyEventTime($event);
 
         $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " SESSION ID: " . $dec_record_id . " RESIZED";
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
