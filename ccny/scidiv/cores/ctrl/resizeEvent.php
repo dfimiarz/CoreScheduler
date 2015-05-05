@@ -54,7 +54,7 @@ if( ! $user instanceof CoreUser )
 }
 
 $params = new CoreEventHTTPParams();
-$params->setEncrypted_record_id(\trim($request->request->get('record_id',"0")));
+$params->setEncRecId(\trim($request->request->get('record_id',"0")));
 $params->setDayDelta(\trim($request->request->get('dayDelta',0)));
 $params->setMinuteDelta(\trim($request->request->get('minuteDelta',0)));
 $params->setTimestamp(\trim($request->request->get('timestamp',0)));

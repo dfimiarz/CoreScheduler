@@ -519,7 +519,7 @@ class ScheduleDataHandler extends CoreComponent {
         
         $logged_in_user_id = $this->user->getUserID();
 
-        $dec_record_id = $this->decryptValue($params->getEncrypted_record_id());
+        $dec_record_id = $this->decryptValue($params->getEncRecID());
 
         /* @var $event CoreEvent */
         $event = $this->coreEventDAO->getCoreEvent($dec_record_id, $params->getTimestamp());

@@ -33,7 +33,7 @@ namespace ccny\scidiv\cores\model;
  */
 class CoreEventHTTPParams {
 
-    private $encrypted_record_id;
+    private $enc_rec_id;
     /* @var $timestamp \DateTime */
     private $timestamp;
     private $dayDelta;
@@ -42,12 +42,12 @@ class CoreEventHTTPParams {
     public function __construct() {
         $this->dayDelta = 0;
         $this->minuteDelta = 0;
-        $this->encrypted_record_id = "0";
+        $this->enc_rec_id = "0";
         $this->timestamp = new \DateTime();
     }
 
-    public function getEncrypted_record_id() {
-        return $this->encrypted_record_id;
+    public function getEncRecID() {
+        return $this->enc_rec_id;
     }
 
     public function getTimestamp() {
@@ -62,8 +62,8 @@ class CoreEventHTTPParams {
         return $this->minuteDelta;
     }
 
-    public function setEncrypted_record_id($encrypted_record_id) {
-        $this->encrypted_record_id = $encrypted_record_id;
+    public function setEncRecId($encrypted_record_id) {
+        $this->enc_rec_id = $encrypted_record_id;
     }
 
     public function setTimestamp($timestamp) {
