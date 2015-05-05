@@ -28,14 +28,13 @@ namespace ccny\scidiv\cores\ctrl;
 
 include_once __DIR__ . '/../autoloader.php';
 include_once __DIR__ . '/../view/JSONMessageSender.php';
-include_once __DIR__ . '/../model/ScheduleDataHandler.php';
-include_once __DIR__ . '/../model/CoreUser.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\ScheduleDataHandler as ScheduleDataHandler;
+use ccny\scidiv\cores\model\CoreEventHTTPParams as CoreEventHTTPParams;
 
 $msg_sender = new JSONMessageSender();
 
@@ -52,25 +51,20 @@ if( ! $user instanceof CoreUser )
     $user = new CoreUser('anonymous');
 }
 
-$record_id = trim($request->request->get('record_id',null));
-$dayDelta = trim($request->request->get('dayDelta',null));
-$minuteDelta = trim($request->request->get('minuteDelta',null));
-$allDay = trim($request->request->get('allDay',0));
-
-//Check time-related variables for integer type
-try {
-
-    $dayDelta = intval($dayDelta);
-    $minuteDelta = intval($minuteDelta);
-    
-} catch (\Exception $e) {
-    $msg_sender->onError(null, "New date info is not valid");
-}
+/*
+ * Using CoreEventHTTPParams class to pass values received from the client to
+ * each controller/component.
+ */
+$params = new CoreEventHTTPParams();
+$params->setEncRecId(\trim($request->request->get('record_id',"0")));
+$params->setDayDelta(\trim($request->request->get('dayDelta',0)));
+$params->setMinuteDelta(\trim($request->request->get('minuteDelta',0)));
+$params->setTimestamp(\trim($request->request->get('timestamp',0)));
 
 try {
     //Create the datahandler and insert the data
     $datahandler = new ScheduleDataHandler($user);
-    $datahandler->moveEvent($record_id, $dayDelta, $minuteDelta, $allDay);
+    $datahandler->moveEvent($params);
 } catch (\Exception $e) {
     $err_msg = "Operation failed: Error code " . $e->getCode();
 

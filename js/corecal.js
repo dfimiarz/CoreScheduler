@@ -578,11 +578,9 @@ function handleEventDrop(event, dayDelta, minuteDelta, allDay, revertFunc)
 
     var event_data = {};
     event_data.record_id = event.id;
+    event_data.timestamp = event.timestamp;
     event_data.dayDelta = dayDelta;
     event_data.minuteDelta = minuteDelta;
-    event_data.allDay = allDay;
-
-    //alert(dayDelta + " " + minuteDelta);
 
     $.ajax({
         type: "POST",
@@ -601,7 +599,6 @@ function handleEventDrop(event, dayDelta, minuteDelta, allDay, revertFunc)
                 }
                 else
                 {
-                    $('#calendar').fullCalendar('refetchEvents');
                     notifySuccess("Event moved.");
                 }
             }
@@ -610,6 +607,8 @@ function handleEventDrop(event, dayDelta, minuteDelta, allDay, revertFunc)
                 notifyError("Error: Invalid reponse from the server. Operation failed");
                 revertFunc();
             }
+            
+            $('#calendar').fullCalendar('refetchEvents');
 
         },
         error: function ()
