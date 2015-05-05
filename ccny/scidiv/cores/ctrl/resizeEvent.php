@@ -53,6 +53,10 @@ if( ! $user instanceof CoreUser )
     $user = new CoreUser('anonymous');
 }
 
+/*
+ * Using CoreEventHTTPParams class to pass values received from the client to
+ * each controller/component.
+ */
 $params = new CoreEventHTTPParams();
 $params->setEncRecId(\trim($request->request->get('record_id',"0")));
 $params->setDayDelta(\trim($request->request->get('dayDelta',0)));
