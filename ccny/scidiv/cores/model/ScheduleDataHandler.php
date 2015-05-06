@@ -88,128 +88,44 @@ class ScheduleDataHandler extends CoreComponent {
 
     function createEvent($event_options) {
 
-        $is_owner = false;
-
-        //The function assumes that the data is validated
-
+        /**
+         * Create an new CoreEvent object with 0 as id 
+         * and current time as timestamp
+         */
+        $new_event = new CoreEvent(0,new \DateTime());
+        
         $start_dt = new \DateTime();
         $start_dt->setTimestamp($event_options->start);
-
+        $new_event->setStart($start_dt);
+        
         $end_dt = new \DateTime();
         $end_dt->setTimestamp($event_options->end);
-
-        $service_id = $event_options->service_id;
-
-        $all_day = $event_options->all_day;
-
-        $state = 1;
-        $user_id = $this->user->getUserID();
+        $new_event->setEnd($end_dt);
+        
+        $new_event->setServiceId($event_options->service_id);
+        $new_event->setEventState(1);
+        $new_event->setUserId($this->user->getUserID());
 
 
         //Creating a session in the past is restricted to DB_ADMIN only
         $now = new \DateTime();
 
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $service_id, $is_owner);
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $service_id);
+        $user_roles = UserRoleManager::getUserRolesForService($this->user, $new_event->getServiceId(),$new_event->isOwner($this->user->getUserID()));
+        $permissions_a = $this->permission_manager->getPermissions($user_roles, $new_event->getServiceId());
 
         if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CREATE_EVENT)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
         }
 
-        if ($start_dt < $now) {
+        if ($new_event->getStart() < $now) {
             if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
                 $this->throwExceptionOnError ("Adding a session in the past not allowed", 0, \SECURITY_LOG_TYPE);
             }
         }
 
-        //Lock tables
-        $lock_q = "LOCK TABLES core_timed_activity WRITE, core_services AS cs1 READ, core_services AS cs2 READ";
-       
-        if (!$this->connection->query($lock_q)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-        
+        $new_id = $this->coreEventDAO->insertCoreEvent($new_event);
 
-        //check if the selected timeframe is already taken
-        $check_q = "SELECT IF( COUNT(1),0,1 ) AS Available FROM core_timed_activity WHERE service_id in (SELECT id FROM core_services AS cs1 WHERE resource_id = (SELECT resource_id FROM core_services AS cs2 WHERE id = ?)) AND state = 1 AND start < ? AND end > ?";
-        $start_time_str = $start_dt->format('Y-m-d H:i:s');
-        $end_time_str = $end_dt->format('Y-m-d H:i:s');
-
-        if (!$stmt = $this->connection->prepare($check_q)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if (!$stmt->bind_param('iss', $service_id, $end_time_str, $start_time_str)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if (!$stmt->execute()) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        $available = 0;
-
-        $stmt->bind_result($available);
-
-        $stmt->fetch();
-
-        $stmt->free_result();
-        $stmt->close();
-
-        if (!$available) {
-            $this->throwExceptionOnError ("Timeslot already taken", 0, \ACTIVITY_LOG_TYPE);
-        }
-
-        $insert_q = "INSERT INTO `core_timed_activity`
-							(`id`,
-						`service_id`,
-						`time_recorded`,
-						`time_modified`,
-						`state`,
-						`start`,
-						`end`,
-						`user`,
-						`note`)
-						VALUES
-						(
-						null,
-						?,
-						NOW(),
-						NOW(),
-						?,
-						?,
-						?,
-						?,
-						''
-						)";
-
-
-        if (!$stmt = $this->connection->prepare($insert_q)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        $start_time_str = $start_dt->format('Y-m-d H:i:s');
-        $end_time_str = $end_dt->format('Y-m-d H:i:s');
-
-
-        if (!$stmt->bind_param('iissi', $service_id, $state, $start_time_str, $end_time_str, $user_id)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-       if (!$stmt->execute()) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-       }
-
-        $last_id = $stmt->insert_id;
-
-        //Unlock tables
-        $unlock_q = "UNLOCK TABLES";
-       
-        if (!$this->connection->query($unlock_q)) {
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " - SESSION " . $last_id . " CREATED";
+        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " - SESSION " . $new_id . " CREATED";
         
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
 
