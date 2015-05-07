@@ -89,9 +89,8 @@ class ScheduleDataHandler extends CoreComponent {
     function createEvent($event_options) {
 
         /**
-         * Create an new CoreEvent object with null as id 
-         * and current time as timestamp. 
-         * Event id = null signifies new event
+         * Create a new CoreEvent object with id = null and current time as timestamp. 
+         * Event id set to null signifies a new event.
          */
         $new_event = new CoreEvent(null,new \DateTime());
         
@@ -122,9 +121,9 @@ class ScheduleDataHandler extends CoreComponent {
             }
         }
 
-        $new_id = $this->coreEventDAO->insertCoreEvent($new_event);
+        $new_event_id = $this->coreEventDAO->insertCoreEvent($new_event);
 
-        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " Event add. ID: " . $new_id;
+        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " Event added. ID: " . $new_event_id;
         
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
 
