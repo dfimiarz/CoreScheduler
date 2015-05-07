@@ -124,7 +124,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         $new_id = $this->coreEventDAO->insertCoreEvent($new_event);
 
-        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " - SESSION " . $new_id . " CREATED";
+        $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " Event add. ID: " . $new_id;
         
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
 
