@@ -38,6 +38,7 @@ include_once __DIR__ . '/CoreEvent.php';
 
 use ccny\scidiv\cores\components\ColorSelector as ColorSelector;
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
+use ccny\scidiv\cores\components\CryptoManager as CryptoManager;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
@@ -55,10 +56,12 @@ class ScheduleDataHandler extends CoreComponent {
     private $color_selector;
    
     private $permission_manager;
-    private $key = "lENb2bPRk)c&k0ebY0nSxiq9iKgg8WYU";
     
     /* @var $coreEventDAO Used to access database tables */
     private $coreEventDAO;
+    
+    /* @var $crypto CryptoManager */
+    private $crypto;
 
     //Class constructor
     public function __construct(CoreUser $core_user) {
@@ -79,6 +82,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         $this->permission_manager = new PermissionManager($this->connection);
         $this->coreEventDAO = new CoreEventDAO($this->connection);
+        $this->crypto = new CryptoManager();
     }
 
     function __destruct() {
@@ -248,7 +252,7 @@ class ScheduleDataHandler extends CoreComponent {
             $t_end = new \DateTime($temp_event->end);
 
             $event = new \stdClass();
-            $event->id = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $this->key, $temp_event->id, MCRYPT_MODE_ECB, $iv));
+            $event->id = $this->crypto->encrypt($temp_event->id);
 
             $event->title = $temp_event->username;
 
@@ -302,7 +306,7 @@ class ScheduleDataHandler extends CoreComponent {
         
         $logged_in_user_id = $this->user->getUserID();
                 
-        $dec_record_id = $this->decryptValue($params->getEncRecID());
+        $dec_record_id = $this->crypto->decrypt($params->getEncRecID());
         
        /* @var $event CoreEvent */
         $event = $this->coreEventDAO->getCoreEvent($dec_record_id, $params->getTimestamp());
@@ -372,7 +376,7 @@ class ScheduleDataHandler extends CoreComponent {
         
         $logged_in_user_id = $this->user->getUserID();
 
-        $dec_record_id = $this->decryptValue($params->getEncRecID());
+        $dec_record_id = $this->crypto->decrypt($params->getEncRecID());
 
         /* @var $event CoreEvent */
         $event = $this->coreEventDAO->getCoreEvent($dec_record_id, $params->getTimestamp());
@@ -432,7 +436,7 @@ class ScheduleDataHandler extends CoreComponent {
         
         $logged_in_user_id = $this->user->getUserID();
         
-        $dec_record_id = $this->decryptValue($eventoptions->record_id);
+        $dec_record_id = $this->crypto->decrypt($eventoptions->record_id);
         
         $timestamp_dt = new \DateTime($eventoptions->timestamp);
 
@@ -481,7 +485,7 @@ class ScheduleDataHandler extends CoreComponent {
         $logged_in_user_id = $this->user->getUserID();
         
         $encrypted_record_id = $eventoptions->record_id;
-        $record_id = $this->decryptValue($encrypted_record_id);
+        $record_id = $this->crypto->decrypt($encrypted_record_id);
 
         //Filter text
         $clean_text = filter_var($eventoptions->note, FILTER_SANITIZE_STRING);
@@ -535,13 +539,12 @@ class ScheduleDataHandler extends CoreComponent {
              $this->throwExceptionOnError("New user ID is invalid", 0, \SECURITY_LOG_TYPE);
         }
 
-        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+       
 
         //decrypt encrypted data coming back from the client
-        $record_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_record_id), MCRYPT_MODE_ECB, $iv));
+        $record_id = $this->crypto->decrypt($encrypted_record_id);
 
-        $new_user_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_user_id), MCRYPT_MODE_ECB, $iv));
+        $new_user_id = $this->crypto->decrypt($encrypted_user_id);
 
         //---Get session service_id
         $query_id = "SELECT cta.user,cta.service_id,cs.state FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
@@ -647,10 +650,7 @@ class ScheduleDataHandler extends CoreComponent {
         $result_array = [];
         $service_id = null;
 
-        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-
-        $dec_record_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_record_id), MCRYPT_MODE_ECB, $iv));
+        $dec_record_id = $this->crypto->decrypt($encrypted_record_id);
 
         //---Get session details
         $query_id = "SELECT cta.service_id,cs.state FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
@@ -716,7 +716,7 @@ class ScheduleDataHandler extends CoreComponent {
 
             //Return user info in the format "John D. (johnd)"
             $user->text = $temp_user->firstname . " " . substr($temp_user->lastname, 0, 1) . ". (" . $temp_user->username . ")";
-            $user->value = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $this->key, $temp_user->user_id, MCRYPT_MODE_ECB, $iv));
+            $user->value = $this->crypto->encrypt($temp_user->user_id);
 
             $result_array[] = $user;
         }
@@ -758,21 +758,6 @@ class ScheduleDataHandler extends CoreComponent {
         
         $log_text = __CLASS__ . ":" . __FUNCTION__ . " Event " . $merge_target->getId() . " extended";
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
-    }
-    
-    /** Decrypts record id sent by the client
-     * 
-     * @param type $encrypted_value
-     * @return type int
-     */
-    private function decryptValue($encrypted_value)
-    {
-        $iv_size = \mcrypt_get_iv_size(\MCRYPT_RIJNDAEL_128, \MCRYPT_MODE_ECB);
-        $iv = \mcrypt_create_iv($iv_size, \MCRYPT_RAND);
-        $record_id = \trim(\mcrypt_decrypt(\MCRYPT_RIJNDAEL_128, $this->key, \base64_decode($encrypted_value), \MCRYPT_MODE_ECB, $iv));
-        
-        return $record_id;
-        
     }
 
 }

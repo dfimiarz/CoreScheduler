@@ -33,5 +33,33 @@ namespace ccny\scidiv\cores\components;
  * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
 class CryptoManager {
-    //put your code here
+    
+    private $key = "lENb2bPRk)c&k0ebY0nSxiq9iKgg8WYU";
+   
+    private $iv;
+    
+    public function __construct() {
+        $iv_size = \mcrypt_get_iv_size(\MCRYPT_RIJNDAEL_128, \MCRYPT_MODE_ECB);
+        $this->iv = \mcrypt_create_iv($iv_size, \MCRYPT_RAND);
+    }
+    
+     /** Decrypts record id sent by the client
+     * 
+     * @param type $encrypted_value
+     * @return type int
+     */
+    public function decrypt($encrypted_value)
+    {
+        $record_id = \trim(\mcrypt_decrypt(\MCRYPT_RIJNDAEL_128, $this->key, \base64_decode($encrypted_value), \MCRYPT_MODE_ECB, $this->iv));
+        
+        return $record_id;
+        
+    }
+    
+    public function encrypt($plain_text)
+    {
+        $encrypted_value = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $this->key, $plain_text, MCRYPT_MODE_ECB, $this->iv));
+        
+        return $encrypted_value;
+    }
 }
