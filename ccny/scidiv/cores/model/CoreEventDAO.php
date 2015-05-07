@@ -154,39 +154,60 @@ class CoreEventDAO extends CoreComponent {
     }
 
     private function isTimeslotAvailable(CoreEvent $event) {
-        //check if the selected timeframe is already taken
-        $check_q = "SELECT IF( COUNT(1),0,1 ) AS Available FROM core_timed_activity WHERE service_id in (SELECT id FROM core_services AS cs1 WHERE resource_id = (SELECT resource_id FROM core_services AS cs2 WHERE id = ?)) AND state = 1 AND start < ? AND end > ? AND id <> ?";
         
+        $update_check_q = "SELECT IF( COUNT(1),0,1 ) AS Available FROM core_timed_activity WHERE service_id in (SELECT id FROM core_services AS cs1 WHERE resource_id = (SELECT resource_id FROM core_services AS cs2 WHERE id = ?)) AND state = 1 AND start < ? AND end > ? AND id <> ?";
+        $insert_check_q = "SELECT IF( COUNT(1),0,1 ) AS Available FROM core_timed_activity WHERE service_id in (SELECT id FROM core_services AS cs1 WHERE resource_id = (SELECT resource_id FROM core_services AS cs2 WHERE id = ?)) AND state = 1 AND start < ? AND end > ?"; 
+        
+        $check_q = "";
+        
+        /*
+         * Choose a query to run depending on the status of the event ID
+         * Event id = null signifies a new event.
+         */
+        if (is_null($event->getId())) {
+            $check_q = $insert_check_q;
+        } else {
+            $check_q = $update_check_q;
+        }
+
         $new_start_time_str = $event->getStart()->format('Y-m-d H:i:s');
         $new_end_time_str = $event->getEnd()->format('Y-m-d H:i:s');
 
         $service_id = $event->getServiceId();
         $event_id = $event->getId();
         
-        if (!$stmt = mysqli_prepare($this->connection, $check_q)) {
+        if (!$stmt = $this->connection->prepare($check_q)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
         
-       
-        if (!mysqli_stmt_bind_param($stmt, 'issi', $service_id, $new_end_time_str, $new_start_time_str, $event_id)) {
+        /*
+         * Number of parameters changes based on the type of query used
+         */
+        if (is_null($event->getId())) {
+            $result = $stmt->bind_param('iss', $service_id, $new_end_time_str, $new_start_time_str);
+        } else {
+            $result = $stmt->bind_param('issi', $service_id, $new_end_time_str, $new_start_time_str, $event_id);
+        }
+        
+        if (!$result) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
-       
 
-        if (!mysqli_stmt_execute($stmt)) {
+
+        if (!$stmt->execute()) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
         $available = 0;
 
-        if (!mysqli_stmt_bind_result($stmt, $available)) {
+        if (!$stmt->bind_result($available)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
-        mysqli_stmt_fetch($stmt);
+        $stmt->fetch();
 
-        mysqli_stmt_free_result($stmt);
-        mysqli_stmt_close($stmt);
+        $stmt->free_result();
+        $stmt->close();
 
         return $available;
     }

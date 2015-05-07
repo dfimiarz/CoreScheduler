@@ -89,10 +89,11 @@ class ScheduleDataHandler extends CoreComponent {
     function createEvent($event_options) {
 
         /**
-         * Create an new CoreEvent object with 0 as id 
-         * and current time as timestamp
+         * Create an new CoreEvent object with null as id 
+         * and current time as timestamp. 
+         * Event id = null signifies new event
          */
-        $new_event = new CoreEvent(0,new \DateTime());
+        $new_event = new CoreEvent(null,new \DateTime());
         
         $start_dt = new \DateTime();
         $start_dt->setTimestamp($event_options->start);
@@ -106,8 +107,6 @@ class ScheduleDataHandler extends CoreComponent {
         $new_event->setEventState(1);
         $new_event->setUserId($this->user->getUserID());
 
-
-        //Creating a session in the past is restricted to DB_ADMIN only
         $now = new \DateTime();
 
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $new_event->getServiceId(),$new_event->isOwner($this->user->getUserID()));
