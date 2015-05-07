@@ -87,7 +87,7 @@ class ScheduleDataHandler extends CoreComponent {
     }
 
     function createEvent($event_options) {
-
+        
         /**
          * Create a new CoreEvent object with id = null and current time as timestamp. 
          * Event id set to null signifies a new event.
@@ -105,9 +105,33 @@ class ScheduleDataHandler extends CoreComponent {
         $new_event->setServiceId($event_options->service_id);
         $new_event->setEventState(1);
         $new_event->setUserId($this->user->getUserID());
+        
+        $duration = $new_event->getDuration();
 
+        /**
+         * If the event is of a relativly short duration find another event
+         * that can be extended instead.
+         */
+        $adj_event = null;
+        
+        if ($duration > 0 && $duration <= \MIN_EVENT_DURATION * 2) {
+            $adj_event = $this->coreEventDAO->getAdjacentEvent($new_event);   
+        }
+        
+        /*
+         * If we find an adjacent event we should merge,otherwise  just add
+         */
+        if (!is_null($adj_event) && $adj_event instanceof CoreEvent) {
+            $this->mergeCoreEvents($new_event, $adj_event);
+        } else {
+            $this->addNewEvent($new_event);
+        }
+    }
+
+    private function addNewEvent(CoreEvent $new_event)
+    {
         $now = new \DateTime();
-
+        
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $new_event->getServiceId(),$new_event->isOwner($this->user->getUserID()));
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $new_event->getServiceId());
 
@@ -126,8 +150,6 @@ class ScheduleDataHandler extends CoreComponent {
         $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . " Event added. ID: " . $new_event_id;
         
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
-
-        return 1;
     }
 
     function getEventsByEq($event_options) {
@@ -702,6 +724,40 @@ class ScheduleDataHandler extends CoreComponent {
         mysqli_stmt_close($stmt);
 
         return $result_array;
+    }
+    
+    private function mergeCoreEvents(CoreEvent $new_event,CoreEvent $merge_target)
+    {
+        $now = new \DateTime();
+     
+        $user_roles = UserRoleManager::getUserRolesForService($this->user, $merge_target->getServiceId(),$merge_target->isOwner($this->user->getUserID()));
+        $permissions_a = $this->permission_manager->getPermissions($user_roles, $merge_target->getServiceId());
+        
+        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_EVENT)) {
+            $this->throwExceptionOnError("Extending event failed. Permission denied", 0, \ACTIVITY_LOG_TYPE);
+        }
+
+        if( $new_event->getStart() < $now)
+        {
+            if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
+                $this->throwExceptionOnError ("Extending event into past now allowed", 0, \ACTIVITY_LOG_TYPE);
+            }
+        }
+        
+        if( $merge_target->getEnd() == $new_event->getStart())
+        {
+            $merge_target->setEnd($new_event->getEnd());
+        }
+        
+        if( $merge_target->getStart() == $new_event->getEnd())
+        {
+            $merge_target->setStart($new_event->getStart());
+        }
+        
+        $this->coreEventDAO->modifyEventTime($merge_target);
+        
+        $log_text = __CLASS__ . ":" . __FUNCTION__ . " Event " . $merge_target->getId() . " extended";
+        $this->log($log_text, \ACTIVITY_LOG_TYPE);
     }
     
     /** Decrypts record id sent by the client

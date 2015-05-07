@@ -67,4 +67,11 @@ define("SECURITY_LOG_TYPE",2);
 define("ERROR_LOG_TYPE",3);
 define("ACTIVITY_LOG_TYPE",4);
 
+/*
+ * Minimum event duration (seconds).
+ * Used by event merging check during new event creation.
+ * TODO: In the future should be linked to fullcalendar event duration as well.
+ */
+define("MIN_EVENT_DURATION",15*60);
+
 ?>

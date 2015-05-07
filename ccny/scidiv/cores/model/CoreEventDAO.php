@@ -106,9 +106,9 @@ class CoreEventDAO extends CoreComponent {
         $timestamp = $event->getTimestamp();
         $note = $event->getNote();
 
-        $start_str = $start->format('Y-m-d H:i:s');
-        $end_str = $end->format('Y-m-d H:i:s');
-        $timestamp_str = $timestamp->format('Y-m-d H:i:s');
+        $start_str = $start->format(\DATE_RFC3339);
+        $end_str = $end->format(\DATE_RFC3339);
+        $timestamp_str = $timestamp->format(\DATE_RFC3339);
 
         $change_user_q = "UPDATE core_timed_activity SET user = ?,note = ?,start = ?,end = ?,state = ?, note = ? WHERE id = ? AND time_modified = ?";
 
@@ -170,8 +170,8 @@ class CoreEventDAO extends CoreComponent {
             $check_q = $update_check_q;
         }
 
-        $new_start_time_str = $event->getStart()->format('Y-m-d H:i:s');
-        $new_end_time_str = $event->getEnd()->format('Y-m-d H:i:s');
+        $new_start_time_str = $event->getStart()->format(\DATE_RFC3339);
+        $new_end_time_str = $event->getEnd()->format(\DATE_RFC3339);
 
         $service_id = $event->getServiceId();
         $event_id = $event->getId();
@@ -220,7 +220,7 @@ class CoreEventDAO extends CoreComponent {
         $this->lockTables();
 
         if (!$this->isTimeslotAvailable($event)) {
-            $this->throwExceptionOnError("Timeslot already taken", 0, \ACTIVITY_LOG_TYPE);
+            $this->throwExceptionOnError("Events cannot overlap", 0, \ACTIVITY_LOG_TYPE);
         }
 
         if (!$this->saveCoreEvent($event)) {
@@ -240,8 +240,8 @@ class CoreEventDAO extends CoreComponent {
 
         $service_id = $event->getServiceId();
         $state = $event->getEventState();
-        $start_time_str = $event->getStart()->format('Y-m-d H:i:s');
-        $end_time_str = $event->getEnd()->format('Y-m-d H:i:s');
+        $start_time_str = $event->getStart()->format(\DATE_RFC3339);
+        $end_time_str = $event->getEnd()->format(\DATE_RFC3339);
         $user_id = $event->getUserId();
         $note = $event->getNote();
         
@@ -265,18 +265,73 @@ class CoreEventDAO extends CoreComponent {
         $this->lockTables();
         
         if (!$this->isTimeslotAvailable($event)) {
-            $this->throwExceptionOnError("Timeslot already taken", 0, \ACTIVITY_LOG_TYPE);
+            $this->throwExceptionOnError("Events cannot overlap", 0, \ACTIVITY_LOG_TYPE);
         }
 
         $new_id = $this->createCoreEvent($event);
         
         if (! $new_id ) {
-            $this->throwExceptionOnError("Could not add the event", 0, \ERROR_LOG_TYPE);
+            $this->throwExceptionOnError("Could not add this event", 0, \ERROR_LOG_TYPE);
         }
         
         $this->unlockTables();
         
         return $new_id;
     }
-            
+    
+    /**
+     * The function check for existance of an adjecent event.
+     * @param CoreEvent $new_event
+     * @return CoreEvent
+     */
+    public function getAdjacentEvent(CoreEvent $new_event) {
+
+        $adj_event = null;
+        
+        $user_id = $new_event->getUserId(); 
+        $service_id = $new_event->getServiceId();
+        $new_start_time_str  = $new_event->getStart()->format(\DATE_RFC3339);
+        $new_end_time_str = $new_event->getEnd()->format(\DATE_RFC3339);
+        
+        $adjcent_check_q = "SELECT cta.id,cta.start,cta.end,cta.user,cta.service_id,cta.note,cta.state as eventstate,cta.time_modified FROM core_timed_activity cta WHERE user = ? and service_id = ? and state = 1 and (end = ? OR start = ?) ORDER BY start LIMIT 1";
+       
+        if( ! $stmt = $this->connection->prepare($adjcent_check_q))
+        {
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+        
+        if( ! $stmt->bind_param('iiss', $user_id, $service_id, $new_start_time_str, $new_end_time_str))
+        {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        if( ! $stmt->execute())
+        {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        $temp = new \stdClass();
+
+        if (! $stmt->bind_result($temp->id,$temp->start, $temp->end, $temp->user_id, $temp->service_id, $temp->note, $temp->event_state, $temp->time_modified)) {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        if ($stmt->fetch()) {
+
+            $adj_event = new CoreEvent($temp->id, new \DateTime($temp->time_modified));
+
+            $adj_event->setStart(new \DateTime($temp->start));
+            $adj_event->setEnd(new \DateTime($temp->end));
+            $adj_event->setServiceId($temp->service_id);
+            $adj_event->setUserId($temp->user_id);
+            $adj_event->setEventState($temp->event_state);
+            $adj_event->setNote($temp->note);
+        }
+
+        $stmt->free_result();
+        $stmt->close();
+       
+        return $adj_event;
+    }
+
 }

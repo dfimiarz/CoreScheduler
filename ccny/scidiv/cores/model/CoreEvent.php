@@ -132,4 +132,15 @@ class CoreEvent {
         return false;
     }
     
+    /**
+     * 
+     * @return type int. Number of seconds between event end and start
+     */
+    public function getDuration()
+    {
+        $duration = $this->end->getTimestamp() - $this->start->getTimestamp();
+	
+	return $duration;
+    }
+    
 }

@@ -435,14 +435,15 @@ function newEventCreatedHandler(data)
         }
         else
         {
-            $('#calendar').fullCalendar('refetchEvents');
-            notifySuccess("Event created.");
+            notifySuccess("Event added successfully");
         }
     }
     else
     {
         notifyError("Invalid reponse from the server. Operation failed");
     }
+    
+    $('#calendar').fullCalendar('refetchEvents');
 }
 
 function newEventCreateErrorHandler(jqXHR, textStatus, errorThrown)
