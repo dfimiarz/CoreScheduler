@@ -490,7 +490,7 @@ class ScheduleDataHandler extends CoreComponent {
         //Filter text
         $clean_text = filter_var($eventoptions->note, FILTER_SANITIZE_STRING);
         
-       /* @var $event CoreEvent */
+        /* @var $event CoreEvent */
         $event = $this->coreEventDAO->getCoreEvent($record_id,$timestamp_dt);
 
         if(! $event instanceof CoreEvent)
@@ -519,64 +519,42 @@ class ScheduleDataHandler extends CoreComponent {
         return 1;
     }
 
-    public function changeUser($encrypted_record_id, $encrypted_user_id) {
-        $is_owner = false;
-        $logged_in_user_id = $this->user->getUserID();
-        $service_id = null;
-
-        if (is_null($encrypted_record_id) ) {
-            $this->throwExceptionOnError("Record ID is invalid", 0, \SECURITY_LOG_TYPE);
+    public function changeUser(\stdClass $params) {
+        
+        
+        if (!isset($params->id) ) {
+            $this->throwExceptionOnError("Event id invalid", 0, \SECURITY_LOG_TYPE);
         }
 
-        if (is_null($encrypted_user_id)) {
-             $this->throwExceptionOnError("New user ID is invalid", 0, \SECURITY_LOG_TYPE);
-        }
-
-       
-
-        //decrypt encrypted data coming back from the client
-        $record_id = $this->crypto->decrypt($encrypted_record_id);
-
-        $new_user_id = $this->crypto->decrypt($encrypted_user_id);
-
-        //---Get session service_id
-        $query_id = "SELECT cta.user,cta.service_id,cs.state FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
-
-        if( ! $stmt = mysqli_prepare($this->connection, $query_id)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_bind_param($stmt, 'i', $record_id)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_execute($stmt)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        $temp = new \stdClass();
-        if( ! mysqli_stmt_bind_result($stmt, $temp->user_id, $temp->service_id, $temp->service_state)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if (mysqli_stmt_fetch($stmt)) {
-            $service_id = $temp->service_id;
-            $service_state = $temp->service_state;
-            $user_id = $temp->user_id;
+        if (!isset($params->user_id)) {
+             $this->throwExceptionOnError("User id invalid", 0, \SECURITY_LOG_TYPE);
         }
         
-        mysqli_stmt_close($stmt);
-
-        if ($logged_in_user_id == $user_id) {
-            $is_owner = true;
+        if (!isset($params->timestamp)) {
+             $this->throwExceptionOnError("Event timestamp invalid", 0, \SECURITY_LOG_TYPE);
         }
 
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $service_id, $is_owner);  
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $service_id);
+        //decrypt encrypted data coming back from the client
+        $record_id = $this->crypto->decrypt($params->id);
+        $new_user_id = $this->crypto->decrypt($params->user_id);
+        $timestamp_dt = new \DateTime($params->timestamp);
 
+        /* @var $event CoreEvent */
+        $event = $this->coreEventDAO->getCoreEvent($record_id,$timestamp_dt);
+
+        if(! $event instanceof CoreEvent)
+        {
+            $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
+        }
+        
+        //TODO: Remove later
+        $service_id = $event->getServiceId();
+
+        $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($this->user->getUserID()));  
+        $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
 
         if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_OWNER)) {
-            $this->throwExceptionOnError (__CLASS__ . ":" . __FUNCTION__ . " - Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
+            $this->throwExceptionOnError ( __FUNCTION__ . ": Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
         }
 
 
@@ -608,22 +586,9 @@ class ScheduleDataHandler extends CoreComponent {
              $this->throwExceptionOnError (__CLASS__ . ":" . __FUNCTION__ . " - New user without roles.", 0, \SECURITY_LOG_TYPE);
         }
 
+        $event->setUserId($new_user_id);
 
-        $change_user_q = "UPDATE core_timed_activity SET user = ? WHERE id = ?";
-
-        if( ! $stmt = mysqli_prepare($this->connection, $change_user_q)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_bind_param($stmt, 'ii', $new_user_id, $record_id)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        if( ! mysqli_stmt_execute($stmt)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
-        }
-
-        mysqli_stmt_close($stmt);
+        $this->coreEventDAO->saveCoreEvent($event);
 
         $log_text = __CLASS__ . ":" . __FUNCTION__ . " - User for session: " . $record_id . " changed";
         $this->log($log_text, \ACTIVITY_LOG_TYPE);

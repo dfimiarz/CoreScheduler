@@ -10,6 +10,10 @@ function EditUserCntrl() {
             url: './ccny/scidiv/cores/ctrl/changeUser.php',
             title: 'Select a new user:',
             pk: getRecordID,
+            params: function(params){
+                params.timestamp = getTimestamp();
+                return params;  
+            },
             disabled: false,
             sourceCache: false,
             ajaxOptions: {

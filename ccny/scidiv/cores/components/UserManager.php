@@ -172,16 +172,16 @@ class UserManager extends CoreComponent
 
 		$person_details = new stdClass();
 
-		$person_details->uname = 'dfimiarz';
-		$person_details->fname = 'Daniel Fimiarz';
-		$person_details->phone = '(646) 238-2087';
-		$person_details->email = 'dfimiarz@gmail.com';
-		$person_details->piname = 'dfimiarz';
-		$person_details->piphone = 'dfimiarz';
-		$person_details->piemail = 'dfimiarz';
-		$person_details->pi_addr_l1 = 'dfimiarz';
-		$person_details->pi_addr_l2 = 'dfimiarz';
-		$person_details->pi_addr_l3 = 'dfimiarz';
+		$person_details->uname = 'jdoe';
+		$person_details->fname = 'John Doe';
+		$person_details->phone = '(555) 555-5555';
+		$person_details->email = 'jdoe@gmail.com';
+		$person_details->piname = 'John Doe';
+		$person_details->piphone = '(555) 555-5555';
+		$person_details->piemail = 'jdoe@gamil.com';
+		$person_details->pi_addr_l1 = '123 45 st. #6';
+		$person_details->pi_addr_l2 = 'New Town, New Florida, 12345';
+		$person_details->pi_addr_l3 = '';
 
 
 		return $person_details;

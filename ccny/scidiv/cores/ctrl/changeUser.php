@@ -45,8 +45,11 @@ $session = new Session();
 $session->start();
 
 $request = Request::createFromGlobals();
-$record_id = $request->request->get('pk',null);
-$new_user_id = $request->request->get('value',null);
+
+$params = new \stdClass();
+$params->id = $request->request->get('pk',null);
+$params->user_id = $request->request->get('value',null);
+$params->timestamp = $request->request->get('timestamp',null);
 
 /* @var $user ccny\scidiv\cores\model\CoreUser */
 $user = $session->get('coreuser', null);
@@ -60,7 +63,7 @@ try {
     
     //Create the datahandler and insert the data
     $datahandler = new ScheduleDataHandler($user);
-    $datahandler->changeUser($record_id, $new_user_id);
+    $datahandler->changeUser($params);
     
 } catch (\Exception $e) {
     $err_msg = "Operation failed: Error code " . $e->getCode();
