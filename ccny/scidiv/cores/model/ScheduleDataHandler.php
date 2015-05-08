@@ -503,14 +503,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         //Check for DB_PERM_CHANGE_NOTE permission
         if ($this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_NOTE)) {
-            //Check if user can edit past event: DB_PERM_EDIT_PAST_EVENT
-            if ($event->getStart() <= $now_dt) {
-                if (!$this->permission_manager->hasPermission($permissions_a, DB_PERM_EDIT_PAST_EVENT)) {
-                    $this->throwExceptionOnError ("Past sessions cannot be modified", 0, \SECURITY_LOG_TYPE);
-                }
-            }
-        } else {
-             $this->throwExceptionOnError ("Missing permission: DB_PERM_CHANGE_NOTE ", 0, \SECURITY_LOG_TYPE);
+            $this->throwExceptionOnError ("Missing permission: DB_PERM_CHANGE_NOTE ", 0, \SECURITY_LOG_TYPE);
         }
 
         $event->setNote($clean_text);
