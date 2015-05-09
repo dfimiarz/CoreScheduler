@@ -521,7 +521,9 @@ class ScheduleDataHandler extends CoreComponent {
 
     public function changeUser(\stdClass $params) {
         
-        
+        /*
+         * TODO: Convert stdClass to a better defined $params class
+         */
         if (!isset($params->id) ) {
             $this->throwExceptionOnError("Event id invalid", 0, \SECURITY_LOG_TYPE);
         }

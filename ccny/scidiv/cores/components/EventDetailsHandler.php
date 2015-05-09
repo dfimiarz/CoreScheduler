@@ -174,15 +174,9 @@ class EventDetailsHandler extends CoreComponent {
         }
 
 
-        //If user can change note
+        //Does user have DB_PERM_CHANGE_NOTE
         if ($this->pm->hasPermission($permissions_a, \DB_PERM_CHANGE_NOTE)) {
-            if ($start_dt > $now_dt) {
-                $ArrDetails['can_edit_note'] = true;
-            } else {
-                if ($this->pm->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
-                    $ArrDetails['can_edit_note'] = true;
-                }
-            }
+            $ArrDetails['can_edit_note'] = true;
         }
 
         return $ArrDetails;
