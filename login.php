@@ -30,28 +30,26 @@ include_once './ccny/scidiv/cores/config/config.php';
 include_once './ccny/scidiv/cores/view/CoreView.php';
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
+
+
+$session = new Session();
+$session->start();
+
+$request = Request::createFromGlobals();
+
+$error_txt = $session->get('login_err', null);
 
 $view = new CoreView();
 $view->loadTemplate('login.html.twig');
 
-$arr_variables = ["error_txt"=>"Login failed","page_title"=>"DivOfScience - Conference Room Reservations","icon"=>SYSTEM_ICON];
+$arr_variables = ["error_txt"=>$error_txt,"page_title"=>"DivOfScience - Conference Room Reservations","icon"=>SYSTEM_ICON];
 
 echo $view->render($arr_variables);
 
 
 /*
-if( isset($_SESSION['login_err']))
-{
-	if( ! empty($_SESSION['login_err']))
-	{
-		$is_error = TRUE;
-		$error_txt = $_SESSION['login_err'];
-
-		unset($_SESSION['login_err']);
-	}
-}
-
-
 //See if the $_GET['src'] is set. If so, pass it to log in controller for redirect.
 unset($_SESSION['dest']);
 

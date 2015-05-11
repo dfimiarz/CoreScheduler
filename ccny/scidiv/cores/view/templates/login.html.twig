@@ -24,7 +24,7 @@
 					<div class="login_wrapper page_sub_element">
 						<div id="login_help_header">Sign in:</div>
 						<form id="login_form" action="core/controllers/login.php" method="POST">
-                                                        {% if error_txt is defined %}
+                                                        {% if error_txt %}
 							<div class="login_form_element login_form_fld" id="error_msg">
                                                             <img id="warning_img" src="./images/warning.png"></img>&nbsp;{{error_txt}}
                                                         </div>;
