@@ -1104,7 +1104,7 @@ function resetCalendar(sel_enabled)
  */
 function getSelectedResource()
 {
-    return $('#sel_res_id').attr('RID');
+    return $('#sel_res_id').attr('rid');
 }
 
 

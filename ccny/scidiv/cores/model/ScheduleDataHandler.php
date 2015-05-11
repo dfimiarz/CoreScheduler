@@ -502,7 +502,7 @@ class ScheduleDataHandler extends CoreComponent {
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
 
         //Check for DB_PERM_CHANGE_NOTE permission
-        if ($this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_NOTE)) {
+        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_NOTE)) {
             $this->throwExceptionOnError ("Missing permission: DB_PERM_CHANGE_NOTE ", 0, \SECURITY_LOG_TYPE);
         }
 
