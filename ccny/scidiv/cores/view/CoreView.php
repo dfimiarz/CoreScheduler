@@ -32,7 +32,7 @@ require_once __DIR__ . '/../../../../ext/twig/lib/Twig/Autoloader.php';
  *
  * @author WORK 1328
  */
-class MainView {
+class CoreView {
     //put your code here
     private $twig_env;
     private $tmpl;
@@ -43,7 +43,11 @@ class MainView {
 
         $loader = new \Twig_Loader_Filesystem(__DIR__ . '/templates');
         $this->twig_env = new \Twig_Environment($loader, array('debug' => FALSE));
-        $this->tmpl = $this->twig_env->loadTemplate('main.html.twig');
+    }
+    
+    function loadTemplate($filename)
+    {
+        $this->tmpl = $this->twig_env->loadTemplate($filename);
     }
 
     public function render($arr_variables) {
