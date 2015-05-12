@@ -24,19 +24,22 @@
 					<div class="login_wrapper page_sub_element">
 						<div id="login_help_header">Sign in:</div>
 						<form id="login_form" action="./ccny/scidiv/cores/ctrl/LoginCtrl.php" method="POST">
+                                                        {% if destination %}
+                                                        <input type="hidden" name="dest" value="{{destination}}"/>
+                                                        {% endif %}
                                                         {% if error_txt %}
 							<div class="login_form_element login_form_fld" id="error_msg">
                                                             <img id="warning_img" src="./images/warning.png"></img>&nbsp;{{error_txt}}
-                                                        </div>;
+                                                        </div>
 							{% endif %}
 							<div class="login_form_element login_form_fld" >
-								<input type="text" id="username_txt" class="login_txt_box" name="user" placeholder="User Name">
+								<input type="text" id="username_txt" class="login_txt_box" name="user" placeholder="username"/>
 							</div>
 							<div class="login_form_element login_form_fld">
-								<input type="password" id="password_txt" class="login_txt_box" name="pass" placeholder="Password">
+								<input type="password" id="password_txt" class="login_txt_box" name="pass" placeholder="password"/>
 							</div>
 							<div class="login_form_element login_form_btn">
-								<input type="submit" id="login_btn" value="Sign in">
+								<input type="submit" id="login_btn" value="Sign in"/>
 							</div>
 						</form>
 					</div>

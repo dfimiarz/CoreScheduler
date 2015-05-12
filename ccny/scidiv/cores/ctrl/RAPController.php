@@ -26,28 +26,58 @@
 
 namespace ccny\scidiv\cores\ctrl;
 
+include_once __DIR__ . '/../config/Router.php';
+
+use Symfony\Component\HttpFoundation\Request as Request;
+use Symfony\Component\HttpFoundation\RedirectResponse as RedirectResponse;
+use Symfony\Component\HttpFoundation\Session\Session as Session;
+use ccny\scidiv\cores\config\Router as Router;
+
 /**
  * Base class implementation of Redirect After Post controller
+ * $dest_code and $dest_params will be used to build the redirect URL
  *
  * @author Daniel F
  */
 abstract class RAPController {
-    //put your code here
+  
+    /** @var Request */
+    protected $request;
+    /** @var Session */
+    protected $session;
+    /** @var Router */
+    protected $router;
+    /** @var String */
+    protected $dest_code = 'default';
+     /** @var String */
+    protected $dest_params = '';
     
     public function __construct() {
         
-    }
-    
-    abstract function run();
-    
-    protected function success()
-    {
+        $this->request = Request::createFromGlobals();
+        
+        $this->session = new Session();
+        $this->session->start();
+        
+        $this->router = new Router();
         
     }
-    
-    protected function failure()
-    {
+
+    abstract public function run();
+
+    protected function redirect(){
+        $dest_url = $this->router->getDestination($this->dest_code);
         
+        $url = $dest_url . $this->dest_params;
+        
+        $response = new RedirectResponse($url);
+        $response->send(); 
+        
+        exit();
     }
     
+    abstract protected function success();
+    abstract protected function failure($message);
+    
+
 }

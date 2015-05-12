@@ -3,7 +3,7 @@
 /*
  * The MIT License
  *
- * Copyright 2015 Daniel F.
+ * Copyright 2015 Daniel Fimiarz <dfimiarz@ccny.cuny.edu>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,33 +24,32 @@
  * THE SOFTWARE.
  */
 
-namespace ccny\scidiv\cores\ctrl;
-
-use Symfony\Component\HttpFoundation\Session\Session as Session;
-use Symfony\Component\HttpFoundation\Request as Request;
-use ccny\scidiv\cores\model\CoreUser as CoreUser;
+namespace ccny\scidiv\cores\config;
 
 /**
- * Description of LoginCtrl
+ * Description of Router
  *
- * @author Daniel F
+ * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
-class LoginSubmitCtrl extends RAPController {
-    
-    /* @var $request Request */
-    private $request;
-    
+class Router {
+
+    private $routes = array();
+
     public function __construct() {
-        
-        parent::__construct();
-        $this->request = Request::createFromGlobals();
-        
-        
+        /*
+         * $host and $root vairable should be set to correct values in order for redirect to work as expected
+         */
+        $host = $_SERVER['HTTP_HOST'];
+        $root = 'corescheduler';
+        $this->routes['default'] = "http://$host/$root/index.php";
+        $this->routes['login'] = "http://$host/$root/login.php";
     }
-    
-    public function run()
-    {
-        $username = $request->request->get("user",null);
-        $password = $request->request->get("pass",null);
+
+    public function getDestination($code) {
+        if (array_key_exists($code, $this->routes))
+            return $this->routes[$code];
+        else
+            return $this->routes['default'];
     }
+
 }

@@ -40,22 +40,14 @@ $session->start();
 $request = Request::createFromGlobals();
 
 $error_txt = $session->get('login_err', null);
+$session->remove('login_err');
+
+$after_login_dest = $request->query->get('dest','');
 
 $view = new CoreView();
 $view->loadTemplate('login.html.twig');
 
-$arr_variables = ["error_txt"=>$error_txt,"page_title"=>"DivOfScience - Conference Room Reservations","icon"=>SYSTEM_ICON];
+$arr_variables = ['destination'=>$after_login_dest,"error_txt"=>$error_txt,"page_title"=>"DivOfScience - Conference Room Reservations","icon"=>SYSTEM_ICON];
 
 echo $view->render($arr_variables);
-
-
-/*
-//See if the $_GET['src'] is set. If so, pass it to log in controller for redirect.
-unset($_SESSION['dest']);
-
-if( isset($_GET['src']) && ! empty($_GET['src']))
-{
-	$_SESSION['dest'] = $_GET['src'];
-}
-*/
 
