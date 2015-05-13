@@ -73,3 +73,10 @@ define("ACTIVITY_LOG_TYPE",4);
  * TODO: In the future should be linked to fullcalendar event duration as well.
  */
 define("MIN_EVENT_DURATION",15*60);
+
+/*
+ * Validation error codes
+ */
+define("VAL_NO_ERROR", 0);
+define("VAL_FIELD_ERROR", 1);
+define("VAL_SYSTEM_ERROR", 2);
