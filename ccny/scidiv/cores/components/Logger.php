@@ -29,8 +29,8 @@ namespace ccny\scidiv\cores\components;
 
 
 
-include_once './../autoloader.php';
-include_once 'SystemConstants.php';
+include_once __DIR__ . '/../autoloader.php';
+include_once __DIR__ . '/SystemConstants.php';
 
 /*
   Class used to log error messages to a file spcified in the const ERROR_FILE

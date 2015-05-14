@@ -31,9 +31,10 @@ a, img
 
 #credits
 {
-    font-family: arial,sans-serif;
-    font-size: small;
-    margin-top: 5px;
+	font-family: arial,sans-serif;
+	font-size: x-small;
+	margin-top: 15px;
+	text-align: center;
 }
 
 .ui-widget 

@@ -50,7 +50,7 @@ if( isset($_SESSION['err_msg']))
 			</table>
 		</div>
         <div class="calendar_view_element" id="password_reset_pannel">
-        	<div id="page_intro_lbl">CoreLABS&trade; password reset page.</div>
+        	<div id="page_intro_lbl">CoreLABS password reset page.</div>
         	<div id="password_reset_cont">
         		<form method="POST" action="doPassReset.php" autocomplete="off">
 	        		<div class="pass_recovery_msg">
@@ -81,7 +81,7 @@ if( isset($_SESSION['err_msg']))
         	</div>
         </div>
         <div id="credits">
-         	Developed and maintained by: <a href="http://forum.sci.ccny.cuny.edu/people/science-division-directory/danielf">Daniel Fimiarz</a>, The City College of New York, 160 Convent Ave, MR 1328, New York, NY 10031.
+         	Developed and maintained by: <a href="http://forum.sci.ccny.cuny.edu/people/science-division-directory/danielf">Daniel Fimiarz</a>, The City College of New York, CUNY.
         </div>
     </div>
 </div>

@@ -26,266 +26,216 @@
 
 namespace ccny\scidiv\cores\components;
 
-include_once 'DbConnectInfo.php';
-include_once 'PermissionManager.php';
-include_once 'LoginManager.php';
+include_once __DIR__ . '/../autoloader.php';
+include_once __DIR__ . '/SystemConstants.php';
 
+use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
+use ccny\scidiv\cores\components\CryptoManager as CryptoManager;
+use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 
-class UserManager extends CoreComponent
-{
+class UserManager extends CoreComponent {
 
-	//Placeholder for mysqli object
-	private $mysqli;
+    /** @var \mysqli */
+    private $mysqli;
+    /** @var CryptoManager */
+    private $crypto;
 
-	//Logging class
-	private $logger;
+    function __construct() {
 
-	//Key used in encryption
-	private $key = "adoe465rug*&_#mby3#";
+        parent::__construct();
+        
+        $dbinfo = DbConnectInfo::getDBConnectInfoObject();
 
-	//Permission manager handler
-	private $pm_handler;
+        @$this->mysqli = new \mysqli($dbinfo->getServer(), $dbinfo->getUserName(), $dbinfo->getPassword(), $dbinfo->getDatabaseName(), $dbinfo->getPort());
 
-	//Class constructor
-	function __construct()
-	{
+        if ($this->mysqli->connect_errno) {
+            $this->throwDBError($this->mysqli->connect_error,$this->mysqli->connect_errno);
+        }
 
+        $this->crypto = new CryptoManager();
+    }
 
-		$dbinfo = DbConnectInfo::getDBConnectInfoObject();
+    function __destruct() {
 
-		$this->mysqli = new mysqli($dbinfo->getServer(),$dbinfo->getUserName(), $dbinfo->getPassword(), $dbinfo->getDatabaseName(),$dbinfo->getPort());
+        if ($this->mysqli)
+            $this->mysqli->close();
+    }
 
-		if ($this->mysqli->connect_errno) {
-		    $this->throwCustomExceptionOnError($this->mysqli->connect_errno , $this->mysqli->connect_error );
-		}
+    /*
+    public function getAuthorizedUsers($resource_id = null, $service_id = null) {
+        $users = array();
 
-		$this->logger = Logger::getLogger();
-		$this->pm_handler = PermissionManager::getManager($this->mysqli);
+        //prepare encryption functionality
+        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
+        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
 
-	}
-		
+        if (!isset($_SESSION['user_id']))
+            $this->throwCustomExceptionOnError(0, 'Please log in.');
 
-	function __destruct()
-	{
+        if ($resource_id == null && $service_id == null)
+            return $users;
 
-		if( $this->mysqli )
-			$this->mysqli->close();
+        $q_modifier = "";
+        $param = 0;
 
-	}
+        if ($resource_id != null) {
+            $q_modifier = " AND service_id IN (SELECT id FROM core_services where resource_id = ?)";
+            $param = $resource_id;
+        }
 
-	public function getAuthorizedUsers($resource_id = null,$service_id = null)
-	{
-		$users = array();
+        if ($service_id != null) {
+            $q_modifier = " AND service_id = ?";
+            $param = $service_id;
+        }
 
-		//prepare encryption functionality
-		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
-		$iv =  mcrypt_create_iv($iv_size, MCRYPT_RAND);
+        $logged_in_user_id = $_SESSION['user_id'];
 
-		if( ! isset( $_SESSION['user_id']) )
-			$this->throwCustomExceptionOnError(0,'Please log in.');
+        $get_users_q = "SELECT u.id,u.username,concat(u.firstname,' ',u.lastname) as fullname,u.email,u.phone,concat(p.first_name,' ',p.last_name) as pi_name FROM core_permissions cp,core_users u,people p where role = 2 and service_id in (select service_id from core_permissions where role = 3 and user_id = ? {M}) and cp.user_id = u.id and u.pi = p.individual_id";
 
-		if( $resource_id == null && $service_id == null )
-			return $users;
+        $get_users_q = str_replace("{M}", $q_modifier, $get_users_q);
 
-		$q_modifier = "";
-		$param = 0;
 
-		if( $resource_id != null )
-		{
-			$q_modifier = " AND service_id IN (SELECT id FROM core_services where resource_id = ?)";
-			$param = $resource_id;
+        if (!($stmt = $this->mysqli->prepare($get_users_q))) {
+            $this->throwDBExceptionOnError($this->mysqli->errno, $this->mysqli->error);
+        }
 
-		}
+        if (!($stmt->bind_param("ii", $logged_in_user_id, $param))) {
+            $this->throwDBExceptionOnError($stmt->errno, $stmt->error);
+        }
 
-		if( $service_id != null )
-		{
-			$q_modifier = " AND service_id = ?";
-			$param = $service_id;
+        if (!($stmt->execute())) {
+            $this->throwDBExceptionOnError($stmt->errno, $stmt->error);
+        }
 
-		}
+        $temp = new stdClass();
 
-		$logged_in_user_id =  $_SESSION['user_id'];
+        if (!($stmt->bind_result($temp->id, $temp->username, $temp->fullname, $temp->email, $temp->phone, $temp->piname))) {
+            $this->throwDBExceptionOnError($stmt->errno, $stmt->error);
+        }
 
-		$get_users_q = "SELECT u.id,u.username,concat(u.firstname,' ',u.lastname) as fullname,u.email,u.phone,concat(p.first_name,' ',p.last_name) as pi_name FROM core_permissions cp,core_users u,people p where role = 2 and service_id in (select service_id from core_permissions where role = 3 and user_id = ? {M}) and cp.user_id = u.id and u.pi = p.individual_id";
+        while ($stmt->fetch()) {
 
-		$get_users_q = str_replace("{M}", $q_modifier, $get_users_q );
+            $user = new stdClass();
+            $user->id = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $this->key, $temp->id, MCRYPT_MODE_ECB, $iv));
+            $user->username = $temp->username;
+            $user->name = $temp->fullname;
+            $user->email = $temp->email;
+            $user->phone = $temp->phone;
+            $user->pi = $temp->piname;
 
+            $users[] = $user;
+        }
 
-		if(!($stmt = $this->mysqli->prepare($get_users_q)))
-		{
-			$this->throwDBExceptionOnError($this->mysqli->errno,$this->mysqli->error);
-		}
+        $stmt->close();
 
-		if(!($stmt->bind_param("ii", $logged_in_user_id , $param)))
-		{
-			$this->throwDBExceptionOnError($stmt->errno,$stmt->error);
-		}
+        return $users;
+    }
 
-		if(!($stmt->execute()))
-		{
-			$this->throwDBExceptionOnError($stmt->errno,$stmt->error);
-		}
+    public function getUserDetails($enc_person_id = null) {
+        $logged_in_user_id = null;
+        $person_id = null;
 
-		$temp = new stdClass();
+        //Get the logged in id and person id that was sent from the client
+        if (!isset($_SESSION['user_id']))
+            $this->throwCustomExceptionOnError(0, 'Please log in.');
+        else
+            $logged_in_user_id = $_SESSION['user_id'];
 
-		if(!($stmt->bind_result($temp->id,$temp->username,$temp->fullname,$temp->email,$temp->phone,$temp->piname)))
-		{
-			$this->throwDBExceptionOnError($stmt->errno,$stmt->error);
-		}
+        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
+        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
 
-		while ($stmt->fetch()) {
+        $person_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($enc_person_id), MCRYPT_MODE_ECB, $iv));
 
-			$user = new stdClass();
-			$user->id = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $this->key, $temp->id , MCRYPT_MODE_ECB, $iv));
-			$user->username = $temp->username;
-			$user->name = $temp->fullname;
-			$user->email = $temp->email;
-			$user->phone = $temp->phone;
-			$user->pi = $temp->piname;
+        //Run a query to get the info for the user
 
-			$users[] = $user;
-		}
+        $person_details = new stdClass();
 
-		$stmt->close();
+        $person_details->uname = 'jdoe';
+        $person_details->fname = 'John Doe';
+        $person_details->phone = '(555) 555-5555';
+        $person_details->email = 'jdoe@gmail.com';
+        $person_details->piname = 'John Doe';
+        $person_details->piphone = '(555) 555-5555';
+        $person_details->piemail = 'jdoe@gamil.com';
+        $person_details->pi_addr_l1 = '123 45 st. #6';
+        $person_details->pi_addr_l2 = 'New Town, New Florida, 12345';
+        $person_details->pi_addr_l3 = '';
 
-		return $users;
 
-	}
+        return $person_details;
+    }
+    */
 
-	public function getUserDetails($enc_person_id = null)
-	{
-		$logged_in_user_id = null;
-		$person_id = null;
+    public function initPasswordReset($user_name) {
 
-		//Get the logged in id and person id that was sent from the client
-		if(!isset($_SESSION['user_id']))
-			$this->throwCustomExceptionOnError(0,'Please log in.');
-		else
-			$logged_in_user_id = $_SESSION['user_id'];
+        $hash_data = "aErl67g&" . $user_name . date("D M j G:i:s T Y");
+        $ver_code = hash("sha256", $hash_data, false);
 
-		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
-		$iv =  mcrypt_create_iv($iv_size, MCRYPT_RAND);
+        $query = "CALL init_pass_reset(?,?)";
 
-		$person_id =  trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($enc_person_id) , MCRYPT_MODE_ECB, $iv));
+        if (!($stmt = $this->mysqli->prepare($query))) {
+            $this->throwDBError( $this->mysqli->error, $this->mysqli->errno);
+        }
 
-		//Run a query to get the info for the user
+        if (!($stmt->bind_param("ss", $user_name, $ver_code))) {
+            $this->throwDBError($stmt->error,$stmt->errno);
+        }
 
-		$person_details = new stdClass();
+        if (!($stmt->execute())) {
+            $this->throwDBError($stmt->error,$stmt->errno);
+        }
 
-		$person_details->uname = 'jdoe';
-		$person_details->fname = 'John Doe';
-		$person_details->phone = '(555) 555-5555';
-		$person_details->email = 'jdoe@gmail.com';
-		$person_details->piname = 'John Doe';
-		$person_details->piphone = '(555) 555-5555';
-		$person_details->piemail = 'jdoe@gamil.com';
-		$person_details->pi_addr_l1 = '123 45 st. #6';
-		$person_details->pi_addr_l2 = 'New Town, New Florida, 12345';
-		$person_details->pi_addr_l3 = '';
+        $stmt->close();
 
+        $this->log(__FUNCTION__ . ": Password reset initiated.", \ACTIVITY_LOG_TYPE);
 
-		return $person_details;
+        return 1;
+    }
 
-	}
+    public function doPasswordReset($ver_code, $new_pass) {
 
-	public function initPasswordReset($user_name)
-	{
+        $query = "CALL do_pass_reset(?,?)";
 
-		$hash_data = "aErl67g&" . $user_name . date("D M j G:i:s T Y");
-		$ver_code = hash("sha256", $hash_data, false );
+        if (!($stmt = $this->mysqli->prepare($query))) {
+           $this->throwDBError( $this->mysqli->error, $this->mysqli->errno);
+        }
 
-		$query = "CALL init_pass_reset(?,?)";
+        if (!($stmt->bind_param("ss", $ver_code, $new_pass))) {
+            $this->throwDBError($stmt->error,$stmt->errno);
+        }
 
-		if(!($stmt = $this->mysqli->prepare($query)))
-		{
-			$this->throwDBExceptionOnError($this->mysqli->errno,$this->mysqli->error);
-		}
+        if (!($stmt->execute())) {
+            $this->throwDBError($stmt->error,$stmt->errno);
+        }
 
-		if(!($stmt->bind_param("ss",$user_name,$ver_code)))
-		{
-			$this->throwDBExceptionOnError($stmt->errno,$stmt->error);
-		}
+        $stmt->close();
 
-		if(!($stmt->execute()))
-		{
-			$this->throwDBExceptionOnError($stmt->errno,$stmt->error);
-		}
+        $this->log(__FUNCTION__ . ": Password reset.", \ACTIVITY_LOG_TYPE);
 
-		$stmt->close();
+        return 1;
+    }
 
-		$this->logger->log("ACTIVITY: initPasswordReset() - Password reset link created.",ACTIVITY_LOG_TYPE);
+    public function doLoginReminder($email) {
 
-		return 1;
+        $query = "CALL do_login_reminder(?)";
 
-	}
+        if (!($stmt = $this->mysqli->prepare($query))) {
+            $this->throwDBError( $this->mysqli->error, $this->mysqli->errno);
+        }
 
-	public function doPasswordReset($ver_code,$new_pass)
-	{
+        if (!($stmt->bind_param("s", $email))) {
+            $this->throwDBError($stmt->error,$stmt->errno);
+        }
 
-		$query = "CALL do_pass_reset(?,?)";
+        if (!($stmt->execute())) {
+            $this->throwDBError($stmt->error,$stmt->errno);
+        }
 
-		if(!($stmt = $this->mysqli->prepare($query)))
-		{
-			$this->throwDBExceptionOnError($this->mysqli->errno,$this->mysqli->error);
-		}
+        $stmt->close();
 
-		if(!($stmt->bind_param("ss",$ver_code,$new_pass)))
-		{
-			$this->throwDBExceptionOnError($stmt->errno,$stmt->error);
-		}
+        $this->log(__FUNCTION__ . ": Username reminder recorded for processing.",\ACTIVITY_LOG_TYPE);
 
-		if(!($stmt->execute()))
-		{
-			$this->throwDBExceptionOnError($stmt->errno,$stmt->error);
-		}
-
-		$stmt->close();
-
-		$this->logger->log("ACTIVITY: doPasswordReset() - Password reset.",ACTIVITY_LOG_TYPE);
-
-		return 1;
-
-
-
-	}
-
-	public function doLoginReminder($email)
-	{
-
-		$query = "CALL do_login_reminder(?)";
-
-		if(!($stmt = $this->mysqli->prepare($query)))
-		{
-			$this->throwDBExceptionOnError($this->mysqli->errno,$this->mysqli->error);
-		}
-
-		if(!($stmt->bind_param("s",$email)))
-		{
-			$this->throwDBExceptionOnError($stmt->errno,$stmt->error);
-		}
-
-		if(!($stmt->execute()))
-		{
-			$this->throwDBExceptionOnError($stmt->errno,$stmt->error);
-		}
-
-		$stmt->close();
-
-		$this->logger->log("ACTIVITY: doLoginReminder() - User name sent.",ACTIVITY_LOG_TYPE);
-
-		return 1;
-
-	}
-
-	private function throwDBExceptionOnError($errno,$errmsg) {
-		$this->logger->log($errmsg,ERROR_LOG_TYPE);
-		throw new Exception($errmsg,$errno);
-	}
-
-
-	private function throwCustomExceptionOnError($errno = 0 ,$errmsg) {
-		$this->logger->log($errmsg,ERROR_LOG_TYPE);
-		throw new Exception($errmsg,$errno);
-	}
+        return 1;
+    }
 
 }
