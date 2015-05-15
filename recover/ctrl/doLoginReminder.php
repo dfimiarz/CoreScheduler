@@ -1,26 +1,36 @@
 <?php
 
-define("ERROR_GENERIC_ERROR", 1);
-define("NO_ERROR", 0);
+include_once __DIR__ . '/../../ccny/scidiv/cores/autoloader.php';
+include_once __DIR__ . '/../../ccny/scidiv/cores/config/config.php';
+include_once __DIR__ . '/../../ccny/scidiv/cores/components/SystemConstants.php';
 
-include_once '../includes/UserManager.php';
-include_once '../includes/recaptchalib.php';
-
-session_start();
-
-unset($_SESSION['err_msg']);
-unset($_SESSION['info_msg']);
+use ReCaptcha\ReCaptcha as ReCaptcha;
+use Symfony\Component\HttpFoundation\Request as Request;
+use Symfony\Component\HttpFoundation\Session\Session as Session;
 
 $cntr = new CoreLabsController();
 $cntr->runJob();
 
 class CoreLabsController {
 
-    private $msg_sender;
-    private $recaptcha_private_key = "6LdXAgMTAAAAADs_rsYCipgXolAFu7kTjXtpGGsZ";
+    /** @var ReCaptcha */
+    private $recaptcha;
+
+    /** @var Request */
+    private $request;
+    
+    /** @var Session */
+    private $session;
 
     public function __construct() {
-        
+        $this->recaptcha = new ReCaptcha(\RECAPTCHA_PRIV_KEY);
+        $this->request = Request::createFromGlobals();
+
+        $this->session = new Session();
+        $this->session->start();
+
+        $this->session->remove('err_msg');
+        $this->session->remove('info_msg');
     }
 
     public function runJob() {
@@ -37,15 +47,14 @@ class CoreLabsController {
 
          */
 
-        $err_obj = $this->validateData();
-
+        $err_obj = $this->validateData();     
+        
         if ($err_obj->type)
             $this->failure($err_obj);
 
         try {
 
-            $user_info->email = trim($_POST["email"]);
-
+            $user_info->email = trim($this->request->request->get('email'));
 
             $handler = new UserManager();
 
@@ -57,7 +66,7 @@ class CoreLabsController {
             $err_obj->field = "";
             $err_obj->code = $e->getCode();
             $err_obj->msg = $e->getMessage();
-            $err_obj->type = ERROR_GENERIC_ERROR;
+            $err_obj->type = \VAL_SYSTEM_ERROR;
 
             $this->failure($err_obj);
         }
@@ -68,11 +77,11 @@ class CoreLabsController {
     private function validateData() {
         //This function will return an error object for each field that fails to validate
 
-        $requiredFields = array("email" => "E-mail is missing or invalid", "recaptcha_challenge_field" => "reCapchta challange field is missing", "recaptcha_response_field" => "reCapchta reponse field is missing");
+        $requiredFields = array("email" => "E-mail is missing or invalid", "g-recaptcha-response" => "Are you sure you are not a robot?");
 
 
         //0 means there is no error
-        $error_status = NO_ERROR;
+        $error_status = \VAL_NO_ERROR;
 
         /*
           Initialize error object that will be returned by this function
@@ -81,34 +90,36 @@ class CoreLabsController {
         $error_obj->msg = "";
         $error_obj->field = "";
         $error_obj->code = 0;
-        $error_obj->type = NO_ERROR;
+        $error_obj->type = \VAL_NO_ERROR;
 
         //check if required variables are defined
         foreach ($requiredFields as $key => $value) {
-            if (!isset($_POST[$key]) || $_POST[$key] == "") {
+            $value = $this->request->request->get($key);
+            if (empty( $value )) {
                 $error_obj->field = $key;
-                $error_obj->msg = $value;
-                $error_obj->type = ERROR_GENERIC_ERROR;
+                $error_obj->msg = $requiredFields[$key];
+                $error_obj->type = \VAL_FIELD_ERROR;
 
                 //return after each field that is found wrong
                 return $error_obj;
             }
         }
 
-        if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
+        $email = $this->request->request->get('email');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error_obj->field = "email";
             $error_obj->msg = "E-mail is missing or invalid";
-            $error_obj->type = ERROR_GENERIC_ERROR;
+            $error_obj->type = \VAL_FIELD_ERROR;
 
             return $error_obj;
         }
 
-        $resp = recaptcha_check_answer($this->recaptcha_private_key, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"]);
+        $resp = $this->recaptcha->verify($this->request->request->get('g-recaptcha-response'), $_SERVER['REMOTE_ADDR']);
 
-        if (!$resp->is_valid) {
+        if (!$resp->isSuccess()) {
             $error_obj->field = "captcha";
             $error_obj->msg = "reCaptcha incorrect. Please try again";
-            $error_obj->type = ERROR_GENERIC_ERROR;
+            $error_obj->type = \VAL_FIELD_ERROR;
 
             //return after each field that is found wrong
             return $error_obj;
@@ -118,15 +129,16 @@ class CoreLabsController {
     }
 
     private function success() {
-        $_SESSION['info_msg'] = "Request has been processed. Please check your email for instructions how to proceed.";
+        $this->session->set('info_msg',"Request has been processed. Please check your email for instructions how to proceed.");
         header("Location: ./confirmloginrecovery.php", TRUE, 303);
-        die();
+        exit();
     }
 
     private function failure($error_obj) {
-        $_SESSION['err_msg'] = $error_obj->msg;
+        
+        $this->session->set('err_msg',$error_obj->msg);
         header('Location: ./../username.php');
-        die();
+        exit();
     }
 
 }
