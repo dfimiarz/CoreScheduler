@@ -25,13 +25,13 @@ if( isset($_SESSION['err_msg']))
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>CCNY Core Facilties - Password reset</title>
+<title>Choose a new password</title>
 
-<link href="../../css/recoverpassword.css" rel="stylesheet" type="text/css" />
-<link href="../../css/bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="../css/recoverpassword.css" rel="stylesheet" type="text/css" />
+<link href="../css/bootstrap/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
-<script language="javascript" type="text/javascript" src="../../jquery/jquery-1.10.2.min.js"></script>
-<script language="javascript" type="text/javascript" src="../../js/bootstrap/bootstrap.min.js"></script>
+<script language="javascript" type="text/javascript" src="../jquery/jquery-1.10.2.min.js"></script>
+<script language="javascript" type="text/javascript" src="../js/bootstrap/bootstrap.min.js"></script>
 </head>
 <body>
 <div class="page_element" id="view_port">
@@ -42,7 +42,7 @@ if( isset($_SESSION['err_msg']))
 					<td>
 						<div id="info" class="corecal_gen_container navigation_panel">
 							<div id="logo_container">
-								<img src="../../images/logo.png"/>
+								<img src="../images/logo.png"/>
 							</div>
 						</div>
 					</td>
@@ -50,7 +50,7 @@ if( isset($_SESSION['err_msg']))
 			</table>
 		</div>
         <div class="calendar_view_element" id="password_reset_pannel">
-        	<div id="page_intro_lbl">CoreLABS password reset page.</div>
+        	<div id="page_intro_lbl">Choose a new password</div>
         	<div id="password_reset_cont">
         		<form method="POST" action="doPassReset.php" autocomplete="off">
 	        		<div class="pass_recovery_msg">

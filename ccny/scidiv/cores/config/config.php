@@ -27,3 +27,4 @@
 namespace ccny\scidiv\cores\config;
 
 define("SYSTEM_ICON","./images/scidivicon.ico");
+define("RECAPTCHA_PRIV_KEY","6LfQQ-kSAAAAAFJ64dbozmkTqS89FtEGdc0c1M9r");
