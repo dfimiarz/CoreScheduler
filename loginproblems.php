@@ -1,9 +1,9 @@
 <?php
 
-/* 
+/*
  * The MIT License
  *
- * Copyright 2015 Daniel Fimiarz <dfimiarz@ccny.cuny.edu>.
+ * Copyright 2015 Daniel F.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,26 @@
  * THE SOFTWARE.
  */
 
-namespace ccny\scidiv\cores\config;
+/**
+ * Description of loginproblems
+ *
+ * @author Daniel F
+ */
+include_once 'ccny/scidiv/cores/autoloader.php';
+include_once 'ccny/scidiv/cores/config/config.php';
+include_once 'ccny/scidiv/cores/view/CoreView.php';
 
-define("SYSTEM_ICON","./images/scidivicon.ico");
-define("RECAPTCHA_PRIV_KEY","6LfQQ-kSAAAAAFJ64dbozmkTqS89FtEGdc0c1M9r");
+use ccny\scidiv\cores\view\CoreView as CoreView;
+use Symfony\Component\HttpFoundation\Request as Request;
+use Symfony\Component\HttpFoundation\Session\Session as Session;
 
-define("SYSTEM_EMAIL","corelabs@ccny.cuny.edu");
+$request = Request::createFromGlobals();
+$session = new Session();
+$session->start();
+
+$view = new CoreView();
+$view->loadTemplate('loginproblems.html.twig');
+
+$template_vars = ["email"=>\SYSTEM_EMAIL];
+
+echo $view->render($template_vars);

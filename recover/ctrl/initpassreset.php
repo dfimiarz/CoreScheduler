@@ -1,22 +1,32 @@
 <?php
 
 include_once __DIR__ . '/../../ccny/scidiv/cores/autoloader.php';
+include_once __DIR__ . '/../../ccny/scidiv/cores/config/config.php';
 include_once __DIR__ . '/../../ccny/scidiv/cores/components/SystemConstants.php';
 
+use Symfony\Component\HttpFoundation\Request as Request;
+use Symfony\Component\HttpFoundation\Session\Session as Session;
 use ccny\scidiv\cores\components\UserManager as UserManager;
 
-session_start();
+$ctrl = new PasswordResetInitCtrl();
+$ctrl->runJob();
 
-unset($_SESSION['err_msg']);
-unset($_SESSION['info_msg']);
+class PasswordResetInitCtrl {
 
-$cntr = new CoreLabsController();
-$cntr->runJob();
+    /** @var Request */
+    private $request;
 
-class CoreLabsController {
+    /** @var Session */
+    private $session;
 
     public function __construct() {
-        
+        $this->request = Request::createFromGlobals();
+
+        $this->session = new Session();
+        $this->session->start();
+
+        $this->session->remove('err_msg');
+        $this->session->remove('info_msg');
     }
 
     public function runJob() {
@@ -45,7 +55,6 @@ class CoreLabsController {
             $handler = new UserManager();
 
             $handler->initPasswordReset($user_info->uname);
-            
         } catch (Exception $e) {
             //Send error message to the client
 
@@ -84,9 +93,10 @@ class CoreLabsController {
 
         //check if required variables are defined
         foreach ($requiredFields as $key => $value) {
-            if (!isset($_POST[$key]) || $_POST[$key] == "") {
+            $value = $this->request->request->get($key);
+            if (empty($value)) {
                 $error_obj->field = $key;
-                $error_obj->msg = $value;
+                $error_obj->msg = $requiredFields[$key];
                 $error_obj->type = \VAL_FIELD_ERROR;
 
                 //return after each field that is found wrong
@@ -94,11 +104,12 @@ class CoreLabsController {
             }
         }
 
-        if (trim($_POST["uname"]) == "") {
+        $uname = $this->request->request->get('uname', null);
+
+        if (empty(\trim($uname))) {
             $error_obj->field = "uname";
             $error_obj->msg = "User name is empty";
             $error_obj->type = \VAL_FIELD_ERROR;
-            $err_obj->code = 0;
 
             return $error_obj;
         }
@@ -107,15 +118,15 @@ class CoreLabsController {
     }
 
     private function success() {
-        $_SESSION['info_msg'] = "Request has been processed. Please check your email for instructions how to proceed.";
-        header("Location: ../confirmpassrecover.php", TRUE, 303);
-        die();
+        $this->session->set('info_msg', "Request has been processed. Please check your email for instructions how to proceed.");
+        header("Location: ./../success.php", TRUE, 303);
+        exit();
     }
 
     private function failure($error_obj) {
-        $_SESSION['err_msg'] = $error_obj->msg;
+        $this->session->set('err_msg', $error_obj->msg);
         header('Location: ./../password.php');
-        die();
+        exit();
     }
 
 }

@@ -10,5 +10,5 @@ $loader->addPrefix('Symfony\\Component\\Yaml', __DIR__ . '/../../../ext/Symfony/
 $loader->addPrefix('ccny\\scidiv\\cores\\components\\auth', __DIR__ . '/components/auth');
 $loader->addPrefix('ccny\\scidiv\\cores\\components', __DIR__ . '/components');
 $loader->addPrefix('ccny\\scidiv\\cores\\model', __DIR__ . '/model');
-$loader->addPrefix('ReCaptcha', __DIR__ . '/../../../ext/ReCaptcha');
+$loader->addPrefix('ReCaptcha', __DIR__ . '/../../../ext/recaptcha');
 $loader->register();

@@ -29,19 +29,19 @@
                     </table>
                 </div>
                 <div class="calendar_view_element" id="account_recovery_pannel">
-                    <div id="page_intro_lbl">Recover your username</div>
+                    <div id="page_intro_lbl">Recover you username</div>
                     <form method="POST" action="./ctrl/dologinreminder.php" autocomplete="off">
-                        <div class="pass_recovery_msg">
-                            {% if err_msg %}
-                                <div id="password_rec_error" class="alert alert-danger">{{ err_msg }}</div>';
-                            {% endif %}
-                        </div>
+                        {% if err_msg %}
+                            <div class="pass_recovery_msg">
+                                <div id="password_rec_error" class="alert alert-danger">{{ err_msg|e }}</div>';
+                            </div>
+                        {% endif %}
                         <div class="pass_rec_cont">
                             <label for="emailinput">E-mail address associated with your account:</label>
                             <input type='text' name="email" value="" id="emailinput" maxlength="64" class="form-control" placeholder="Your e-mail:"/>
                         </div>
                         <div class="pass_rec_cont">
-                            <label for="unameinput">Are you a robot?</label>
+                            <label for="unameinput">0100010001000110?</label>
                             <div class="g-recaptcha" data-sitekey="6LfQQ-kSAAAAAPPUG9Jy31yoSfKyY6N8UQmgqzmB"></div>
                         </div>
                         <div class="pass_rec_cont">

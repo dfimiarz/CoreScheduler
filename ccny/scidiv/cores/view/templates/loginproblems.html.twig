@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>CCNY Core Facilties - Account recovery</title>
+
+        <link href="css/loginproblems.css" rel="stylesheet" type="text/css" />
+
+        <script language="javascript" type="text/javascript" src="jquery/jquery-1.10.2.min.js"></script>
+        <script language="javascript" type="text/javascript" src="jquery/jquery-ui-1.10.3.recovery_page.min.js"></script>
+    </head>
+    <body>
+        <div class="page_element" id="view_port">
+            <div id="calendar_view">
+                <div>
+                    <table id="top_panel_container">
+                        <tr>
+                            <td>
+                                <div id="info" class="corecal_gen_container navigation_panel">
+                                    <div id="logo_container">
+                                        <img src="images/logo.png" alt='Site logo'/>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="account_recovery_pannel">
+                    <div id="page_intro_lbl">Please choose one of the options:</div>
+                    <div id="recovery_menu">
+                        <div class="recovery_menu_item">
+                            <div class="problem_title">&#x95; Forgot your password?</div>
+                            <div class="problem_solution">Please use the password rest page available <a href="./recover/password.php">here.</a></div>
+                        </div>
+                        <div class="recovery_menu_item">
+                            <div class="problem_title">&#x95; Forgot your username?</div>
+                            <div class="problem_solution">Your user name can be recovered using the form available <a href="./recover/username.php">here.</a></div>
+                        </div>
+                        <div class="recovery_menu_item">
+                            <div class="problem_title">&#x95; I have another issue with my account</div>
+                            <div class="problem_solution">To report issues with the system please send an email to: <strong>{{ email }}</strong></div>
+                        </div>
+                        <div>
+                        </div>
+                        <div id="credits">
+                            Developed and maintained by: <a href="http://forum.sci.ccny.cuny.edu/people/science-division-directory/danielf">Daniel Fimiarz</a>, The City College of New York, CUNY.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+

@@ -7,11 +7,12 @@ include_once __DIR__ . '/../../ccny/scidiv/cores/components/SystemConstants.php'
 use ReCaptcha\ReCaptcha as ReCaptcha;
 use Symfony\Component\HttpFoundation\Request as Request;
 use Symfony\Component\HttpFoundation\Session\Session as Session;
+use ccny\scidiv\cores\components\UserManager as UserManager;
 
-$cntr = new CoreLabsController();
-$cntr->runJob();
+$un_reminder = new UsernameReminder();
+$un_reminder->runJob();
 
-class CoreLabsController {
+class UsernameReminder {
 
     /** @var ReCaptcha */
     private $recaptcha;
@@ -130,7 +131,7 @@ class CoreLabsController {
 
     private function success() {
         $this->session->set('info_msg',"Request has been processed. Please check your email for instructions how to proceed.");
-        header("Location: ./confirmloginrecovery.php", TRUE, 303);
+        header("Location: ./../success.php", TRUE, 303);
         exit();
     }
 
