@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>{{page_title|e}}</title>
+{% if icon is defined %}
+<link rel="shortcut icon" href="{{icon}}">
+{% endif %}
+<link href="./css/login.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<div class="page_element" id="view_port">
+	    <div id="calendar_view">
+			<div class="calendar_view_element">
+				<!-- Main container-->
+				<div class="layout_row" id="banner_row">
+					<div class="corecal_gen_container top_bar_element">
+							<div id="logo_container">
+								<img src="./images/logo.png"></img>
+							</div>
+					</div>
+				</div>
+				<div class="layout_row">
+					<div class="login_wrapper page_sub_element">
+						<div id="login_help_header">Sign in:</div>
+						<form id="login_form" action="./ccny/scidiv/cores/ctrl/LoginCtrl.php" method="POST">
+                                                        {% if destination %}
+                                                        <input type="hidden" name="dest" value="{{destination}}"/>
+                                                        {% endif %}
+                                                        {% if error_txt %}
+							<div class="login_form_element login_form_fld" id="error_msg">
+                                                            <img id="warning_img" src="./images/warning.png"></img>&nbsp;{{error_txt}}
+                                                        </div>
+							{% endif %}
+							<div class="login_form_element login_form_fld" >
+								<input type="text" id="username_txt" class="login_txt_box" name="user" placeholder="username"/>
+							</div>
+							<div class="login_form_element login_form_fld">
+								<input type="password" id="password_txt" class="login_txt_box" name="pass" placeholder="password"/>
+							</div>
+							<div class="login_form_element login_form_btn">
+								<input type="submit" id="login_btn" value="Sign in"/>
+							</div>
+						</form>
+					</div>
+					<div class="login_help page_sub_element">
+						<div id="login_help_header">Sign In Help</div>
+						<div class="login_help_item"> Forgot your username or password? <a href="./loginproblems.html">Get help here.</a></div>
+						<div class="login_help_item"> Need an account? <a href="./register.php">Click here to register.</a></div>
+					</div>
+				</div>
+				<!-- Main container-->
+			</div>
+
+	        <div id="credits">
+	         	<b>CoreLABS</b> - Developed and maintained by: <a href="http://forum.sci.ccny.cuny.edu/people/science-division-directory/danielf">Daniel Fimiarz</a>, The City College of New York, CUNY
+	        </div>
+	    </div>
+	</div>
+</body>
+</html>
