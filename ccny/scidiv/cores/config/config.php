@@ -30,3 +30,4 @@ define("SYSTEM_ICON","./images/scidivicon.ico");
 define("RECAPTCHA_PRIV_KEY","6LfQQ-kSAAAAAFJ64dbozmkTqS89FtEGdc0c1M9r");
 
 define("SYSTEM_EMAIL","corelabs@ccny.cuny.edu");
+define("APP_ROOT","corescheduler");

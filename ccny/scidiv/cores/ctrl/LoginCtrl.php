@@ -33,7 +33,9 @@ use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\ctrl\RAPController as RAPController;
 
 /**
- * Description of LoginCtrl
+ * Allows for a login through a POST request (using the Redirect After Post
+ * methodology). Logging probably does not deserve ajax due lesser impact on
+ * user experience. 
  *
  * @author Daniel F
  */
