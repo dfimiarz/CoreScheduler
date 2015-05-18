@@ -37,11 +37,11 @@ class CoreView {
     private $twig_env;
     private $tmpl;
     
-    function __construct() {
+    function __construct($template_dir) {
 
         \Twig_Autoloader::register();
 
-        $loader = new \Twig_Loader_Filesystem(__DIR__ . '/templates');
+        $loader = new \Twig_Loader_Filesystem($template_dir);
         $this->twig_env = new \Twig_Environment($loader, array('debug' => FALSE));
     }
     

@@ -12,7 +12,7 @@ $utils = Utils::getObject();
 
 $rid = $utils->getRID();
 
-$view = new CoreView();
+$view = new CoreView(__DIR__ . '/ccny/scidiv/cores/view/templates/');
 $view->loadTemplate('main.html.twig');
 
 $arr_variables = ["rid" => $rid,"page_title"=>"DivOfScience - Conference Room Reservations","icon"=>SYSTEM_ICON];

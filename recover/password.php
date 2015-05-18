@@ -16,7 +16,7 @@ $session->start();
 $err_msg = $session->get('err_msg',null);
 $session->remove('err_msg');
 
-$view = new CoreView();
+$view = new CoreView(__DIR__ . '/view/templates');
 $view->loadTemplate('recover_password.html.twig');
 
 $template_vars = ["err_msg"=>$err_msg];

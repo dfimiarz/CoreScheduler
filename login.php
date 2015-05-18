@@ -44,7 +44,7 @@ $session->remove('login_err');
 
 $after_login_dest = $request->query->get('dest','');
 
-$view = new CoreView();
+$view = new CoreView(__DIR__ . '/ccny/scidiv/cores/view/templates/');
 $view->loadTemplate('login.html.twig');
 
 $arr_variables = ['destination'=>$after_login_dest,"error_txt"=>$error_txt,"page_title"=>"DivOfScience - Conference Room Reservations","icon"=>SYSTEM_ICON];

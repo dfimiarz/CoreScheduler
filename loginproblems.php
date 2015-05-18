@@ -41,7 +41,7 @@ $request = Request::createFromGlobals();
 $session = new Session();
 $session->start();
 
-$view = new CoreView();
+$view = new CoreView(__DIR__ . '/ccny/scidiv/cores/view/templates/');
 $view->loadTemplate('loginproblems.html.twig');
 
 $template_vars = ["email"=>\SYSTEM_EMAIL];
