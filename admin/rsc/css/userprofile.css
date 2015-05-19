@@ -1,0 +1,72 @@
+@charset "utf-8";
+/* CSS Document */
+
+body{
+    background-color: #FFFFFF;
+    overflow-y: scroll;
+}
+
+a, img
+{
+    border: none;
+}
+
+.main_container
+{
+
+    width: 640px;
+    margin-left: auto;
+    margin-right:auto;
+
+}
+
+
+#credits
+{
+    font-family: arial,sans-serif;
+    font-size: x-small;
+    margin-top: 15px;
+    text-align: center;
+}
+
+
+.navigation_panel
+{
+    font-size: .7em;
+    height: 120px;
+}
+
+#top_panel_container
+{
+
+    width: 100%;
+    border-collapse:separate; 
+
+}
+
+#logo_container{
+
+    width: 100%;
+    text-align: center;
+
+}
+
+
+.corecal_gen_container
+{
+
+    overflow: hidden;
+    vertical-align: middle;
+
+}
+
+#account_recovery_pannel
+{
+    width: 80%;
+    margin-bottom: 50px;
+    margin: auto;
+    font-size: .8em;
+
+}
+
+
