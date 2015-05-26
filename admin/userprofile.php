@@ -17,6 +17,16 @@ $user_id = $request->query->get('uid',null);
 $view = new CoreView(__DIR__ . '/view/templates');
 $view->loadTemplate('user_profile.html.twig');
 
-$template_vars = [];
+$template_vars = [
+    "fname"=>"John Doe",
+    "uname"=>"jdoe",
+    "email"=>"jdoe@ok.com",
+    "phone"=>"(646) 238-2087",
+    "mentor"=>"William Smith",
+    "type"=>"Internal",
+    "dt_active"=>"01/01/2015",
+    "note"=>"This is a test note. Not sure how long it can be. Wrapping should be tested just in case it is too long to fit. It is also good to test event longer text"
+    
+];
 
 echo $view->render($template_vars);
