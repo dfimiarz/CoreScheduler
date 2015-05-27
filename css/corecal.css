@@ -477,3 +477,19 @@ img.help_icon_small
     margin-top: 5px;
 }
 
+
+#user_details_btn
+{
+    
+    color: white;
+    font-size: x-small;
+    border: 1px solid;
+    border-color: #2694e8;
+    border-radius: 2px;
+    background: #3baae3;
+    text-decoration: none;
+    margin: 2px;
+    cursor: pointer;
+    
+}
+

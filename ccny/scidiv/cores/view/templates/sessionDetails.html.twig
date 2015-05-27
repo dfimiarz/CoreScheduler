@@ -7,7 +7,18 @@
     {% endif %}
     {% if username is defined %}
     <div class="dialog_item">
-        <a id="e_user_name" data-value="{{user_id|e}}" class="field_value large_dialog_txt">{{username|e}}</a> <!--<span class="small_dialog_txt">[show more]</span>-->
+        
+        <a id="e_user_name" data-value="{{user_id|e}}" class="field_value large_dialog_txt">{{username|e}}</a>
+        {% if user_id is defined %}
+            <span id="user_details_btn">details</span>
+            <script>
+                $("#user_details_btn").on("click",function(e)
+                {
+                   window.open("./admin/userprofile.php", "_blank", "left=0,width=350,height=500,menubar=0,status=0,titlebar=0,resizable=1,scrollbars=1"); 
+                });
+            </script>
+        {% endif %}
+        
     </div>
     {% endif %}
     {% if time is defined %}
