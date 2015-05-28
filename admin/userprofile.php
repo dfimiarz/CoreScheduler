@@ -1,8 +1,8 @@
 <?php
 
-include_once __DIR__ . '/autoloader.php';
-include_once '../ccny/scidiv/cores/config/config.php';
-include_once '../ccny/scidiv/cores/view/CoreView.php';
+include_once __DIR__ . '/../ccny/scidiv/cores/admin/autoloader.php';
+include_once __DIR__ . '/../ccny/scidiv/cores/config/config.php';
+include_once __DIR__ . '/../ccny/scidiv/cores/view/CoreView.php';
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
 use Symfony\Component\HttpFoundation\Request as Request;
@@ -14,7 +14,7 @@ $session->start();
 
 $user_id = $request->query->get('uid',null);
 
-$view = new CoreView(__DIR__ . '/view/templates');
+$view = new CoreView(__DIR__ . '/../ccny/scidiv/cores/admin/view/templates');
 $view->loadTemplate('user_profile.html.twig');
 
 $template_vars = [

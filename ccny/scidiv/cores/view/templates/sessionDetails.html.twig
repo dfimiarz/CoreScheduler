@@ -1,36 +1,36 @@
 <div id="session_info_fields">
     {% if record_id is defined %}
-    <input type="hidden" value="{{record_id}}" name="s_rec_id" id="s_rec_id">
+        <input type="hidden" value="{{record_id}}" name="s_rec_id" id="s_rec_id">
     {% endif %}
     {% if timestamp is defined %}
-    <input type="hidden" value="{{timestamp}}" name="s_timestamp" id="s_timestamp">
+        <input type="hidden" value="{{timestamp}}" name="s_timestamp" id="s_timestamp">
     {% endif %}
     {% if username is defined %}
-    <div class="dialog_item">
-        
-        <a id="e_user_name" data-value="{{user_id|e}}" class="field_value large_dialog_txt">{{username|e}}</a>
-        {% if user_id is defined %}
-            <span id="user_details_btn">details</span>
-            <script>
-                $("#user_details_btn").on("click",function(e)
-                {
-                   window.open("./admin/userprofile.php", "_blank", "left=0,width=350,height=500,menubar=0,status=0,titlebar=0,resizable=1,scrollbars=1"); 
-                });
-            </script>
-        {% endif %}
-        
-    </div>
+        <div class="dialog_item">
+
+            <a id="e_user_name" data-value="{{user_id|e}}" class="field_value large_dialog_txt">{{username|e}}</a>
+            {% if user_id is defined %}
+                <span id="user_details_btn">User Info</span>
+                <script>
+                    $("#user_details_btn").on("click", function (e)
+                    {
+                        window.open("./admin/userprofile.php?uid={{user_id}}", "_blank", "left=0,width=350,height=500,menubar=0,status=0,titlebar=0,resizable=1,scrollbars=1");
+                    });
+                </script>
+            {% endif %}
+
+        </div>
     {% endif %}
     {% if time is defined %}
-    <div class="dialog_item medium_dialog_txt" id="dialog_time_cont">
-        <span id="s_time" class="field_value">{{time|e}}</span>
-    </div>
+        <div class="dialog_item medium_dialog_txt" id="dialog_time_cont">
+            <span id="s_time" class="field_value">{{time|e}}</span>
+        </div>
     {% endif %}
     {% if activity is defined %}
-    <div class="dialog_item small_dialog_txt">
-        <span class="field_label">Activity:</span>
-        <span id="s_time" class="field_value">{{activity}}</span>
-    </div>
+        <div class="dialog_item small_dialog_txt">
+            <span class="field_label">Activity:</span>
+            <span id="s_time" class="field_value">{{activity}}</span>
+        </div>
     {% endif %}
     {% if note is defined %}    
         <div class="dialog_item small_dialog_txt">
@@ -41,21 +41,23 @@
 </div>
 <!-- If editing is enabled -->
 {% if can_cancel or can_edit_user or can_edit_note %}
-<hr>
-<div class="session_info_cntrl_pannel" id="s_info_cntr_panel">
-    {% if can_cancel %}
-    <span id="cancel_btn" style="text-decoration: underline;font-weight: bold; cursor: pointer; float: right;">Delete</span>
-    {% endif %}
-</div>
+    <hr>
+    <div class="session_info_cntrl_pannel" id="s_info_cntr_panel">
+        {% if can_cancel %}
+            <span id="cancel_btn" style="text-decoration: underline;font-weight: bold; cursor: pointer; float: right;">Delete</span>
+        {% endif %}
+    </div>
 {% endif %}
 {% if can_cancel %}
-<script type="text/javascript" src="js/controllers/CancelSession.js"></script>
+    <script type="text/javascript" src="js/controllers/CancelSession.js"></script>
 {% endif %} 
 
 {% if can_edit_note %}
-<script type="text/javascript" src="js/controllers/EditNote.js"></script>
+    <script type="text/javascript" src="js/controllers/EditNote.js"></script>
 {% endif %}
 
 {% if can_edit_user  %}
-<script type="text/javascript" src="js/controllers/EditUser.js"></script>
+    <script type="text/javascript" src="js/controllers/EditUser.js"></script>
 {% endif %}
+
+

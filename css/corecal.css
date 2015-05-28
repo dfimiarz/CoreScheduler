@@ -482,7 +482,7 @@ img.help_icon_small
 {
     
     color: white;
-    font-size: x-small;
+    font-size: small;
     border: 1px solid;
     border-color: #2694e8;
     border-radius: 2px;
@@ -490,6 +490,11 @@ img.help_icon_small
     text-decoration: none;
     margin: 2px;
     cursor: pointer;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 5px;
+    text-decoration: underline;
+    float: right;
     
 }
 
