@@ -41,5 +41,16 @@ class UserDetails {
     public $type;
     public $lastactive;
     public $note;
+    
+    public function __construct() {
+        $this->name = "Unkn";
+        $this->username = "Unkn";
+        $this->email = "Unkn";
+        $this->phone = "Unkn";
+        $this->mentor = "Unkn";
+        $this->type = "Unkn";
+        $this->lastactive = "Unkn";
+        $this->note = "Unkn";
+    }
 
 }

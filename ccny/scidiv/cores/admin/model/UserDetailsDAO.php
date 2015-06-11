@@ -51,7 +51,7 @@ class UserDetailsDAO extends CoreComponent{
     public function getUserDetails($dec_user_id)
     {
         /* @var $details UserDetails */
-        $user_details = null;
+        $user_details = new UserDetails();
 
         $query = "SELECT concat(firstname,' ',lastname) as name,c.username,c.last_active, c.phone,c.email, concat(p.first_name,' ',p.last_name) as pi, c.user_type ,c.note FROM core_users c,people p where c.id = ? and p.individual_id = c.pi";
         
@@ -60,43 +60,24 @@ class UserDetailsDAO extends CoreComponent{
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
-        if( ! mysqli_stmt_bind_param($stmt, 'i', $dec_user_id)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
+        if( ! $stmt->bind_param('i', $dec_user_id)){
+            $this->throwDBError($stmt->error, $stmt->errno);
         }
 
-        if( ! mysqli_stmt_execute($stmt)){
-            $this->throwDBError($this->connection->error, $this->connection->errno);
+        if( ! $stmt->execute()){
+            $this->throwDBError($stmt->error, $stmt->errno);
         }
-
-//        $temp = new \stdClass();
-//        
-//        if( ! mysqli_stmt_bind_result($stmt,$temp->record_id,$temp->user_id,$temp->firstname,$temp->lastname,$temp->username,$temp->email,$temp->piname,$temp->timestamp,$temp->start,$temp->end,$temp->note,$temp->event_state,$temp->service_id,$temp->service_name,$temp->resource_name )){
-//            $this->throwDBError($this->connection->error, $this->connection->errno);
-//        }
-//        
-//        if (mysqli_stmt_fetch($stmt)) {
-//            
-//            $details = new CoreEventDetails($temp->record_id,new \DateTime($temp->timestamp));
-//            
-//            $details->setStart(new \DateTime($temp->start));
-//            $details->setEnd(new \DateTime($temp->end));
-//            $details->setServiceId($temp->service_id);
-//            $details->setUserId($temp->user_id);
-//            $details->setEventState($temp->event_state);
-//            $details->setNote($temp->note);
-//            $details->setFirstname($temp->firstname);
-//            $details->setLastname($temp->lastname);
-//            $details->setUsername($temp->username);
-//            $details->setEmail($temp->email);
-//            $details->setPiname($temp->piname);
-//            $details->setService($temp->service_name);
-//            $details->setResource($temp->resource_name);
-//            
-//            
-//        }
-//
-        mysqli_stmt_close($stmt);
         
-        return $details;
+        if( ! $stmt->bind_result($user_details->name,$user_details->username,$user_details->lastactive,$user_details->phone,$user_details->email,$user_details->mentor,$user_details->type,$user_details->note )){
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+        
+        if ($stmt->fetch() == FALSE) {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        $stmt->close();
+        
+        return $user_details;
     }
 }

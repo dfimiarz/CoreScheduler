@@ -36,15 +36,14 @@ $view = new CoreView(__DIR__ . '/../ccny/scidiv/cores/admin/view/templates');
 $view->loadTemplate('user_profile.html.twig');
 
 $template_vars = [
-    "fname"=>"John Doe",
-    "uname"=>"jdoe",
-    "email"=>"jdoe@ok.com",
-    "phone"=>"(646) 238-2087",
-    "mentor"=>"William Smith",
-    "type"=>"Internal",
-    "dt_active"=>"01/01/2015",
-    "note"=>"This is a test note. Not sure how long it can be. Wrapping should be tested just in case it is too long to fit. It is also good to test event longer text"
-    
+    "fname"=>$user_details->name,
+    "uname"=>$user_details->username,
+    "email"=>$user_details->email,
+    "phone"=>$user_details->phone,
+    "mentor"=>$user_details->mentor,
+    "type"=>$user_details->type,
+    "dt_active"=>$user_details->lastactive,
+    "note"=>$user_details->note
 ];
 
 echo $view->render($template_vars);
