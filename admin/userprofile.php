@@ -28,8 +28,11 @@ $ctrl = new UserDetailsCtrl($logged_in_user);
 
 $enc_user_id = $request->query->get('uid',null);
 
-/* @var $user_details UserDetails */
 $user_details = $ctrl->getUserDetails($enc_user_id);
+
+if (!$user_details instanceof UserDetails) {
+    $user_details = new UserDetails();
+}
 
 
 $view = new CoreView(__DIR__ . '/../ccny/scidiv/cores/admin/view/templates');

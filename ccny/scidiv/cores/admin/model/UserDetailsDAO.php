@@ -68,12 +68,21 @@ class UserDetailsDAO extends CoreComponent{
             $this->throwDBError($stmt->error, $stmt->errno);
         }
         
-        if( ! $stmt->bind_result($user_details->name,$user_details->username,$user_details->lastactive,$user_details->phone,$user_details->email,$user_details->mentor,$user_details->type,$user_details->note )){
+        $temp = new \stdClass();
+        
+        if( ! $stmt->bind_result($temp->name,$temp->username,$temp->lastactive,$temp->phone,$temp->email,$temp->mentor,$temp->type,$temp->note )){
             $this->throwDBError($stmt->error, $stmt->errno);
         }
         
-        if ($stmt->fetch() == FALSE) {
-            $this->throwDBError($stmt->error, $stmt->errno);
+        if ($stmt->fetch()) {
+            $user_details->name = $temp->name;
+            $user_details->username = $temp->username;
+            $user_details->lastactive = $temp->lastactive;
+            $user_details->phone = $temp->phone;
+            $user_details->email = $temp->email;
+            $user_details->mentor = $temp->mentor;
+            $user_details->type = $temp->type;
+            $user_details->note = $temp->note;
         }
 
         $stmt->close();

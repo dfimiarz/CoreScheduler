@@ -33,6 +33,7 @@ namespace ccny\scidiv\cores\admin\model;
  */
 class UserDetails {
     
+    
     public $name;
     public $username;
     public $email;
@@ -43,6 +44,7 @@ class UserDetails {
     public $note;
     
     public function __construct() {
+        
         $this->name = "Unkn";
         $this->username = "Unkn";
         $this->email = "Unkn";

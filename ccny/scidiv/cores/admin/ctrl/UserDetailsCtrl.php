@@ -30,6 +30,8 @@ use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\admin\model\UserDetailsDAO as UserDetailsDAO;
+use ccny\scidiv\cores\admin\model\UserDetails as UserDetails;
+use ccny\scidiv\cores\components\CryptoManager as CryptoManager;
 
 /**
  * Description of UserDetailsCtrl
@@ -42,6 +44,7 @@ class UserDetailsCtrl extends CoreComponent {
     private $user;
     private $pm;
     private $ud_dao;
+   
     
     public function __construct(CoreUser $core_user) {
 
@@ -59,16 +62,21 @@ class UserDetailsCtrl extends CoreComponent {
 
         $this->ud_dao = new UserDetailsDAO($this->connection);
         
+        
     }
     
     public function getUserDetails($enc_user_id)
     {
-             
-        //Decrypt user id
-        $dec_user_id = $enc_user_id;
+        $crypto_mngr = new CryptoManager();
+        $dec_user_id = $crypto_mngr->decrypt($enc_user_id);
         
         //Get and return UserDetails object
-        return $this->ud_dao->getUserDetails($dec_user_id);
+        try {
+            return $this->ud_dao->getUserDetails($dec_user_id);
+        } catch (\Exception $ex) {
+            return null;
+        }
+        
         
     }
     
