@@ -77,7 +77,11 @@ class UserDetailsCtrl extends CoreComponent {
             return null;
         }
         
+        //Get logged in user services with VIEW_USER_PROFILE permission
         
+        //Get services for the account being accessed;
+        
+        //If they intersect then this user can profile can be seen
     }
     
 }

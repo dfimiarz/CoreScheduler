@@ -53,7 +53,7 @@ class UserDetailsDAO extends CoreComponent{
         /* @var $details UserDetails */
         $user_details = new UserDetails();
 
-        $query = "SELECT concat(firstname,' ',lastname) as name,c.username,c.last_active, c.phone,c.email, concat(p.first_name,' ',p.last_name) as pi, c.user_type ,c.note FROM core_users c,people p where c.id = ? and p.individual_id = c.pi";
+        $query = "SELECT concat(firstname,' ',lastname) as name,c.username,c.last_active, c.phone,c.email, concat(p.first_name,' ',p.last_name) as pi, cut.description as type ,c.note FROM core_users c,people p, core_user_types cut WHERE c.id = ? and p.individual_id = c.pi and cut.id = c.user_type";
         
 
         if( ! $stmt = mysqli_prepare($this->connection, $query)){
