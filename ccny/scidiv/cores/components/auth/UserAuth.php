@@ -26,8 +26,8 @@
 
 namespace ccny\scidiv\cores\components\auth;
 
-include_once(__DIR__ . '/../CoreComponent.php');
-include_once(__DIR__ . '/../SystemConstants.php');
+include_once(__DIR__ . '\..\CoreComponent.php');
+include_once(__DIR__ . '\..\SystemConstants.php');
 
 abstract class UserAuth extends \ccny\scidiv\cores\components\CoreComponent {
     

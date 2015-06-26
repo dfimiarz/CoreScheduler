@@ -26,7 +26,7 @@
 
 namespace ccny\scidiv\cores\components\auth;
 
-include_once __DIR__ . '/../SystemConstants.php';
+include_once __DIR__ . '\..\SystemConstants.php';
 
 use ccny\scidiv\cores\components\auth\UserAuth as UserAuth;
 
