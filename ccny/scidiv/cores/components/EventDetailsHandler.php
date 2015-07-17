@@ -31,6 +31,7 @@ include_once __DIR__ . '/DbConnectInfo.php';
 include_once __DIR__ . '/CoreComponent.php';
 include_once __DIR__ . '/SystemConstants.php';
 include_once __DIR__ . '/UserRoleManager.php';
+include_once __DIR__ . '/CryptoManager.php';
 include_once __DIR__ . '/../model/PermissionManager.php';
 include_once __DIR__ . '/../model/CoreUser.php';
 include_once __DIR__ . '/../model/CoreEventDetails.php';
@@ -41,6 +42,7 @@ use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\UserRoleManager as UserRoleManager;
+use ccny\scidiv\cores\components\CryptoManager as CryptoManager;
 use ccny\scidiv\cores\model\CoreEventDetails as CoreEventDetails;
 use ccny\scidiv\cores\model\CoreEventDetailsDAO as CoreEventDetailsDAO;
 
@@ -54,11 +56,12 @@ class EventDetailsHandler extends CoreComponent {
     //put your code here
     private $pm;
     
-    private $key = "lENb2bPRk)c&k0ebY0nSxiq9iKgg8WYU";
-    
     private $connection;
 
     private $detailsDAO;
+    
+     /* @var $crypto CryptoManager */
+    private $crypto;
 
     public function __construct(CoreUser $core_user) {
 
@@ -76,6 +79,8 @@ class EventDetailsHandler extends CoreComponent {
 
         $this->pm = new PermissionManager($this->connection);
         $this->detailsDAO = new CoreEventDetailsDAO($this->connection);
+        
+        $this->crypto = new CryptoManager();
     }
 
     /**
@@ -98,12 +103,8 @@ class EventDetailsHandler extends CoreComponent {
 
         $now_dt = new \DateTime();
 
-        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-
-        $record_id = trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, base64_decode($encrypted_record_id), MCRYPT_MODE_ECB, $iv));
-        
-        
+        $record_id = $this->crypto->decrypt($encrypted_record_id);
+                
         /* @var $details CoreEventDetails */
         $details = $this->detailsDAO->getCoreEventDetails($record_id,new \DateTime($timestamp));
         
@@ -168,7 +169,7 @@ class EventDetailsHandler extends CoreComponent {
         }
 
         if ($this->pm->hasPermission($permissions_a, \DB_PERM_CHANGE_OWNER)) {
-            $user_id_enc = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $this->key, $details->getUserId(), MCRYPT_MODE_ECB, $iv));
+            $user_id_enc = $this->crypto->encrypt($details->getUserId());
             $ArrDetails['user_id'] = $user_id_enc;
             $ArrDetails['can_edit_user'] = true;
         }
