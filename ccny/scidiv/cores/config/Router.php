@@ -29,8 +29,9 @@ namespace ccny\scidiv\cores\config;
 include_once __DIR__ . './config.php';
 
 /**
- * Description of Router
- *
+ * This class is used for by other components utilizing redirect after submit.
+ * Keys in the 'routes' array correspond to actual URLs
+ * 
  * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
 class Router {
