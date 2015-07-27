@@ -27,8 +27,10 @@
 namespace ccny\scidiv\cores\permissions;
 
 include_once __DIR__ . '/../components/CoreComponent.php';
+include_once __DIR__ . '/PermissionToken.php';
 
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
+use ccny\scidiv\cores\permissions\PermissionToken as PermissionToken;
 /**
  * Description of PermissionManager
  * 

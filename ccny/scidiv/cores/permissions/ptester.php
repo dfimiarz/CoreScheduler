@@ -1,6 +1,6 @@
 <?php
 
-/*
+/* 
  * The MIT License
  *
  * Copyright 2015 Daniel Fimiarz <dfimiarz@ccny.cuny.edu>.
@@ -24,55 +24,28 @@
  * THE SOFTWARE.
  */
 
-namespace ccny\scidiv\cores\permissions;
+include_once __DIR__ . '/PermissionManager.php';
+include_once __DIR__ . '/EventPermToken.php';
 
-/**
- * Description of PermissionToken
- *
- * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
- */
-abstract class PermissionToken {
-    /**
-     *
-     * @var type 2D Array of attributs assigned to this token
-     * 
-     */
-    protected $attribs;
-    /**
-     *
-     * @var type array of attribute names used by a PermissionToken object
-     */
-    protected $keys;
+use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
+use ccny\scidiv\cores\permissions\PermissionToken as PermissionToken;
+use ccny\scidiv\cores\permissions\EventPermToken as EventPermToken;
 
-    public function __construct() {
-        $this->attribs = [];
-        $this->keys = [];
-    }
+echo "Testing permission";
+
+$token = new EventPermToken();
+
+$token->setAttribute("user_roles", [1,2]);
+$token->setAttribute("service_states", [1,2]);
+$token->setAttribute("event_states", [1,2]);
+
+print_r($token->getTokenAttribs());
+
+$pmngr = new PermissionManager(1);
 
 
-    public function getTokenAttribs(){
-        return $this->attribs;
-    }
-    
-    public function setAttribute($key,$values)
-    {
-        
-        if(is_array($this->attribs) && is_array($this->keys) ){
-            if(in_array($key,$this->keys))
-            {
-                $this->attribs[$key] = $values;
-            }
-            
-        }
-    }
-    
-    public function getAttribute($key)
-    {
-        if( isset($this->attribs[$key]))
-        {
-            return $this->attribs[$key];
-        }
-        
-        return [];
-    }
-}
+
+$pmngr->checkPermission($token);
+
+
+
