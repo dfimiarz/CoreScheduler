@@ -41,7 +41,7 @@ use ccny\scidiv\cores\permissions\PermissionToken as PermissionToken;
  */
 class PermissionManager extends CoreComponent{
     //put your code here
-    private $perm_criteria = [];
+    private $auth_criteria = [];
     
     public function __construct($permission_id) {
         $this->loadCriteria($permission_id);
@@ -50,30 +50,36 @@ class PermissionManager extends CoreComponent{
     
     public function checkPermission(PermissionToken $token)
     {
-        $perm_result = true;
+        $is_authorized = TRUE;
         
-        //Look through perm_criteria array
-        foreach ($this->perm_criteria as $key => $carray) {
-            //For each perm criteria get criteria's name and values
-            foreach ($carray as $attrib_name => $attrib_array) {
+        //Loop through $auth_criteria 
+        foreach ($this->auth_criteria as $criteria) {
+            //Evaluate each set of permission criteria agains the token
+            $is_authorized = TRUE;
+            foreach ($criteria as $criterium_name => $criterium_values) {
                 //Compare attributes from criteria with attributes from the token
-                $result = array_intersect($attrib_array, $token->getAttribute($attrib_name));
+                $token_attr_values = $token->getAttribute($criterium_name);
+                
+                $result = array_intersect($criterium_values, $token_attr_values);
                 if (!count($result)) {
-                    $perm_result = false;
-                    break 2;
+                    //If there is no intersection, move to the next criteria
+                    $is_authorized = FALSE;
+                    break;
                 }
+            }
+            //If at this point perm result is TURE, auth success
+            if( $is_authorized ){
+                return $is_authorized;
             }
         }
         
-        return $perm_result;
+        return $is_authorized;
     }
     
     private function loadCriteria($permission_id)
     {
-        $this->perm_criteria[] = array("user_roles"=>[1,2,4,5],"service_states"=>[1,2,3,4],"event_states"=>[1,2]);
-        $this->perm_criteria[] = array("user_roles"=>[1,2],"service_states"=>[1],"event_states"=>[2]);
-        $this->perm_criteria[] = array("user_roles"=>[1,2,4,5,6],"service_states"=>[2],"event_states"=>[1,2]);
-        
+        $json = '{"user_roles":[1,2],"service_states":[1,2,3],"event_states":[1,2,3]}';
+        $this->auth_criteria[]= json_decode($json, true);        
         
     }
     
