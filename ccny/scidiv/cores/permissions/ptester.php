@@ -39,13 +39,16 @@ $token->setAttribute("user_roles", [1,2]);
 $token->setAttribute("service_states", [1]);
 $token->setAttribute("event_states", [1]);
 
-print_r($token->getTokenAttribs());
+echo $token->getJSON();
 
 $pmngr = new PermissionManager(1);
 
 $time_start = microtime(true);
 
-echo $pmngr->checkPermission($token);
+for( $i = 0; $i < 1000; $i++)
+{
+    echo $pmngr->checkPermission($token);
+}
 
 $time_end = microtime(true);
 $time = $time_end - $time_start;

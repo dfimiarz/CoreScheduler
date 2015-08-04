@@ -75,4 +75,15 @@ abstract class PermissionToken {
         
         return [];
     }
+    
+    public function getJSON()
+    {
+        if( isset($this->attribs) )
+        {
+             return json_encode($this->attribs);
+        }
+        
+        return json_encode([]);
+        
+    }
 }

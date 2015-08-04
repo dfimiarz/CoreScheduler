@@ -78,8 +78,16 @@ class PermissionManager extends CoreComponent{
     
     private function loadCriteria($permission_id)
     {
-        $json = '{"user_roles":[1,2],"service_states":[1,2,3],"event_states":[1,2,3]}';
-        $this->auth_criteria[]= json_decode($json, true);        
+        
+        $json_txt[] = '{"user_roles":[1,2],"service_states":[1,2,3],"event_states":[1,2,3]}';
+        $json_txt[] = '{"user_roles":[1],"service_states":[1,2,3],"event_states":[1]}';
+        $json_txt[] = '{"user_roles":[4],"service_states":[1,2,3],"event_states":[1,2,3,4]}';
+        
+        foreach ($json_txt as $key => $value) {
+            $this->auth_criteria[]= json_decode($value, true); 
+        }
+        
+                
         
     }
     
