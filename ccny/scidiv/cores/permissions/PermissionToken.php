@@ -38,15 +38,11 @@ abstract class PermissionToken {
      * 
      */
     protected $attribs;
-    /**
-     *
-     * @var type array of attribute names used by a PermissionToken object
-     */
-    protected $keys;
+   
 
     public function __construct() {
         $this->attribs = [];
-        $this->keys = [];
+     
     }
 
 
@@ -54,18 +50,21 @@ abstract class PermissionToken {
         return $this->attribs;
     }
     
-    public function setAttribute($key,$values)
-    {
+    protected function setAttribute($key, $values) {
         
-        if(is_array($this->attribs) && is_array($this->keys) ){
-            if(in_array($key,$this->keys))
-            {
-                $this->attribs[$key] = $values;
-            }
-            
+        /***
+         * Make sure that all attributes are arrays
+         */
+        if(is_array($values)){
+           $this->attribs[$key] = $values;
         }
+        else {
+            $this->attribs[$key] = array($values); 
+        }
+        
+        
     }
-    
+
     public function getAttribute($key)
     {
         if( isset($this->attribs[$key]))

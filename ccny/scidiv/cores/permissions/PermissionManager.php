@@ -40,20 +40,38 @@ use ccny\scidiv\cores\permissions\PermissionToken as PermissionToken;
  * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
 class PermissionManager extends CoreComponent{
-    //put your code here
+    /**
+     *
+     * @var type $auth_criteria stores an array of criteria for each permission
+     * Format $auth_criteria[$perm_id] = [];
+     */
     private $auth_criteria = [];
     
-    public function __construct($permission_id) {
-        $this->loadCriteria($permission_id);
-        
+    /*
+     * mysqli connecttion object
+     */
+    private $mysqli;
+    
+    public function __construct(\mysqli $mysqli) {
+        $this->mysqli = $mysqli;     
     }
     
-    public function checkPermission(PermissionToken $token)
+    public function checkPermission($permission_id,PermissionToken $token)
     {
-        $is_authorized = TRUE;
+        $this->loadCriteria($permission_id);
+        
+        $is_authorized = FALSE;
+        
+        /*
+         * Make sure that criteria for a given permission are defined
+         */
+        if(! isset($this->auth_criteria[$permission_id]))
+        {
+            $this->auth_criteria[$permission_id] = [];
+        }
         
         //Loop through $auth_criteria 
-        foreach ($this->auth_criteria as $criteria) {
+        foreach ($this->auth_criteria[$permission_id] as $criteria) {
             //Evaluate each set of permission criteria agains the token
             $is_authorized = TRUE;
             foreach ($criteria as $criterium_name => $criterium_values) {
@@ -61,6 +79,7 @@ class PermissionManager extends CoreComponent{
                 $token_attr_values = $token->getAttribute($criterium_name);
                 
                 $result = array_intersect($criterium_values, $token_attr_values);
+                
                 if (!count($result)) {
                     //If there is no intersection, move to the next criteria
                     $is_authorized = FALSE;
@@ -78,17 +97,42 @@ class PermissionManager extends CoreComponent{
     
     private function loadCriteria($permission_id)
     {
-        
-        $json_txt[] = '{"user_roles":[1,2],"service_states":[1,2,3],"event_states":[1,2,3]}';
-        $json_txt[] = '{"user_roles":[1],"service_states":[1,2,3],"event_states":[1]}';
-        $json_txt[] = '{"user_roles":[4],"service_states":[1,2,3],"event_states":[1,2,3,4]}';
-        
-        foreach ($json_txt as $key => $value) {
-            $this->auth_criteria[]= json_decode($value, true); 
+        //Check if criteria is already loaded for this $permission_id
+        if( isset( $this->auth_criteria[$permission_id] )){
+            //echo "Criteria found in cache";
+            return;
         }
+
+        //Get all user roles and permissions for a given state
+        $permission_q = "SELECT attribs FROM core_perm_abac WHERE perm_id = ?";
+
+        if (!$stmt = $this->mysqli->prepare($permission_q)) {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        if (!$stmt->bind_param('i', $permission_id)) {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        if (!$stmt->execute()) {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        if (!$stmt->store_result()) {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        $stmt->bind_result($attr_string);
+
+        while ($stmt->fetch()) {     
+            //TO DO: Check json_decode for errors
+            $this->auth_criteria[$permission_id][] = json_decode($attr_string, true); 
+        }
+
+        $stmt->free_result();
+        $stmt->close();               
         
-                
-        
+       
     }
     
 }

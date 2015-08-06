@@ -30,24 +30,19 @@
 //If changes are made to the database, these values should be corrected here as well
 namespace ccny\scidiv\cores\components;
 
+//User roles
+include_once(__DIR__  . '/attribs/UserRoles.php');
+
+//Service states
+include_once(__DIR__  . '/attribs/ServiceStates.php');
+
+//Event States
+include_once(__DIR__  . '/attribs/EventStates.php');
+
 define("DB_NO_ROLE",0);
 define("DB_ACCESS_PENDING",1);
 define("DB_USER",2);
 define("DB_ADMIN",3);
-
-//User roles
-define("DB_ROLE_ANONYMOUS",0);
-define("DB_ROLE_AUTHENTICATED",500);
-define("DB_ROLE_SUSPENDED",1000);
-define("DB_ROLE_AUTHORIZED",2000);
-define("DB_ROLE_OWNER",2500);
-define("DB_ROLE_SERVICE_ADMIN",3000);
-define("DB_ROLE_SYSTEM_ADMIN",4000);
-
-//Service states
-define("SERVICE_STATE_NOT_ACTIVE",0);
-define("SERVICE_STATE_LOCKED",1);
-define("SERVICE_STATE_ACTIVE",2);
 
 //Permissions 
 define("DB_PERM_VIEW_EVENT",1);

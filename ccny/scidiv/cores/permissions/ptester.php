@@ -26,28 +26,34 @@
 
 include_once __DIR__ . '/PermissionManager.php';
 include_once __DIR__ . '/EventPermToken.php';
+include_once __DIR__ . '/../components/DbConnectInfo.php';
+include_once __DIR__ . '/../components/SystemConstants.php';
 
 use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\permissions\PermissionToken as PermissionToken;
 use ccny\scidiv\cores\permissions\EventPermToken as EventPermToken;
+use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 
 echo "Testing permission";
+$dbinfo = DbConnectInfo::getDBConnectInfoObject();
 
-$token = new EventPermToken();
+@$connection = new \mysqli($dbinfo->getServer(), $dbinfo->getUserName(), $dbinfo->getPassword(), $dbinfo->getDatabaseName(), $dbinfo->getPort());
 
-$token->setAttribute("user_roles", [1,2]);
-$token->setAttribute("service_states", [1]);
-$token->setAttribute("event_states", [1]);
+$roles = array(ROLE_AUTHENTICATED);
+$service_state = array(SERVICE_STATE_ACTIVE);
+$event_state = array(EVENT_FUTURE);
+
+$token = new EventPermToken($roles,$service_state,$event_state);
 
 echo $token->getJSON();
 
-$pmngr = new PermissionManager(1);
+$pmngr = new PermissionManager($connection);
 
 $time_start = microtime(true);
 
-for( $i = 0; $i < 1000; $i++)
+for( $i = 0; $i < 10; $i++)
 {
-    echo $pmngr->checkPermission($token);
+    echo $pmngr->checkPermission(1,$token);
 }
 
 $time_end = microtime(true);
