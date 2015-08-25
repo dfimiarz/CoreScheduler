@@ -42,6 +42,7 @@ class CoreEvent {
     /* @var $end \DateTime */
     protected $end;
     protected $service_id;
+    protected $service_state;
     protected $user_id;
     protected $note;
     protected $eventState;
@@ -86,6 +87,15 @@ class CoreEvent {
     {
         return $this->service_id;
     }
+    
+    function getServiceState() {
+        return $this->service_state;
+    }
+
+    function setServiceState($service_state) {
+        $this->service_state = $service_state;
+    }
+    
     
     public function setUserId($user_id)
     {
