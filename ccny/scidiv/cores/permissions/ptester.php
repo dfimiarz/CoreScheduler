@@ -41,7 +41,7 @@ $dbinfo = DbConnectInfo::getDBConnectInfoObject();
 
 $roles = array(ROLE_AUTHENTICATED);
 $service_state = array(SERVICE_STATE_ACTIVE);
-$event_state = array(EVENT_FUTURE);
+$event_state = array(TIME_FUTURE);
 
 $token = new EventPermToken($roles,$service_state,$event_state);
 
@@ -53,7 +53,7 @@ $time_start = microtime(true);
 
 for( $i = 0; $i < 1000; $i++)
 {
-    echo $pmngr->checkPermission(1,$token);
+    echo $pmngr->checkPermission(PERM_DELETE_EVENT,$token);
 }
 
 $time_end = microtime(true);

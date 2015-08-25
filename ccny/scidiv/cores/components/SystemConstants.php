@@ -37,7 +37,7 @@ include_once(__DIR__  . '/attribs/UserRoles.php');
 include_once(__DIR__  . '/attribs/ServiceStates.php');
 
 //Event States
-include_once(__DIR__  . '/attribs/EventStates.php');
+include_once(__DIR__  . '/attribs/TimeStates.php');
 
 //Permissions
 include_once(__DIR__  . '/attribs/Permissions.php');

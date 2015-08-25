@@ -26,6 +26,6 @@
 
 
 //Event states
-define("EVENT_FUTURE",0);
-define("EVENT_CURRENT",1);
-define("EVENT_PAST",2);
+define("TIME_FUTURE",0);
+define("TIME_CURRENT",1);
+define("TIME_PAST",2);
