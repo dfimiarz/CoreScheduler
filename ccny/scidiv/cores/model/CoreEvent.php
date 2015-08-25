@@ -143,4 +143,23 @@ class CoreEvent {
 	return $duration;
     }
     
+    /**
+     * This function computes temporal state of an event. See TimeStates.php
+     */
+    public function getTemporalState()
+    {
+        $now = new \DateTime();
+        
+        if ($now < $this->start) {
+            return TIME_PAST;
+        }
+        
+        if( $now > $this->end)
+        {
+            return TIME_FUTURE;
+        }
+        
+        return TIME_CURRENT;
+    }
+    
 }
