@@ -139,12 +139,12 @@ class ScheduleDataHandler extends CoreComponent {
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $new_event->getServiceId(),$new_event->isOwner($this->user->getUserID()));
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $new_event->getServiceId());
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CREATE_EVENT)) {
+        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_CREATE_EVENT)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
         }
 
         if ($new_event->getStart() < $now) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
+            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
                 $this->throwExceptionOnError ("Adding a session in the past not allowed", 0, \SECURITY_LOG_TYPE);
             }
         }
@@ -278,12 +278,12 @@ class ScheduleDataHandler extends CoreComponent {
 
 
             //Do not call function here for better speed
-            if ($this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_EVENT)) {
+            if ($this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_EVENT)) {
                 $event->editable = true;
             }
 
             if ($t_start < $now_dt) {
-                if ($this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
+                if ($this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
                     $event->editable = true;
                 } else {
                     $event->editable = false;
@@ -291,7 +291,7 @@ class ScheduleDataHandler extends CoreComponent {
             }
 
             //Determine visibility of an event
-            if ($this->permission_manager->hasPermission($permissions_a, \DB_PERM_VIEW_EVENT)) {
+            if ($this->permission_manager->hasPermission($permissions_a, \PERM_VIEW_EVENT)) {
                 $result_array[] = $event;
             }
         }
@@ -319,7 +319,7 @@ class ScheduleDataHandler extends CoreComponent {
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_EVENT)) {
+        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_EVENT)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
         }
 
@@ -348,13 +348,13 @@ class ScheduleDataHandler extends CoreComponent {
         $new_end_dt->add($minutes_di);
 
         if ($new_start_dt < $now_dt) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
+            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
                 $this->throwExceptionOnError ("Moving session to a past date not allowed", 0, \ACTIVITY_LOG_TYPE);
             }
         }
 
         if ($event->getStart() < $now_dt) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
+            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
                 $this->throwExceptionOnError ("Only future events are editable", 0, \SECURITY_LOG_TYPE);
                 
             }
@@ -389,7 +389,7 @@ class ScheduleDataHandler extends CoreComponent {
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_EVENT)) {
+        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_EVENT)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
         }
 
@@ -419,7 +419,7 @@ class ScheduleDataHandler extends CoreComponent {
         }
         
         if ($event->getStart() < $now_dt) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
+            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
                 $this->throwExceptionOnError ("Only future events are editable", 0, \SECURITY_LOG_TYPE);
             }
         }
@@ -452,7 +452,7 @@ class ScheduleDataHandler extends CoreComponent {
 
 
         //Check if user can delete an event
-        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_DELETE_EVENT)) {
+        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_DELETE_EVENT)) {
             $this->throwExceptionOnError ("Permission denied", 0, \SECURITY_LOG_TYPE);
         }
 
@@ -460,7 +460,7 @@ class ScheduleDataHandler extends CoreComponent {
         //Check if user can edit events in the past
         $now_dt = new \DateTime();
         if ($event->getStart() < $now_dt) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
+            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
                 $this->throwExceptionOnError ("Past session cannot be cancelled", 0, \SECURITY_LOG_TYPE);
             }
         }
@@ -502,7 +502,7 @@ class ScheduleDataHandler extends CoreComponent {
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
 
         //Check for DB_PERM_CHANGE_NOTE permission
-        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_NOTE)) {
+        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_CHANGE_NOTE)) {
             $this->throwExceptionOnError ("Missing permission: DB_PERM_CHANGE_NOTE ", 0, \SECURITY_LOG_TYPE);
         }
 
@@ -555,7 +555,7 @@ class ScheduleDataHandler extends CoreComponent {
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($this->user->getUserID()));  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_OWNER)) {
+        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_CHANGE_OWNER)) {
             $this->throwExceptionOnError ( __FUNCTION__ . ": Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
         }
 
@@ -643,7 +643,7 @@ class ScheduleDataHandler extends CoreComponent {
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $service_id, $is_owner);  
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $service_id);
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_CHANGE_OWNER)) {
+        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_CHANGE_OWNER)) {
             $this->throwExceptionOnError("Permission DB_PERM_CHANGE_OWNER missing", 0, \SECURITY_LOG_TYPE);
         }
 
@@ -693,13 +693,13 @@ class ScheduleDataHandler extends CoreComponent {
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $merge_target->getServiceId(),$merge_target->isOwner($this->user->getUserID()));
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $merge_target->getServiceId());
         
-        if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_EVENT)) {
+        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_EVENT)) {
             $this->throwExceptionOnError("Extending event failed. Permission denied", 0, \ACTIVITY_LOG_TYPE);
         }
 
         if( $new_event->getStart() < $now)
         {
-            if (!$this->permission_manager->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
+            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
                 $this->throwExceptionOnError ("Extending event into past now allowed", 0, \ACTIVITY_LOG_TYPE);
             }
         }

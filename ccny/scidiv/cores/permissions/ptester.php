@@ -51,7 +51,7 @@ $pmngr = new PermissionManager($connection);
 
 $time_start = microtime(true);
 
-for( $i = 0; $i < 10; $i++)
+for( $i = 0; $i < 1000; $i++)
 {
     echo $pmngr->checkPermission(1,$token);
 }

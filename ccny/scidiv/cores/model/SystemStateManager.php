@@ -93,11 +93,11 @@ class SystemStateManager extends CoreComponent
         $user_roles = UserRoleManager::getUserRolesForService($user, $service_id, false);
         $permissions_a = $this->pm_handler->getPermissions($user_roles, $service_id);
 
-        if ($this->pm_handler->hasPermission($permissions_a, \DB_PERM_CREATE_EVENT)) {
+        if ($this->pm_handler->hasPermission($permissions_a, \PERM_CREATE_EVENT)) {
             $session_info->can_add = 1;
         }
         
-        if ($this->pm_handler->hasPermission($permissions_a, \DB_PERM_REQUEST_ACCESS)) {
+        if ($this->pm_handler->hasPermission($permissions_a, \PERM_REQUEST_ACCESS)) {
             $session_info->show_req_btn = 1;
         }
 

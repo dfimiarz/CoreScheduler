@@ -145,7 +145,7 @@ class EventDetailsHandler extends CoreComponent {
         $ArrDetails['timestamp'] = $timestamp_dt->format('Y-m-d H:i:s');
 
 
-        if ($this->pm->hasPermission($permissions_a, \DB_PERM_VIEW_DETAILS)) {
+        if ($this->pm->hasPermission($permissions_a, \PERM_VIEW_DETAILS)) {
 
             $ArrDetails['record_id'] = $encrypted_record_id;
 
@@ -158,17 +158,17 @@ class EventDetailsHandler extends CoreComponent {
             $ArrDetails['note'] = $details->getNote();
         }
 
-        if ($this->pm->hasPermission($permissions_a, \DB_PERM_DELETE_EVENT)) {
+        if ($this->pm->hasPermission($permissions_a, \PERM_DELETE_EVENT)) {
             $ArrDetails['can_cancel'] = true;
         }
 
         if ($start_dt < $now_dt) {
-            if (!$this->pm->hasPermission($permissions_a, \DB_PERM_EDIT_PAST_EVENT)) {
+            if (!$this->pm->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
                 unset($ArrDetails['can_cancel']);
             }
         }
 
-        if ($this->pm->hasPermission($permissions_a, \DB_PERM_CHANGE_OWNER)) {
+        if ($this->pm->hasPermission($permissions_a, \PERM_CHANGE_OWNER)) {
             $user_id_enc = $this->crypto->encrypt($details->getUserId());
             $ArrDetails['user_id'] = $user_id_enc;
             $ArrDetails['can_edit_user'] = true;
@@ -176,7 +176,7 @@ class EventDetailsHandler extends CoreComponent {
 
 
         //Does user have DB_PERM_CHANGE_NOTE
-        if ($this->pm->hasPermission($permissions_a, \DB_PERM_CHANGE_NOTE)) {
+        if ($this->pm->hasPermission($permissions_a, \PERM_CHANGE_NOTE)) {
             $ArrDetails['can_edit_note'] = true;
         }
 

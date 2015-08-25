@@ -75,7 +75,7 @@ class AccessRequestManager extends CoreComponent
         $user_roles = UserRoleManager::getUserRolesForService($user, $service_id, false );
         $permissions_a = $p_mngr->getPermissions($user_roles, $service_id);
 
-        if (!$p_mngr->hasPermission($permissions_a, \DB_PERM_REQUEST_ACCESS)) {
+        if (!$p_mngr->hasPermission($permissions_a, \PERM_REQUEST_ACCESS)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
         }
 

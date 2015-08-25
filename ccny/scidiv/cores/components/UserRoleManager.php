@@ -46,13 +46,13 @@ class UserRoleManager {
 
         //Set up special roles first
         if ( $user->isAuth()) {
-            $active_roles[] = \DB_ROLE_AUTHENTICATED;
+            $active_roles[] = ROLE_AUTHENTICATED;
         } else {
-            $active_roles[] = \DB_ROLE_ANONYMOUS;
+            $active_roles[] = ROLE_ANONYMOUS;
         }
 
         if ($is_owner) {
-            $active_roles[] = \DB_ROLE_OWNER;
+            $active_roles[] = ROLE_OWNER;
         }
 
         //Get roles assigned at login time from the database
