@@ -62,7 +62,6 @@ $event_options = new \stdClass();
 $event_options->start = $start;
 $event_options->end = $end;
 $event_options->eq_id = $eq_id;
-$event_options->user = $user;
 
 try {
     
