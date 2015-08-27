@@ -141,7 +141,8 @@ class CoreEvent {
         
         return false;
     }
-    
+
+        
     /**
      * 
      * @return type int. Number of seconds between event end and start
@@ -160,13 +161,13 @@ class CoreEvent {
     {
         $now = new \DateTime();
         
-        if ($now < $this->start) {
-            return TIME_PAST;
+        if ($this->start > $now ) {
+            return TIME_FUTURE;
         }
         
-        if( $now > $this->end)
+        if( $this->end < $now )
         {
-            return TIME_FUTURE;
+            return TIME_PAST;
         }
         
         return TIME_CURRENT;

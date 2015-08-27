@@ -39,7 +39,7 @@ use ccny\scidiv\cores\permissions\PermissionToken as PermissionToken;
  *
  * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
-class PermissionManager extends CoreComponent{
+class PermManager extends CoreComponent{
     /**
      *
      * @var type $auth_criteria stores an array of criteria for each permission
@@ -125,8 +125,12 @@ class PermissionManager extends CoreComponent{
         $stmt->bind_result($attr_string);
 
         while ($stmt->fetch()) {     
-            //TO DO: Check json_decode for errors
-            $this->auth_criteria[$permission_id][] = json_decode($attr_string, true); 
+            $json_obj = json_decode($attr_string, true);
+            
+            if( !is_null($json_obj))
+            {
+                $this->auth_criteria[$permission_id][] = $json_obj; 
+            }  
         }
 
         $stmt->free_result();

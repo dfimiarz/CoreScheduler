@@ -41,9 +41,9 @@ $dbinfo = DbConnectInfo::getDBConnectInfoObject();
 
 $roles = array(ROLE_AUTHENTICATED);
 $service_state = array(SERVICE_STATE_ACTIVE);
-$event_state = array(TIME_FUTURE);
+$time_state = array(TIME_FUTURE);
 
-$token = new EventPermToken($roles,$service_state,$event_state);
+$token = new EventPermToken($roles,$service_state,$time_state);
 
 echo $token->getJSON();
 

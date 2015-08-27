@@ -36,6 +36,9 @@ include_once __DIR__ . '/PermissionManager.php';
 include_once __DIR__ . '/CoreUser.php';
 include_once __DIR__ . '/CoreEvent.php';
 
+include_once __DIR__ . '/../permissions/PermManager.php';
+include_once __DIR__ . '/../permissions/EventPermToken.php';
+
 use ccny\scidiv\cores\components\ColorSelector as ColorSelector;
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\components\CryptoManager as CryptoManager;
@@ -47,6 +50,9 @@ use ccny\scidiv\cores\model\CoreEvent as CoreEvent;
 use ccny\scidiv\cores\model\CoreEventDAO as CoreEventDAO;
 use ccny\scidiv\cores\model\CoreEventHTTPParams as CoreEventHTTPParams;
 
+use ccny\scidiv\cores\permissions\PermManager as PermManager;
+use ccny\scidiv\cores\permissions\EventPermToken as EventPermToken;
+
 class ScheduleDataHandler extends CoreComponent {
 
     /* @var $user CoreUser */
@@ -56,6 +62,7 @@ class ScheduleDataHandler extends CoreComponent {
     private $color_selector;
    
     private $permission_manager;
+    private $perm_mngr;
     
     /* @var $coreEventDAO Used to access database tables */
     private $coreEventDAO;
@@ -81,6 +88,7 @@ class ScheduleDataHandler extends CoreComponent {
         }
 
         $this->permission_manager = new PermissionManager($this->connection);
+        $this->perm_mngr = new PermManager($this->connection);
         $this->coreEventDAO = new CoreEventDAO($this->connection);
         $this->crypto = new CryptoManager();
     }
@@ -92,23 +100,15 @@ class ScheduleDataHandler extends CoreComponent {
 
     function createEvent($event_options) {
         
-        /**
-         * Create a new CoreEvent object with id = null and current time as timestamp. 
-         * Event id set to null signifies a new event.
-         */
-        $new_event = new CoreEvent(null,new \DateTime());
-        
         $start_dt = new \DateTime();
         $start_dt->setTimestamp($event_options->start);
-        $new_event->setStart($start_dt);
+        
         
         $end_dt = new \DateTime();
         $end_dt->setTimestamp($event_options->end);
-        $new_event->setEnd($end_dt);
         
-        $new_event->setServiceId($event_options->service_id);
-        $new_event->setEventState(1);
-        $new_event->setUserId($this->user->getUserID());
+        /* @var $new_event CoreEvent */
+        $new_event = $this->coreEventDAO->initNewCoreEvent($event_options->service_id, $start_dt, $end_dt, $this->user->getUserID());
         
         $duration = $new_event->getDuration();
 
@@ -137,16 +137,11 @@ class ScheduleDataHandler extends CoreComponent {
         $now = new \DateTime();
         
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $new_event->getServiceId(),$new_event->isOwner($this->user->getUserID()));
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $new_event->getServiceId());
+        $token = new EventPermToken($user_roles,$new_event->getServiceState(),$new_event->getTemporalState());
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_CREATE_EVENT)) {
+        //Check if user can delete an event
+        if (!$this->perm_mngr->checkPermission(PERM_CREATE_EVENT, $token)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
-        }
-
-        if ($new_event->getStart() < $now) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
-                $this->throwExceptionOnError ("Adding a session in the past not allowed", 0, \SECURITY_LOG_TYPE);
-            }
         }
 
         $new_event_id = $this->coreEventDAO->insertCoreEvent($new_event);
@@ -158,32 +153,15 @@ class ScheduleDataHandler extends CoreComponent {
 
     function getEventsByEq($event_options) {
 
-        /* @var $user CoreUser */
-        $user = new CoreUser('anonymous');
-        
-        if( isset($event_options->user))
-        {
-            $user = $event_options->user;
-            
-            if( ! $user instanceof CoreUser)
-            {
-                $user = new CoreUser('anonymous');
-            }
-        }
-        
+        /* @var $temp_event_array Array holding all resutls from the DB */
         $temp_event_array = array();
-
-        $logged_in_user_id = $user->getUserID();
+        /* @var $result_array Array returned to the client */
+        $result_array = array();
+        
+        $logged_in_user_id = $this->user->getUserID();
         $is_owner = false;
 
-        
-
         $now_dt = new \DateTime();
-
-        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_ECB);
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-
-        $result_array = array();
 
         $start = new \DateTime();
         $start->setTimestamp($event_options->start);
@@ -245,7 +223,7 @@ class ScheduleDataHandler extends CoreComponent {
             }
 
             //$user_roles = $this->login_manager->getUserRoles($temp_event->service_id, $is_owner);
-            $user_roles = UserRoleManager::getUserRolesForService($user, $temp_event->service_id, $is_owner);
+            $user_roles = UserRoleManager::getUserRolesForService($this->user, $temp_event->service_id, $is_owner);
             $permissions_a = $this->permission_manager->getPermissions($user_roles, $temp_event->service_id);
 
             $t_start = new \DateTime($temp_event->start);
@@ -319,8 +297,8 @@ class ScheduleDataHandler extends CoreComponent {
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));
         $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_EVENT)) {
-            $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
+        if (!$this->permission_manager->hasPermission($permissions_a, PERM_EDIT_EVENT)) {
+            $this->throwExceptionOnError ("Insufficient user permissions", 0, SECURITY_LOG_TYPE);
         }
 
         //Only DB_ADMIN can modify past session
@@ -448,26 +426,17 @@ class ScheduleDataHandler extends CoreComponent {
         }
 
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
-
+       
+        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
 
         //Check if user can delete an event
-        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_DELETE_EVENT)) {
-            $this->throwExceptionOnError ("Permission denied", 0, \SECURITY_LOG_TYPE);
-        }
-
-
-        //Check if user can edit events in the past
-        $now_dt = new \DateTime();
-        if ($event->getStart() < $now_dt) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
-                $this->throwExceptionOnError ("Past session cannot be cancelled", 0, \SECURITY_LOG_TYPE);
-            }
+        if (!$this->perm_mngr->checkPermission(PERM_DELETE_EVENT, $token)) {
+            $this->throwExceptionOnError ("Permission denied", 0, SECURITY_LOG_TYPE);
         }
 
         $event->setEventState(0);
         
-        $this->coreEventDAO->saveCoreEvent($event);
+        $this->coreEventDAO->updateCoreEvent($event);
 
         $log_text = "Source: " . __CLASS__ . "::" . __FUNCTION__ . "- SESSION ID: " . $dec_record_id . " CANCELED";
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
@@ -499,16 +468,17 @@ class ScheduleDataHandler extends CoreComponent {
         }
         
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
+        
+        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
 
         //Check for DB_PERM_CHANGE_NOTE permission
-        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_CHANGE_NOTE)) {
-            $this->throwExceptionOnError ("Missing permission: DB_PERM_CHANGE_NOTE ", 0, \SECURITY_LOG_TYPE);
+        if (!$this->perm_mngr->checkPermission(PERM_CHANGE_NOTE, $token)) {
+            $this->throwExceptionOnError ("Permission denied", 0, \SECURITY_LOG_TYPE);
         }
 
         $event->setNote($clean_text);
         
-        if( ! $this->coreEventDAO->saveCoreEvent($event))
+        if( ! $this->coreEventDAO->updateCoreEvent($event))
         {
             $this->throwExceptionOnError ("Data could not be saved.", 0, \ERROR_LOG_TYPE);
         }
@@ -590,7 +560,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         $event->setUserId($new_user_id);
 
-        $this->coreEventDAO->saveCoreEvent($event);
+        $this->coreEventDAO->updateCoreEvent($event);
 
         $log_text = __CLASS__ . ":" . __FUNCTION__ . " - User for session: " . $record_id . " changed";
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
@@ -688,20 +658,19 @@ class ScheduleDataHandler extends CoreComponent {
     
     private function mergeCoreEvents(CoreEvent $new_event,CoreEvent $merge_target)
     {
+        /*
+         * $new_event and $merge_target are mergible.
+         * They belong to the same user so if this user can create the $new_event
+         * he should be able to also extend the $merge_target
+         */
+        
         $now = new \DateTime();
      
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $merge_target->getServiceId(),$merge_target->isOwner($this->user->getUserID()));
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $merge_target->getServiceId());
-        
-        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_EVENT)) {
-            $this->throwExceptionOnError("Extending event failed. Permission denied", 0, \ACTIVITY_LOG_TYPE);
-        }
+        $user_roles = UserRoleManager::getUserRolesForService($this->user, $new_event->getServiceId(),$new_event->isOwner($this->user->getUserID()));
+        $token = new EventPermToken($user_roles,$new_event->getServiceState(),$new_event->getTemporalState());
 
-        if( $new_event->getStart() < $now)
-        {
-            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
-                $this->throwExceptionOnError ("Extending event into past now allowed", 0, \ACTIVITY_LOG_TYPE);
-            }
+        if (!$this->perm_mngr->checkPermission(PERM_CREATE_EVENT, $token)) {
+            $this->throwExceptionOnError("Permission denied", 0, \ACTIVITY_LOG_TYPE);
         }
         
         if( $merge_target->getEnd() == $new_event->getStart())
