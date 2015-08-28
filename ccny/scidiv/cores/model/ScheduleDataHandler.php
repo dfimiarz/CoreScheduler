@@ -32,26 +32,22 @@ include_once __DIR__ . '/../components/ColorSelector.php';
 include_once __DIR__ . '/../components/CoreComponent.php';
 include_once __DIR__ . '/../components/SystemConstants.php';
 include_once __DIR__ . '/../components/UserRoleManager.php';
-include_once __DIR__ . '/PermissionManager.php';
 include_once __DIR__ . '/CoreUser.php';
 include_once __DIR__ . '/CoreEvent.php';
-
-include_once __DIR__ . '/../permissions/PermManager.php';
-include_once __DIR__ . '/../permissions/EventPermToken.php';
 
 use ccny\scidiv\cores\components\ColorSelector as ColorSelector;
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\components\CryptoManager as CryptoManager;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
-use ccny\scidiv\cores\model\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\UserRoleManager as UserRoleManager;
 use ccny\scidiv\cores\model\CoreEvent as CoreEvent;
 use ccny\scidiv\cores\model\CoreEventDAO as CoreEventDAO;
 use ccny\scidiv\cores\model\CoreEventHTTPParams as CoreEventHTTPParams;
 
-use ccny\scidiv\cores\permissions\PermManager as PermManager;
+use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\permissions\EventPermToken as EventPermToken;
+use ccny\scidiv\cores\permissions\ManagePermToken as ManagePermToken;
 
 class ScheduleDataHandler extends CoreComponent {
 
@@ -61,8 +57,7 @@ class ScheduleDataHandler extends CoreComponent {
     private $connection;
     private $color_selector;
    
-    private $permission_manager;
-    private $perm_mngr;
+    private $permMngr;
     
     /* @var $coreEventDAO Used to access database tables */
     private $coreEventDAO;
@@ -87,8 +82,7 @@ class ScheduleDataHandler extends CoreComponent {
             $this->throwDBError($this->connection->connect_error, $this->connection->connect_errno);
         }
 
-        $this->permission_manager = new PermissionManager($this->connection);
-        $this->perm_mngr = new PermManager($this->connection);
+        $this->permMngr = new PermissionManager($this->connection);
         $this->coreEventDAO = new CoreEventDAO($this->connection);
         $this->crypto = new CryptoManager();
     }
@@ -140,7 +134,7 @@ class ScheduleDataHandler extends CoreComponent {
         $token = new EventPermToken($user_roles,$new_event->getServiceState(),$new_event->getTemporalState());
 
         //Check if user can delete an event
-        if (!$this->perm_mngr->checkPermission(PERM_CREATE_EVENT, $token)) {
+        if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
         }
 
@@ -157,9 +151,6 @@ class ScheduleDataHandler extends CoreComponent {
         $temp_event_array = array();
         /* @var $result_array Array returned to the client */
         $result_array = array();
-        
-        $logged_in_user_id = $this->user->getUserID();
-        $is_owner = false;
 
         $now_dt = new \DateTime();
 
@@ -172,7 +163,7 @@ class ScheduleDataHandler extends CoreComponent {
         $eq_id = $event_options->eq_id;
 
         //Get all sessions for given service
-        $query = "SELECT cta.id,cta.time_modified,cta.service_id,cs.short_name,cu.id,cu.username,cta.start,cta.end,cta.note,cs.state FROM core_timed_activity cta, core_users cu,core_services cs WHERE cta.start <= ? AND cta.end >= ? AND cta.service_id IN (SELECT id from core_services WHERE resource_id = ? ) AND cta.state = 1 AND cu.id = cta.user AND cs.id = cta.service_id";
+        $query = "SELECT cta.id,cta.time_modified,cta.service_id,cs.short_name,cu.id,cu.username,cta.start,cta.end,cta.note,cs.state,cta.state FROM core_timed_activity cta, core_users cu,core_services cs WHERE cta.start <= ? AND cta.end >= ? AND cta.service_id IN (SELECT id from core_services WHERE resource_id = ? ) AND cta.state = 1 AND cu.id = cta.user AND cs.id = cta.service_id";
 
         if (!$stmt = $this->connection->prepare($query)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
@@ -191,85 +182,69 @@ class ScheduleDataHandler extends CoreComponent {
 
         $temp = new \stdClass();
 
-        $stmt->bind_result($temp->id, $temp->timestamp,$temp->service_id,$temp->short_name, $temp->user_id, $temp->username, $temp->start, $temp->end, $temp->note, $temp->service_state);
+        $stmt->bind_result($temp->id, $temp->timestamp,$temp->service_id,$temp->short_name, $temp->user_id, $temp->username, $temp->start, $temp->end, $temp->note, $temp->service_state,$temp->event_state);
         
         while ($stmt->fetch()) {
-
-            $event_object = new \stdClass();
-            $event_object->id = $temp->id;
-            $event_object->service_id = $temp->service_id;
-            $event_object->short_name = $temp->short_name;
-            $event_object->user_id = $temp->user_id;
-            $event_object->username = $temp->username;
-            $event_object->start = $temp->start;
-            $event_object->end = $temp->end;
-            $event_object->note = $temp->note;
-            $event_object->service_state = $temp->service_state;
-            $event_object->timestamp = $temp->timestamp;
-
-            $temp_event_array[] = $event_object;
+            
+            $event_details = new CoreEventDetails($temp->id, new \DateTime($temp->timestamp) );
+            $event_details->setStart(new \DateTime($temp->start));
+            $event_details->setEnd(new \DateTime($temp->end));
+            $event_details->setServiceId($temp->service_id);
+            $event_details->setService($temp->short_name);
+            $event_details->setServiceState($temp->service_state);
+            $event_details->setUserId($temp->user_id);
+            $event_details->setUsername($temp->username);
+            $event_details->setNote($temp->note);
+            $event_details->setEventState($temp->event_state);
+            
+            $temp_event_array[] = $event_details;
         }
 
         $stmt->close();
 
-        //Go through each session and determine what is show based on permissions
+        /* @var $temp_event CoreEventDetails */
         foreach ($temp_event_array as $temp_event) {
-            //Reset owner flag
-            $is_owner = false;
-
-            //Check if logged in user is owner of the event
-            if ($logged_in_user_id == $temp_event->user_id) {
-                $is_owner = true;
-            }
+            
 
             //$user_roles = $this->login_manager->getUserRoles($temp_event->service_id, $is_owner);
-            $user_roles = UserRoleManager::getUserRolesForService($this->user, $temp_event->service_id, $is_owner);
-            $permissions_a = $this->permission_manager->getPermissions($user_roles, $temp_event->service_id);
-
-            $t_start = new \DateTime($temp_event->start);
-            $t_end = new \DateTime($temp_event->end);
+            $user_roles = UserRoleManager::getUserRolesForService($this->user, $temp_event->getServiceId(), $temp_event->isOwner($this->user->getUserID()));
+            $token = new EventPermToken($user_roles,$temp_event->getServiceState(),$temp_event->getTemporalState());
+            
+            $t_start = $temp_event->getStart();
+            $t_end = $temp_event->getEnd();
+            $t_timestamp = $temp_event->getTimestamp();
 
             $event = new \stdClass();
-            $event->id = $this->crypto->encrypt($temp_event->id);
+            $event->id = $this->crypto->encrypt($temp_event->getId());
 
-            $event->title = $temp_event->username;
+            $event->title = $temp_event->getUsername();
 
-            $event->description = $temp_event->short_name;
+            $event->description = $temp_event->getService();
             $event->start = $t_start->format("Y-m-d\TH:i:s\Z");
             $event->end = $t_end->format("Y-m-d\TH:i:s\Z");
-            $event->timestamp = $temp_event->timestamp;
+            $event->timestamp = $t_timestamp->format(\DATE_RFC3339);
 
             $event->allDay = false;
 
             $now_dt = new \DateTime();
 
             if ($t_start >= $now_dt) {
-                $colors = $this->color_selector->getFutureColor($temp_event->service_id);
+                $colors = $this->color_selector->getFutureColor($temp_event->getServiceId());
             } else {
-                $colors = $this->color_selector->getPastColor($temp_event->service_id);
+                $colors = $this->color_selector->getPastColor($temp_event->getServiceId());
             }
 
             $event->color = $colors->bg;
             $event->textColor = $colors->txt;
 
             $event->editable = false;
-
-
-            //Do not call function here for better speed
-            if ($this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_EVENT)) {
+            
+            if ($this->permMngr->checkPermission(PERM_EDIT_EVENT, $token)) {
                 $event->editable = true;
             }
 
-            if ($t_start < $now_dt) {
-                if ($this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
-                    $event->editable = true;
-                } else {
-                    $event->editable = false;
-                }
-            }
-
             //Determine visibility of an event
-            if ($this->permission_manager->hasPermission($permissions_a, \PERM_VIEW_EVENT)) {
+            if ($this->permMngr->checkPermission(PERM_VIEW_EVENT, $token)) {
                 $result_array[] = $event;
             }
         }
@@ -295,9 +270,9 @@ class ScheduleDataHandler extends CoreComponent {
         }
 
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
-
-        if (!$this->permission_manager->hasPermission($permissions_a, PERM_EDIT_EVENT)) {
+        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
+       
+        if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT, $token)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, SECURITY_LOG_TYPE);
         }
 
@@ -325,21 +300,17 @@ class ScheduleDataHandler extends CoreComponent {
         $new_end_dt->add($days_di);
         $new_end_dt->add($minutes_di);
 
-        if ($new_start_dt < $now_dt) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
-                $this->throwExceptionOnError ("Moving session to a past date not allowed", 0, \ACTIVITY_LOG_TYPE);
-            }
-        }
-
-        if ($event->getStart() < $now_dt) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
-                $this->throwExceptionOnError ("Only future events are editable", 0, \SECURITY_LOG_TYPE);
-                
-            }
-        }
-
         $event->setEnd($new_end_dt);
         $event->setStart($new_start_dt);
+        
+        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
+       
+        /*
+         * Allow move if new sessions can be created
+         */
+        if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
+            $this->throwExceptionOnError ("Moving event failed. Permission denied", 0, SECURITY_LOG_TYPE);
+        }
         
         $this->coreEventDAO->modifyEventTime($event);
 
@@ -365,10 +336,10 @@ class ScheduleDataHandler extends CoreComponent {
         }
 
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
+        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_EVENT)) {
-            $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
+        if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT, $token)) {
+            $this->throwExceptionOnError ("Insufficient permissions", 0, \SECURITY_LOG_TYPE);
         }
 
         $now_dt = new \DateTime();
@@ -396,13 +367,14 @@ class ScheduleDataHandler extends CoreComponent {
             $this->throwExceptionOnError ("Start date and end date incorrect", 0, \SECURITY_LOG_TYPE);
         }
         
-        if ($event->getStart() < $now_dt) {
-            if (!$this->permission_manager->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
-                $this->throwExceptionOnError ("Only future events are editable", 0, \SECURITY_LOG_TYPE);
-            }
-        }
-
+        //Modify the event end time and check if new session can be created with new params
         $event->setEnd($new_end_dt);
+        
+        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
+
+        if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
+            $this->throwExceptionOnError ("Resize failed. Permission denied", 0, \SECURITY_LOG_TYPE);
+        }
         
         $this->coreEventDAO->modifyEventTime($event);
 
@@ -430,7 +402,7 @@ class ScheduleDataHandler extends CoreComponent {
         $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
 
         //Check if user can delete an event
-        if (!$this->perm_mngr->checkPermission(PERM_DELETE_EVENT, $token)) {
+        if (!$this->permMngr->checkPermission(PERM_DELETE_EVENT, $token)) {
             $this->throwExceptionOnError ("Permission denied", 0, SECURITY_LOG_TYPE);
         }
 
@@ -472,7 +444,7 @@ class ScheduleDataHandler extends CoreComponent {
         $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
 
         //Check for DB_PERM_CHANGE_NOTE permission
-        if (!$this->perm_mngr->checkPermission(PERM_CHANGE_NOTE, $token)) {
+        if (!$this->permMngr->checkPermission(PERM_CHANGE_NOTE, $token)) {
             $this->throwExceptionOnError ("Permission denied", 0, \SECURITY_LOG_TYPE);
         }
 
@@ -523,10 +495,10 @@ class ScheduleDataHandler extends CoreComponent {
         $service_id = $event->getServiceId();
 
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($this->user->getUserID()));  
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $event->getServiceId());
+        $token = new ManagePermToken($user_roles);
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_CHANGE_OWNER)) {
-            $this->throwExceptionOnError ( __FUNCTION__ . ": Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
+        if (!$this->permMngr->checkPermission(PERM_MANAGE_USERS, $token)) {
+            $this->throwExceptionOnError ("PERM_MANAGE_USERS: Permission denied", 0, \SECURITY_LOG_TYPE);
         }
 
 
@@ -555,7 +527,7 @@ class ScheduleDataHandler extends CoreComponent {
         mysqli_stmt_close($stmt);
 
         if ($rows < 1) {
-             $this->throwExceptionOnError (__CLASS__ . ":" . __FUNCTION__ . " - New user without roles.", 0, \SECURITY_LOG_TYPE);
+             $this->throwExceptionOnError ("Selected user missing a role", 0, \SECURITY_LOG_TYPE);
         }
 
         $event->setUserId($new_user_id);
@@ -611,10 +583,10 @@ class ScheduleDataHandler extends CoreComponent {
 
         //get the user's role for the selected service
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $service_id, $is_owner);  
-        $permissions_a = $this->permission_manager->getPermissions($user_roles, $service_id);
+        $token = new ManagePermToken($user_roles);
 
-        if (!$this->permission_manager->hasPermission($permissions_a, \PERM_CHANGE_OWNER)) {
-            $this->throwExceptionOnError("Permission DB_PERM_CHANGE_OWNER missing", 0, \SECURITY_LOG_TYPE);
+        if (!$this->permMngr->checkPermission(PERM_MANAGE_USERS, $token)) {
+            $this->throwExceptionOnError("PERM_MANAGE_USERS: Permission denied", 0, \SECURITY_LOG_TYPE);
         }
 
 
@@ -669,7 +641,7 @@ class ScheduleDataHandler extends CoreComponent {
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $new_event->getServiceId(),$new_event->isOwner($this->user->getUserID()));
         $token = new EventPermToken($user_roles,$new_event->getServiceState(),$new_event->getTemporalState());
 
-        if (!$this->perm_mngr->checkPermission(PERM_CREATE_EVENT, $token)) {
+        if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
             $this->throwExceptionOnError("Permission denied", 0, \ACTIVITY_LOG_TYPE);
         }
         

@@ -39,7 +39,7 @@ use ccny\scidiv\cores\permissions\PermissionToken as PermissionToken;
  *
  * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
-class PermManager extends CoreComponent{
+class PermissionManager extends CoreComponent{
     /**
      *
      * @var type $auth_criteria stores an array of criteria for each permission

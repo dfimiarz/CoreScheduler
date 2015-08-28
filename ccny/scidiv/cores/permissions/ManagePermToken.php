@@ -1,9 +1,9 @@
 <?php
 
-/* 
+/*
  * The MIT License
  *
- * Copyright 2015 DanielF.
+ * Copyright 2015 Daniel Fimiarz <dfimiarz@ccny.cuny.edu>.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,14 +24,24 @@
  * THE SOFTWARE.
  */
 
-//Permissions 
-define("PERM_VIEW_EVENT",1);
-define("PERM_CREATE_EVENT",2);
-define("PERM_DELETE_EVENT",3);
-define("PERM_EDIT_EVENT",4);
-define("PERM_VIEW_DETAILS",5);
-define("PERM_EDIT_PAST_EVENT",6);
-define("PERM_CHANGE_NOTE",7);
-define("PERM_CHANGE_OWNER",8);
-define("PERM_REQUEST_ACCESS",9);
-define("PERM_MANAGE_USERS", 10);
+namespace ccny\scidiv\cores\permissions;
+
+/**
+ * Description of EventPermToken
+ *
+ * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
+ */
+class ManagePermToken extends PermissionToken {
+    
+    public function __construct($user_roles) {
+        
+        parent::__construct();
+        $this->setAttribute("user_roles", $user_roles);
+        
+    }
+    
+   
+    
+    
+}
+
