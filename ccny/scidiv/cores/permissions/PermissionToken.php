@@ -52,8 +52,8 @@ abstract class PermissionToken {
     
     protected function setAttribute($key, $values) {
         
-        /***
-         * Make sure that all attributes are arrays
+        /*
+         * Make sure that all attributes are in an array
          */
         if(is_array($values)){
            $this->attribs[$key] = $values;

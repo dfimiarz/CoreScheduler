@@ -53,6 +53,7 @@ class PermissionManager extends CoreComponent{
     private $mysqli;
     
     public function __construct(\mysqli $mysqli) {
+        parent::__construct();
         $this->mysqli = $mysqli;     
     }
     
@@ -122,6 +123,8 @@ class PermissionManager extends CoreComponent{
             $this->throwDBError($stmt->error, $stmt->errno);
         }
 
+        $attr_string = "";
+        
         $stmt->bind_result($attr_string);
 
         while ($stmt->fetch()) {     
