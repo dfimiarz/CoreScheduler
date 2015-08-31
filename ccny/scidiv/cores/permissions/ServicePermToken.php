@@ -31,7 +31,7 @@ namespace ccny\scidiv\cores\permissions;
  *
  * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
-class ManagePermToken extends PermissionToken {
+class ServicePermToken extends PermissionToken {
     
     public function __construct($user_roles) {
         
