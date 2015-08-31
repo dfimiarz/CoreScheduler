@@ -458,7 +458,7 @@ class ScheduleDataHandler extends CoreComponent {
         $service_id = $event->getServiceId();
 
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($this->user->getUserID()));  
-        $token = new ServicePermToken($user_roles);
+        $token = new ServicePermToken($user_roles,$event->getServiceState());
 
         if (!$this->permMngr->checkPermission(PERM_MANAGE_USERS, $token)) {
             $this->throwExceptionOnError ("PERM_MANAGE_USERS: Permission denied", 0, \SECURITY_LOG_TYPE);
@@ -550,7 +550,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         //get the user's role for the selected service
         $user_roles = UserRoleManager::getUserRolesForService($this->user, $service_id, $is_owner);  
-        $token = new ServicePermToken($user_roles);
+        $token = new ServicePermToken($user_roles,$service_state);
 
         if (!$this->permMngr->checkPermission(PERM_MANAGE_USERS, $token)) {
             $this->throwExceptionOnError("PERM_MANAGE_USERS: Permission denied", 0, \SECURITY_LOG_TYPE);
