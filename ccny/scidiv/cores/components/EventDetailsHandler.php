@@ -32,19 +32,19 @@ include_once __DIR__ . '/CoreComponent.php';
 include_once __DIR__ . '/SystemConstants.php';
 include_once __DIR__ . '/UserRoleManager.php';
 include_once __DIR__ . '/CryptoManager.php';
-include_once __DIR__ . '/../model/PermissionManager.php';
 include_once __DIR__ . '/../model/CoreUser.php';
 include_once __DIR__ . '/../model/CoreEventDetails.php';
 include_once __DIR__ . '/../model/CoreEventDetailsDAO.php';
 
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
-use ccny\scidiv\cores\model\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\UserRoleManager as UserRoleManager;
 use ccny\scidiv\cores\components\CryptoManager as CryptoManager;
 use ccny\scidiv\cores\model\CoreEventDetails as CoreEventDetails;
 use ccny\scidiv\cores\model\CoreEventDetailsDAO as CoreEventDetailsDAO;
+use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
+use ccny\scidiv\cores\permissions\EventPermToken as EventPermToken;
 
 /**
  * Description of EventDetailsHandler
@@ -62,6 +62,9 @@ class EventDetailsHandler extends CoreComponent {
     
      /* @var $crypto CryptoManager */
     private $crypto;
+    
+    /* @var $crypto CoreUser */
+    private $user;
 
     public function __construct(CoreUser $core_user) {
 
@@ -97,9 +100,6 @@ class EventDetailsHandler extends CoreComponent {
         $encrypted_record_id = (isset($params->encrypted_event_id) ? $params->encrypted_event_id : null);
         /* @var $timestamp \DateTime */
         $timestamp = (isset($params->timestamp) ? $params->timestamp : null);
-        
-        $is_owner = false;
-        $logged_in_user_id = $this->user->getUserID();
 
         $now_dt = new \DateTime();
 
@@ -116,13 +116,9 @@ class EventDetailsHandler extends CoreComponent {
         $start_dt = $details->getStart();
         $end_dt = $details->getEnd();
         
-        
-        if ($logged_in_user_id == $details->getUserId()) {
-            $is_owner = true;
-        }
 
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $details->getServiceId(), $is_owner);
-        $permissions_a = $this->pm->getPermissions($user_roles, $details->getServiceId());
+        $user_roles = UserRoleManager::getUserRolesForService($this->user, $details->getServiceId(), $details->isOwner($this->user->getUserID()));
+        $token = new EventPermToken($user_roles, $details->getServiceState(), $details->getTemporalState());
 
         $ArrDetails = [];
         
@@ -145,7 +141,7 @@ class EventDetailsHandler extends CoreComponent {
         $ArrDetails['timestamp'] = $timestamp_dt->format('Y-m-d H:i:s');
 
 
-        if ($this->pm->hasPermission($permissions_a, \PERM_VIEW_DETAILS)) {
+        if ($this->pm->checkPermission(PERM_VIEW_DETAILS, $token)) {
 
             $ArrDetails['record_id'] = $encrypted_record_id;
 
@@ -158,17 +154,11 @@ class EventDetailsHandler extends CoreComponent {
             $ArrDetails['note'] = $details->getNote();
         }
 
-        if ($this->pm->hasPermission($permissions_a, \PERM_DELETE_EVENT)) {
+        if ($this->pm->checkPermission(PERM_DELETE_EVENT, $token)) {
             $ArrDetails['can_cancel'] = true;
         }
 
-        if ($start_dt < $now_dt) {
-            if (!$this->pm->hasPermission($permissions_a, \PERM_EDIT_PAST_EVENT)) {
-                unset($ArrDetails['can_cancel']);
-            }
-        }
-
-        if ($this->pm->hasPermission($permissions_a, \PERM_CHANGE_OWNER)) {
+        if ($this->pm->checkPermission(PERM_MANAGE_USERS, $token)) {
             $user_id_enc = $this->crypto->encrypt($details->getUserId());
             $ArrDetails['user_id'] = $user_id_enc;
             $ArrDetails['can_edit_user'] = true;
@@ -176,7 +166,7 @@ class EventDetailsHandler extends CoreComponent {
 
 
         //Does user have DB_PERM_CHANGE_NOTE
-        if ($this->pm->hasPermission($permissions_a, \PERM_CHANGE_NOTE)) {
+        if ($this->pm->checkPermission(PERM_CHANGE_NOTE, $token)) {
             $ArrDetails['can_edit_note'] = true;
         }
 

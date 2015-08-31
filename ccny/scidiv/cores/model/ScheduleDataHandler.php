@@ -493,7 +493,11 @@ class ScheduleDataHandler extends CoreComponent {
              $this->throwExceptionOnError ("Selected user missing a role", 0, \SECURITY_LOG_TYPE);
         }
 
+        /*
+         * When changing user, also set the note to blank
+         */
         $event->setUserId($new_user_id);
+        $event->setNote(null);
 
         $this->coreEventDAO->updateCoreEvent($event);
 
