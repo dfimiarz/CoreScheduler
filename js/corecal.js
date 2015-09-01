@@ -122,14 +122,17 @@ $(document).ready(function ()
 
 });
 
-function showCalendar(display_state)
+function showCalendar(display_state,curr_date)
 {
+    
+    if(typeof curr_date === 'undefined'){
+        curr_date = new Date();
+    };
 
     var selectable = false;
     var curr_hour = new Date().getHours();
 
-
-    if (display_state == 1)
+    if (display_state === 1)
         selectable = {
             month: true,
             agendaWeek: true,
@@ -147,6 +150,9 @@ function showCalendar(display_state)
             center: 'title',
             right: 'month,agendaWeek,agendaDay'
         },
+        date: curr_date.getDate(),
+        year: curr_date.getFullYear(),
+        month: curr_date.getMonth(),
         slotMinutes: 15,
         firstHour: curr_hour,
         allDaySlot: false,
@@ -1115,10 +1121,9 @@ function resetCalendar(sel_enabled)
 
     $('#calendar').fullCalendar('destroy');
 
-    showCalendar(sel_enabled);
+    showCalendar(sel_enabled,current_date);
 
     $('#calendar').fullCalendar('changeView', current_view.name);
-    $('#calendar').fullCalendar('gotoDate', current_date);
 
 }
 

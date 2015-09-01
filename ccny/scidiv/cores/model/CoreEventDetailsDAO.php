@@ -112,6 +112,8 @@ class CoreEventDetailsDAO extends CoreComponent{
             $this->throwDBError($this->connection->error, $this->connection->errno);
         } 
         
+        $temp_event_array = [];
+        
         while ($stmt->fetch()) {  
             $temp_event_array[] = $this->makeEventDetails($temp);
         }

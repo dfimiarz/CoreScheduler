@@ -32,17 +32,12 @@ namespace ccny\scidiv\cores\permissions;
  * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
 class ServicePermToken extends PermissionToken {
-    
-    public function __construct($user_roles,$service_states) {
-        
+
+    public function __construct($user_roles, $service_states) {
+
         parent::__construct();
         $this->setAttribute("user_roles", $user_roles);
         $this->setAttribute("service_states", $service_states);
-        
     }
-    
-   
-    
-    
-}
 
+}
