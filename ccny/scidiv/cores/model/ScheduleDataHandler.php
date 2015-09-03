@@ -31,7 +31,6 @@ include_once __DIR__ . '/../components/DbConnectInfo.php';
 include_once __DIR__ . '/../components/ColorSelector.php';
 include_once __DIR__ . '/../components/CoreComponent.php';
 include_once __DIR__ . '/../components/SystemConstants.php';
-include_once __DIR__ . '/../components/UserRoleManager.php';
 include_once __DIR__ . '/CoreUser.php';
 include_once __DIR__ . '/CoreEvent.php';
 
@@ -40,7 +39,6 @@ use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\components\CryptoManager as CryptoManager;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
-use ccny\scidiv\cores\components\UserRoleManager as UserRoleManager;
 use ccny\scidiv\cores\model\CoreEvent as CoreEvent;
 use ccny\scidiv\cores\model\CoreEventDAO as CoreEventDAO;
 use ccny\scidiv\cores\model\CoreEventHTTPParams as CoreEventHTTPParams;
@@ -133,8 +131,7 @@ class ScheduleDataHandler extends CoreComponent {
     {
         $now = new \DateTime();
         
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $new_event->getServiceId(),$new_event->isOwner($this->user->getUserID()));
-        $token = new EventPermToken($user_roles,$new_event->getServiceState(),$new_event->getTemporalState());
+        $token = EventPermToken::makeToken($this->user, $new_event);
 
         //Check if user can delete an event
         if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
@@ -169,10 +166,8 @@ class ScheduleDataHandler extends CoreComponent {
         foreach ($temp_event_array as $temp_event) {
             
 
-            //$user_roles = $this->login_manager->getUserRoles($temp_event->service_id, $is_owner);
-            $user_roles = UserRoleManager::getUserRolesForService($this->user, $temp_event->getServiceId(), $temp_event->isOwner($this->user->getUserID()));
-            $token = new EventPermToken($user_roles,$temp_event->getServiceState(),$temp_event->getTemporalState());
-            
+            $token = EventPermToken::makeToken($this->user, $temp_event);
+                        
             $t_start = $temp_event->getStart();
             $t_end = $temp_event->getEnd();
             $t_timestamp = $temp_event->getTimestamp();
@@ -603,10 +598,7 @@ class ScheduleDataHandler extends CoreComponent {
          * he should be able to also extend the $merge_target
          */
         
-        $now = new \DateTime();
-     
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $new_event->getServiceId(),$new_event->isOwner($this->user->getUserID()));
-        $token = new EventPermToken($user_roles,$new_event->getServiceState(),$new_event->getTemporalState());
+        $token = EventPermToken::makeToken($this->user, $new_event);
 
         if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
             $this->throwExceptionOnError("Permission denied", 0, \ACTIVITY_LOG_TYPE);

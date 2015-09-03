@@ -33,10 +33,12 @@ namespace ccny\scidiv\cores\permissions;
  */
 class ServicePermToken extends PermissionToken {
 
-    public function __construct($user_roles, $service_states) {
+    public function __construct($system_roles,$event_roles,$service_roles, $service_states) {
 
         parent::__construct();
-        $this->setAttribute("user_roles", $user_roles);
+        $this->setAttribute("system_roles", $system_roles);
+        $this->setAttribute("event_roles", $event_roles);
+        $this->setAttribute("service_roles", $service_roles);
         $this->setAttribute("service_states", $service_states);
     }
 

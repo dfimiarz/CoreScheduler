@@ -24,12 +24,12 @@
  * THE SOFTWARE.
  */
 
-include_once __DIR__ . '/PermManager.php';
+include_once __DIR__ . '/PermissionManager.php';
 include_once __DIR__ . '/EventPermToken.php';
 include_once __DIR__ . '/../components/DbConnectInfo.php';
 include_once __DIR__ . '/../components/SystemConstants.php';
 
-use ccny\scidiv\cores\permissions\PermManager as PermissionManager;
+use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\permissions\PermissionToken as PermissionToken;
 use ccny\scidiv\cores\permissions\EventPermToken as EventPermToken;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
@@ -39,7 +39,7 @@ $dbinfo = DbConnectInfo::getDBConnectInfoObject();
 
 @$connection = new \mysqli($dbinfo->getServer(), $dbinfo->getUserName(), $dbinfo->getPassword(), $dbinfo->getDatabaseName(), $dbinfo->getPort());
 
-$roles = array(ROLE_ANONYMOUS);
+$roles = array(SYS_ROLE_ANONYMOUS);
 $service_state = array(SERVICE_STATE_ACTIVE);
 $time_state = array(TIME_FUTURE);
 
@@ -60,7 +60,3 @@ $time_end = microtime(true);
 $time = $time_end - $time_start;
 
 echo "Checked perm in $time seconds\n";
-
-
-
-

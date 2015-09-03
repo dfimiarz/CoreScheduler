@@ -25,10 +25,14 @@
  */
 
 //User roles
-define("ROLE_ANONYMOUS",0);
-define("ROLE_AUTHENTICATED",500);
+define("SYS_ROLE_ANONYMOUS",0);
+define("SYS_ROLE_AUTHENTICATED",1);
+
 define("ROLE_SUSPENDED",1000);
 define("ROLE_AUTHORIZED",2000);
-define("ROLE_OWNER",2500);
 define("ROLE_SERVICE_ADMIN",3000);
 define("ROLE_SYSTEM_ADMIN",4000);
+
+define("EVENT_ROLE_OWNER",1);
+
+define("NO_ROLE",0);
