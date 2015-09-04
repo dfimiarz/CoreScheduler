@@ -41,6 +41,7 @@ use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\model\CoreEvent as CoreEvent;
 use ccny\scidiv\cores\model\CoreEventDAO as CoreEventDAO;
+use ccny\scidiv\cores\model\CoreService as CoreService;
 use ccny\scidiv\cores\model\CoreEventHTTPParams as CoreEventHTTPParams;
 
 use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
@@ -227,8 +228,7 @@ class ScheduleDataHandler extends CoreComponent {
             $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
         }
 
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));
-        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
+        $token = EventPermToken::makeToken($this->user, $event);
        
         if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT, $token)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, SECURITY_LOG_TYPE);
@@ -261,7 +261,7 @@ class ScheduleDataHandler extends CoreComponent {
         $event->setEnd($new_end_dt);
         $event->setStart($new_start_dt);
         
-        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
+        $token = EventPermToken::makeToken($this->user, $event);
        
         /*
          * Allow move if new sessions can be created
@@ -293,8 +293,7 @@ class ScheduleDataHandler extends CoreComponent {
             $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
         }
 
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
-        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
+        $token = EventPermToken::makeToken($this->user, $event);
 
         if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT, $token)) {
             $this->throwExceptionOnError ("Insufficient permissions", 0, \SECURITY_LOG_TYPE);
@@ -328,7 +327,7 @@ class ScheduleDataHandler extends CoreComponent {
         //Modify the event end time and check if new session can be created with new params
         $event->setEnd($new_end_dt);
         
-        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
+        $token = EventPermToken::makeToken($this->user, $event);
 
         if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
             $this->throwExceptionOnError ("Resize failed. Permission denied", 0, \SECURITY_LOG_TYPE);
@@ -355,9 +354,7 @@ class ScheduleDataHandler extends CoreComponent {
             $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
         }
 
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
-       
-        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
+        $token = EventPermToken::makeToken($this->user, $event);
 
         //Check if user can delete an event
         if (!$this->permMngr->checkPermission(PERM_DELETE_EVENT, $token)) {
@@ -397,9 +394,7 @@ class ScheduleDataHandler extends CoreComponent {
             $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
         }
         
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($logged_in_user_id));  
-        
-        $token = new EventPermToken($user_roles,$event->getServiceState(),$event->getTemporalState());
+        $token = EventPermToken::makeToken($this->user, $event);
 
         //Check for DB_PERM_CHANGE_NOTE permission
         if (!$this->permMngr->checkPermission(PERM_CHANGE_NOTE, $token)) {
@@ -448,18 +443,15 @@ class ScheduleDataHandler extends CoreComponent {
         {
             $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
         }
-        
-        //TODO: Remove later
-        $service_id = $event->getServiceId();
+  
+        $token = EventPermToken::makeToken($this->user, $event);
 
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $event->getServiceId(), $event->isOwner($this->user->getUserID()));  
-        $token = new ServicePermToken($user_roles,$event->getServiceState());
-
-        if (!$this->permMngr->checkPermission(PERM_MANAGE_USERS, $token)) {
-            $this->throwExceptionOnError ("PERM_MANAGE_USERS: Permission denied", 0, \SECURITY_LOG_TYPE);
+        if (!$this->permMngr->checkPermission(PERM_CHANGE_OWNER, $token)) {
+            $this->throwExceptionOnError ("Permission denied", 0, \SECURITY_LOG_TYPE);
         }
 
-
+        $service_id = $event->getServiceId();
+        
         //Check if the new users has a role for a given service_id
         $check_user_q = "SELECT role FROM core_user_role WHERE user_id = ? and service_id = ?";
 
@@ -502,9 +494,9 @@ class ScheduleDataHandler extends CoreComponent {
         return 1;
     }
 
+    //TO DO: It would make sense to move this function to 
+    //service manager object since this has little to do with an event
     public function getAuthorizedUsers($encrypted_record_id) {
-
-        $is_owner = false;
 
 
         if (is_null($encrypted_record_id)) {
@@ -516,9 +508,8 @@ class ScheduleDataHandler extends CoreComponent {
 
         $dec_record_id = $this->crypto->decrypt($encrypted_record_id);
 
-        //---Get session details
         $query_id = "SELECT cta.service_id,cs.state FROM core_timed_activity cta,core_services cs WHERE cta.id = ? and cta.service_id = cs.id";
-
+        
         if( ! $stmt = mysqli_prepare($this->connection, $query_id)){
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
@@ -542,10 +533,12 @@ class ScheduleDataHandler extends CoreComponent {
         }
 
         mysqli_stmt_close($stmt);
+        
+        $service = new CoreService($service_id);
+        $service->setState($service_state);
 
         //get the user's role for the selected service
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $service_id, $is_owner);  
-        $token = new ServicePermToken($user_roles,$service_state);
+        $token = ServicePermToken::makeToken($this->user, $service);
 
         if (!$this->permMngr->checkPermission(PERM_MANAGE_USERS, $token)) {
             $this->throwExceptionOnError("PERM_MANAGE_USERS: Permission denied", 0, \SECURITY_LOG_TYPE);

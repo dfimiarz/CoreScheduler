@@ -117,8 +117,7 @@ class EventDetailsHandler extends CoreComponent {
         $end_dt = $details->getEnd();
         
 
-        $user_roles = UserRoleManager::getUserRolesForService($this->user, $details->getServiceId(), $details->isOwner($this->user->getUserID()));
-        $token = new EventPermToken($user_roles, $details->getServiceState(), $details->getTemporalState());
+        $token = EventPermToken::makeToken($this->user, $details);
 
         $ArrDetails = [];
         
@@ -158,7 +157,7 @@ class EventDetailsHandler extends CoreComponent {
             $ArrDetails['can_cancel'] = true;
         }
 
-        if ($this->pm->checkPermission(PERM_MANAGE_USERS, $token)) {
+        if ($this->pm->checkPermission(PERM_CHANGE_OWNER, $token)) {
             $user_id_enc = $this->crypto->encrypt($details->getUserId());
             $ArrDetails['user_id'] = $user_id_enc;
             $ArrDetails['can_edit_user'] = true;

@@ -35,3 +35,7 @@ define("PERM_CHANGE_NOTE",7);
 define("PERM_CHANGE_OWNER",8);
 define("PERM_REQUEST_ACCESS",9);
 define("PERM_MANAGE_USERS", 10);
+
+define("PERM_ACCESS_SERVICE",11);
+define("PERM_REQ_SERVICE_ACCESS",12);
+

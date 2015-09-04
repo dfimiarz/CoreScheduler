@@ -26,6 +26,10 @@
 
 namespace ccny\scidiv\cores\permissions;
 
+use ccny\scidiv\cores\model\CoreUser as CoreUser;
+use ccny\scidiv\cores\model\CoreService as CoreService;
+use ccny\scidiv\cores\components\UserRoleManager as UserRoleManager;
+
 /**
  * Description of EventPermToken
  *
@@ -33,13 +37,19 @@ namespace ccny\scidiv\cores\permissions;
  */
 class ServicePermToken extends PermissionToken {
 
-    public function __construct($system_roles,$event_roles,$service_roles, $service_states) {
+    public function __construct($system_roles,$service_roles, $service_states) {
 
         parent::__construct();
         $this->setAttribute("system_roles", $system_roles);
-        $this->setAttribute("event_roles", $event_roles);
         $this->setAttribute("service_roles", $service_roles);
         $this->setAttribute("service_states", $service_states);
+    }
+    
+    static function makeToken(CoreUser $user, CoreService $service)
+    {
+        $service_roles = UserRoleManager::getUserRolesForService($user, $service->getId());
+        $system_roles = UserRoleManager::getSystemRoles($user);
+        return new ServicePermToken($system_roles,$service_roles,$service->getState());
     }
 
 }
