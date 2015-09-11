@@ -909,7 +909,7 @@ function updateUserPermissions()
     {
         $.ajax({
             type: "POST",
-            url: "./ccny/scidiv/cores/ctrl/getUserParams.php",
+            url: "./ccny/scidiv/cores/ctrl/getCalendarConfig.php",
             data: event_data,
             dataType: "json",
             cache: false,

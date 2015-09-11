@@ -26,77 +26,39 @@
 
 namespace ccny\scidiv\cores\model;
 
+use ccny\scidiv\cores\model\CoreUser as CoreUser;
 /**
- * Description of CoreEvent
+ * Description of CalendarConfig
  *
- * @author WORK 1328
+ * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
-class CoreService {
+class CalendarConfig {
     
+    //Message to display in the mesage window
+    public $message;
+
+    //Can this service be used
+    public $can_use;
+
+    //Can access to this service be requested
+    public $can_request_access;
     
-    private $id;
-    private $res_id;
-    private $type;
-    private $name;
-    private $short_name;
-    private $state;
-    private $description;
-    
-    
-    public function __construct($id) {
-        $this->id = $id;
+    public function __construct() {
+        $this->message = "";
+        $this->can_request_access = FALSE;
+        $this->can_use = FALSE;
     }
     
-    public function getId()
+    public function toStdClass()
     {
-        return $this->id;
+        $config = new \stdClass();
+        
+        $config->msg = $this->message;
+        $config->cu = $this->can_use;
+        $config->cr = $this->can_request_access;
+        
+        return $config;
     }
     
-    function getResId() {
-        return $this->res_id;
-    }
-
-    function getType() {
-        return $this->type;
-    }
-
-    function getName() {
-        return $this->name;
-    }
-
-    function getShortName() {
-        return $this->short_name;
-    }
-
-    function getState() {
-        return $this->state;
-    }
-
-    function getDescription() {
-        return $this->description;
-    }
-
-    function setResId($resouce_id) {
-        $this->res_id = $resouce_id;
-    }
-
-    function setType($type) {
-        $this->type = $type;
-    }
-
-    function setName($name) {
-        $this->name = $name;
-    }
-
-    function setShortName($short_name) {
-        $this->short_name = $short_name;
-    }
-
-    function setState($state) {
-        $this->state = $state;
-    }
-
-    function setDescription($description) {
-        $this->description = $description;
-    }   
+   
 }

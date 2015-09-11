@@ -87,7 +87,7 @@ class CoreServiceDAO extends CoreComponent {
 
         mysqli_stmt_close($stmt);
 
-        return $event;
+        return $service;
     }
     
     public function getServiceByEventId($event_id)
@@ -130,7 +130,7 @@ class CoreServiceDAO extends CoreComponent {
 
         mysqli_stmt_close($stmt);
 
-        return $event;
+        return $service;
     }
 
 }
