@@ -27,14 +27,17 @@
 namespace ccny\scidiv\cores\components;
 
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
+use ccny\scidiv\cores\model\CoreRole as CoreRole;
 use ccny\scidiv\cores\model\CalendarConfig as CalendarConfig;
+use ccny\scidiv\cores\model\CoreServiceDAO as CoreServiceDAO;
+use ccny\scidiv\cores\model\CoreService as CoreService;
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
-use ccny\scidiv\cores\model\CoreServiceDAO as CoreServiceDAO;
+use ccny\scidiv\cores\components\AccessRequestManager as ARM;
 use ccny\scidiv\cores\permissions\ServicePermToken as ServicePermToken;
 use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
-use ccny\scidiv\cores\model\CoreService as CoreService;
-use ccny\scidiv\cores\components\AccessRequestManager as ARM;
+
+
 
 /**
  * Description of CalendarConfigGetter
@@ -72,7 +75,7 @@ class CalendarConfigFactory extends CoreComponent {
     public function getCalendarConifg()
     {
         /* @var $service CoreService */
-        $service = NULL;
+        $service = \NULL;
         
         $config = new CalendarConfig();
                 
@@ -98,12 +101,13 @@ class CalendarConfigFactory extends CoreComponent {
             $config->can_request_access = FALSE;
 
             $all_user_roles = $this->user->getRoles();
-
+            
             $role_name = 'Unknown';
 
             //If user has a role assigned, show it
-            if (array_key_exists($this->service_id, $all_user_roles)) {
-
+            if (\array_key_exists($service->getId(), $all_user_roles)) {
+                
+                /* @var $role CoreRole */
                 $role = $all_user_roles[$this->service_id];
                 if ($role instanceof CoreRole) {
                     $role_name = $role->getRoleName();
@@ -122,11 +126,14 @@ class CalendarConfigFactory extends CoreComponent {
             
             if( $this->arm->hasRequestedAccess($this->user, $service->getId()))
             {
-                $config->can_request_access = TRUE;
+                $config->can_request_access = FALSE;
                 $config->can_use = FALSE;
+            
+                $config->message = 'Access requested';    
+                
             }
             
-            $config->message = 'Access requested';
+            
         }
         
         return $config;

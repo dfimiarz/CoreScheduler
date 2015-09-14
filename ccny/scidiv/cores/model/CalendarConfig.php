@@ -54,8 +54,8 @@ class CalendarConfig {
         $config = new \stdClass();
         
         $config->msg = $this->message;
-        $config->cu = $this->can_use;
-        $config->cr = $this->can_request_access;
+        $config->can_use = $this->can_use;
+        $config->can_req = $this->can_request_access;
         
         return $config;
     }
