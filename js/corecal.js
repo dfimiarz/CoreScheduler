@@ -1400,3 +1400,39 @@ function registerUser()
 
 
 }
+
+function getValueFromLocalStorage(key)
+{
+    var value = "";
+    
+    if (storageAvailable('localStorage')) {
+	if( localStorage.key )
+        {
+            return localStorage.getItem(key);
+        }
+    }
+    
+    return value;
+
+}
+
+
+function addValueToLocalStorage(key,value)
+{
+   if (storageAvailable('localStorage')) {
+	 localStorage.setItem(key,value);
+    } 
+}
+
+function storageAvailable(type) {
+    try {
+        var storage = window[type],
+                x = '__storage_test__';
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+    }
+    catch (e) {
+        return false;
+    }
+}
