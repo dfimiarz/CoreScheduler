@@ -113,6 +113,7 @@ $(document).ready(function ()
 
     $("#service_select").change(function ()
     {
+        storePageConfig();
         //update user's role whenever service is changed
         getCalendarConfig();
     }
@@ -1435,4 +1436,9 @@ function storageAvailable(type) {
     catch (e) {
         return false;
     }
+}
+
+function storePageConfig()
+{
+    
 }
