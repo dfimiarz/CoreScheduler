@@ -114,7 +114,7 @@ $(document).ready(function ()
     $("#service_select").change(function ()
     {
         //update user's role whenever service is changed
-        updateUserPermissions();
+        getCalendarConfig();
     }
     );
 
@@ -826,7 +826,7 @@ function loginHandler(data, status, settings)
             $('#user_pi').text(data.data.pi);
             $('#user_type').text(data.data.type);
 
-            updateUserPermissions();
+            getCalendarConfig();
 
             resetLogInPanel();
         }
@@ -861,7 +861,7 @@ function processLogOut()
                     $('#logged_in_panel').hide();
                     $('#dashboard_role_panel').hide();
 
-                    updateUserPermissions();
+                    getCalendarConfig();
                     clearUI();
                     resetLogInPanel();
                 }
@@ -893,7 +893,7 @@ function resetPassword()
     $('#password_txt').val('');
 }
 
-function updateUserPermissions()
+function getCalendarConfig()
 {
 
     resetUI();
@@ -1094,7 +1094,7 @@ function requestServiceAccess()
                 }
                 else
                 {
-                    updateUserPermissions();
+                    getCalendarConfig();
                     showConfirmMsg("Request submitted.", "You will be notified by e-mail when your request is approved by facility administrator.");
                 }
             }
