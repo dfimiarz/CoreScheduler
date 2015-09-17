@@ -1,3 +1,85 @@
+var CORECAL = CORECAL || {
+    calconfig: null
+};
+
+
+var CalendarConfig = function(){
+    this.init();
+};
+
+CalendarConfig.prototype.init = function()
+{
+    var now = new Date();
+    
+    this.options = {
+        theme: true,
+        firstDay: 1,
+        defaultView: 'agendaWeek',
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        date: now.getDate(),
+        year: now.getFullYear(),
+        month: now.getMonth(),
+        slotMinutes: 15,
+        firstHour: now.getHours(),
+        allDaySlot: false,
+        selectable: false,
+        selectHelper: false,
+        lazyFetching: false,
+        events: getEvents,
+        select: handleEventSelection,
+        eventClick: handleEventClick,
+        eventResize: handleEventResize,
+        eventDrop: handleEventDrop,
+        viewDisplay: handleViewDisplay,
+        eventRender: renderEvent
+    };
+};
+
+CalendarConfig.prototype.setDateAndTime = function(curr_date)
+{
+       
+    if(typeof curr_date === 'undefined'){
+        this.options.curr_date = new Date();
+    }
+    else
+    {
+        if( typeof curr_date.getFullYear === 'function')
+            this.options.year = curr_date.getFullYear();
+        
+        if( typeof curr_date.getMonth === 'function')
+            this.options.month = curr_date.getMonth();
+        
+        if( typeof curr_date.getDate === 'function' )
+            this.options.date = curr_date.getDate();
+        
+        this.options.curr_hour = new Date().getHours();
+    }
+
+    
+};
+
+CalendarConfig.prototype.enable = function()
+{
+    this.options.selectable = {
+        month: true,
+        agendaWeek: true,
+        agendaDay: true
+    };
+};
+
+CalendarConfig.prototype.disable = function()
+{
+    this.options.selectable = false;
+};
+
+
+
+var calconfig;
+
 $(document).ready(function ()
 {
 
@@ -125,51 +207,22 @@ $(document).ready(function ()
 
 function showCalendar(display_state,curr_date)
 {
-    
-    if(typeof curr_date === 'undefined'){
-        curr_date = new Date();
-    };
+   
+    CORECAL.calconfig = new CalendarConfig();
 
-    var selectable = false;
-    var curr_hour = new Date().getHours();
+    CORECAL.calconfig.setDateAndTime(curr_date);
 
     if (display_state === 1)
-        selectable = {
-            month: true,
-            agendaWeek: true,
-            agendaDay: true
-        };
+    {
+        CORECAL.calconfig.enable();
+    }
     else
-        selectable = false;
+    {
+        CORECAL.calconfig.disable();
+    }
 
-    var options = {
-        theme: true,
-        firstDay: 1,
-        defaultView: 'agendaWeek',
-        header: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'month,agendaWeek,agendaDay'
-        },
-        date: curr_date.getDate(),
-        year: curr_date.getFullYear(),
-        month: curr_date.getMonth(),
-        slotMinutes: 15,
-        firstHour: curr_hour,
-        allDaySlot: false,
-        selectable: selectable,
-        selectHelper: false,
-        lazyFetching: false,
-        select: handleEventSelection,
-        eventClick: handleEventClick,
-        eventResize: handleEventResize,
-        eventDrop: handleEventDrop,
-        viewDisplay: handleViewDisplay,
-        eventRender: renderEvent,
-        events: getEvents
-    };
-
-    $('#calendar').fullCalendar(options);
+    $('#calendar').fullCalendar(CORECAL.calconfig.options);
+    
 }
 
 function refreshCalendar()
@@ -376,7 +429,7 @@ function renderEvent(event, element)
 
 function getEvents(start, end, callback)
 {
-
+    
     var selected = $("#equipment_select option:selected");
     var eq_id = selected.val();
 
@@ -674,9 +727,6 @@ function clearUI()
 }
 
 //---BEGIN Functions that change viewport settings
-
-
-
 function showCalendarView()
 {
     clearUI();
@@ -927,34 +977,45 @@ function getCalendarConfig()
                     else
                     {
 
-                        var can_add = 0;
-                        var show_req_btn = 0;
-                        var show_txt = 0;
-                        var txt = '';
+                        var can_use = false;
+                        var can_req = false;
+                        var msg = '';
 
-                        if (data.data.hasOwnProperty('can_add'))
-                            can_add = data.data.can_add;
+                        if (data.data.hasOwnProperty('can_use'))
+                        {
+                            can_use = Boolean(data.data.can_use);
+                        }
+                        
+                        if (data.data.hasOwnProperty('can_req'))
+                        {
+                            can_req = Boolean(data.data.can_req);
+                        }
+                            
 
-                        if (data.data.hasOwnProperty('show_req_btn'))
-                            show_req_btn = data.data.show_req_btn;
+                        if (data.data.hasOwnProperty('msg'))
+                        {
+                            msg = String(data.data.msg);
+                        }                       
 
-                        if (data.data.hasOwnProperty('show_txt'))
-                            show_txt = data.data.show_txt;
-
-                        if (data.data.hasOwnProperty('txt'))
-                            txt = data.data.txt;
-
-                        if (can_add)
+                        if (can_use)
+                        {
                             resetCalendar(1);
+                        }
                         else
+                        {
+                            if( can_req )
+                            {
+                                showRequestAccessButton();
+                            }
+                            
                             resetCalendar(0);
-
-                        if (show_req_btn)
-                            showRequestAccessButton();
-
-                        if (show_txt)
-                            showPermission(txt);
-
+                        }
+                        
+                        if( msg != null )
+                        {
+                            showText(msg);
+                        }
+                            
                     }
                 }
                 else
@@ -1059,7 +1120,7 @@ function showConfirmMsg(header_txt, body_txt)
     });
 }
 
-function showPermission(txt)
+function showText(txt)
 {
     $('#role_txt_cont').show();
     $('#user_role').fadeOut().text(txt).fadeIn('slow');
