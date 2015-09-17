@@ -127,7 +127,7 @@ var calconfig;
 $(document).ready(function ()
 {
 
-    clearCalConfig();
+    resetLocalStorage();
 
     $('#session_info_d').dialog(
             {
@@ -1527,7 +1527,7 @@ function storePageConfig()
     
 }
 
-function clearCalConfig()
+function resetLocalStorage()
 {
     CORECAL.LocalStorage.clearStorage();
 }
