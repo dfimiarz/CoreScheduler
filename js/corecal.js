@@ -1,5 +1,44 @@
 var CORECAL = CORECAL || {
-    calconfig: null
+    calconfig: null,
+    LocalStorage: {
+        addValueToLocalStorage: function (key, value)
+        {
+            if (this.storageAvailable('localStorage')) {
+                localStorage.setItem(key, value);
+            }
+        },
+        storageAvailable: function (type) {
+            try {
+                var storage = window[type],
+                        x = '__storage_test__';
+                storage.setItem(x, x);
+                storage.removeItem(x);
+                return true;
+            }
+            catch (e) {
+                return false;
+            }
+        },
+        getValueFromLocalStorage: function (key)
+        {
+            var value = "";
+
+            if (this.storageAvailable('localStorage')) {
+                if (localStorage.key)
+                {
+                    return localStorage.getItem(key);
+                }
+            }
+            
+            return value;
+        },
+        clearStorage: function ()
+        {
+            if (this.storageAvailable('localStorage')) {
+                localStorage.clear();
+            }
+        }
+    }
 };
 
 
@@ -226,17 +265,17 @@ function showCalendar(display_state)
         CORECAL.calconfig.disable();
     }
     
-    var view_name = getValueFromLocalStorage('config_cal_view');
+    var view_name = CORECAL.LocalStorage.getValueFromLocalStorage('config_cal_view');
     if( view_name )
     {
         CORECAL.calconfig.setView(view_name);
     }
     
     
-    var date = getValueFromLocalStorage('config_cal_date');
-    if( date )
+    var date_str = CORECAL.LocalStorage.getValueFromLocalStorage('config_cal_date');
+    if( date_str )
     {
-        CORECAL.calconfig.setDateAndTime(new Date(date));
+        CORECAL.calconfig.setDateAndTime(new Date(date_str));
     }
          
         
@@ -1199,9 +1238,9 @@ function resetCalendar(sel_enabled)
 {
 
     var current_date = $('#calendar').fullCalendar('getDate');
-    addValueToLocalStorage('config_cal_date',current_date);
+    CORECAL.LocalStorage.addValueToLocalStorage('config_cal_date',current_date);
     var current_view = $('#calendar').fullCalendar('getView');
-    addValueToLocalStorage('config_cal_view',current_view.name);
+    CORECAL.LocalStorage.addValueToLocalStorage('config_cal_view',current_view.name);
 
     $('#calendar').fullCalendar('destroy');
 
@@ -1483,42 +1522,6 @@ function registerUser()
 
 }
 
-function getValueFromLocalStorage(key)
-{
-    var value = "";
-    
-    if (storageAvailable('localStorage')) {
-	if( localStorage.key )
-        {
-            return localStorage.getItem(key);
-        }
-    }
-    
-    return value;
-
-}
-
-
-function addValueToLocalStorage(key,value)
-{
-   if (storageAvailable('localStorage')) {
-	 localStorage.setItem(key,value);
-    } 
-}
-
-function storageAvailable(type) {
-    try {
-        var storage = window[type],
-                x = '__storage_test__';
-        storage.setItem(x, x);
-        storage.removeItem(x);
-        return true;
-    }
-    catch (e) {
-        return false;
-    }
-}
-
 function storePageConfig()
 {
     
@@ -1526,7 +1529,5 @@ function storePageConfig()
 
 function clearCalConfig()
 {
-    if (storageAvailable('localStorage')) {
-	 localStorage.clear();
-    } 
+    CORECAL.LocalStorage.clearStorage();
 }
