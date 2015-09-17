@@ -76,12 +76,19 @@ CalendarConfig.prototype.disable = function()
     this.options.selectable = false;
 };
 
+CalendarConfig.prototype.setView = function(name)
+{
+    this.options.defaultView = name;
+};
+
 
 
 var calconfig;
 
 $(document).ready(function ()
 {
+
+    clearCalConfig();
 
     $('#session_info_d').dialog(
             {
@@ -205,12 +212,10 @@ $(document).ready(function ()
 
 });
 
-function showCalendar(display_state,curr_date)
+function showCalendar(display_state)
 {
    
     CORECAL.calconfig = new CalendarConfig();
-
-    CORECAL.calconfig.setDateAndTime(curr_date);
 
     if (display_state === 1)
     {
@@ -220,6 +225,21 @@ function showCalendar(display_state,curr_date)
     {
         CORECAL.calconfig.disable();
     }
+    
+    var view_name = getValueFromLocalStorage('config_cal_view');
+    if( view_name )
+    {
+        CORECAL.calconfig.setView(view_name);
+    }
+    
+    
+    var date = getValueFromLocalStorage('config_cal_date');
+    if( date )
+    {
+        CORECAL.calconfig.setDateAndTime(new Date(date));
+    }
+         
+        
 
     $('#calendar').fullCalendar(CORECAL.calconfig.options);
     
@@ -1179,13 +1199,13 @@ function resetCalendar(sel_enabled)
 {
 
     var current_date = $('#calendar').fullCalendar('getDate');
+    addValueToLocalStorage('config_cal_date',current_date);
     var current_view = $('#calendar').fullCalendar('getView');
+    addValueToLocalStorage('config_cal_view',current_view.name);
 
     $('#calendar').fullCalendar('destroy');
 
-    showCalendar(sel_enabled,current_date);
-
-    $('#calendar').fullCalendar('changeView', current_view.name);
+    showCalendar(sel_enabled);
 
 }
 
@@ -1502,4 +1522,11 @@ function storageAvailable(type) {
 function storePageConfig()
 {
     
+}
+
+function clearCalConfig()
+{
+    if (storageAvailable('localStorage')) {
+	 localStorage.clear();
+    } 
 }
