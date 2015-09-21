@@ -43,14 +43,11 @@ var CORECAL = CORECAL || {
 
 
 var CalendarConfig = function(){
-    this.init();
-};
-
-CalendarConfig.prototype.init = function()
-{
+    var obj = Object.create(CalendarConfig.prototype);
+    
     var now = new Date();
     
-    this.options = {
+    obj.options = {
         theme: true,
         firstDay: 1,
         defaultView: 'agendaWeek',
@@ -76,6 +73,8 @@ CalendarConfig.prototype.init = function()
         viewDisplay: handleViewDisplay,
         eventRender: renderEvent
     };
+    
+    return obj;
 };
 
 CalendarConfig.prototype.setDateAndTime = function(curr_date)
@@ -119,10 +118,6 @@ CalendarConfig.prototype.setView = function(name)
 {
     this.options.defaultView = name;
 };
-
-
-
-var calconfig;
 
 $(document).ready(function ()
 {
