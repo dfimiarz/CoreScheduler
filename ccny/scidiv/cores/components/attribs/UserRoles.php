@@ -24,15 +24,16 @@
  * THE SOFTWARE.
  */
 
-//User roles
+//User roles. Dynamic, assigned at runtime
 define("SYS_ROLE_ANONYMOUS",0);
 define("SYS_ROLE_AUTHENTICATED",1);
 
+//Static. Fetched from the database during login
 define("ROLE_SUSPENDED",1000);
 define("ROLE_AUTHORIZED",2000);
 define("ROLE_SERVICE_ADMIN",3000);
 define("ROLE_SYSTEM_ADMIN",4000);
 
+//Dynamic roles assigned at runtime
 define("EVENT_ROLE_OWNER",1);
-
-define("NO_ROLE",0);
+define("EVENT_NO_ROLE",0);

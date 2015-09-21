@@ -196,10 +196,15 @@ class ScheduleDataHandler extends CoreComponent {
             $event->color = $colors->bg;
             $event->textColor = $colors->txt;
 
-            $event->editable = false;
+            $event->startEditable = false;
+            $event->durationEditable = false;
             
-            if ($this->permMngr->checkPermission(PERM_EDIT_EVENT, $token)) {
-                $event->editable = true;
+            if ($this->permMngr->checkPermission(PERM_EDIT_EVENT_START, $token)) {
+                $event->startEditable = true;
+            }
+            
+            if ($this->permMngr->checkPermission(PERM_EDIT_EVENT_DURATION, $token)) {
+                $event->durationEditable = true;
             }
 
             //Determine visibility of an event
@@ -230,7 +235,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         $token = EventPermToken::makeToken($this->user, $event);
        
-        if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT, $token)) {
+        if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT_START, $token)) {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, SECURITY_LOG_TYPE);
         }
 
@@ -266,7 +271,7 @@ class ScheduleDataHandler extends CoreComponent {
         /*
          * Allow move if new sessions can be created
          */
-        if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
+        if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT_START, $token)) {
             $this->throwExceptionOnError ("Moving event failed. Permission denied", 0, SECURITY_LOG_TYPE);
         }
         
@@ -295,7 +300,7 @@ class ScheduleDataHandler extends CoreComponent {
 
         $token = EventPermToken::makeToken($this->user, $event);
 
-        if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT, $token)) {
+        if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT_DURATION, $token)) {
             $this->throwExceptionOnError ("Insufficient permissions", 0, \SECURITY_LOG_TYPE);
         }
 
@@ -329,7 +334,7 @@ class ScheduleDataHandler extends CoreComponent {
         
         $token = EventPermToken::makeToken($this->user, $event);
 
-        if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
+        if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT_DURATION, $token)) {
             $this->throwExceptionOnError ("Resize failed. Permission denied", 0, \SECURITY_LOG_TYPE);
         }
         

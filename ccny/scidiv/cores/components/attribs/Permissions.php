@@ -28,7 +28,8 @@
 define("PERM_VIEW_EVENT",1);
 define("PERM_CREATE_EVENT",2);
 define("PERM_DELETE_EVENT",3);
-define("PERM_EDIT_EVENT",4);
+define("PERM_EDIT_EVENT_START",41);
+define("PERM_EDIT_EVENT_DURATION",42);
 define("PERM_VIEW_DETAILS",5);
 define("PERM_EDIT_PAST_EVENT",6);
 define("PERM_CHANGE_NOTE",7);

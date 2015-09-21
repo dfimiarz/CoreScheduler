@@ -62,7 +62,7 @@ class UserRoleManager {
         
         if( ! count($active_roles))
         {
-            $active_roles[] = NO_ROLE;
+            $active_roles[] = EVENT_NO_ROLE;
         }
  
         return $active_roles;
@@ -93,7 +93,7 @@ class UserRoleManager {
         
         if( ! count($roles))
         {
-            $roles[] = NO_ROLE;
+            $roles[] = EVENT_NO_ROLE;
         }
         
         return $roles;
