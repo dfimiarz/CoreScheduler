@@ -32,20 +32,24 @@ include_once __DIR__ . '/SystemConstants.php';
 include_once __DIR__ . '/CoreComponent.php';
 include_once __DIR__ . '/DbConnectInfo.php';
 include_once __DIR__ . '/../model/CoreUser.php';
-include_once __DIR__ . '/../model/PermissionManager.php';
 include_once __DIR__ . '/UserRoleManager.php';
+
 
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
-use ccny\scidiv\cores\model\PermissionManager as PermissionManager;
-use ccny\scidiv\cores\components\UserRoleManager as UserRoleManager;
+use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
+use ccny\scidiv\cores\model\CoreServiceDAO as CoreServiceDAO;
+use ccny\scidiv\cores\model\CoreService as CoreService;
+use ccny\scidiv\cores\permissions\ServicePermToken as ServicePermToken;
 
 class AccessRequestManager extends CoreComponent
 {
     //DB mysqli object
     private $mysqli;
     
+    /* @var $perm_manager PermissionManager */
+    private $perm_manager;
     
 
     public function __construct($mysqli = null) {
@@ -63,22 +67,37 @@ class AccessRequestManager extends CoreComponent
             }
         }
         
+        $this->perm_manager = new PermissionManager($this->mysqli);
         
         
     }
 
     function requestServiceAccess(CoreUser $user,$service_id)
     {
-
-        $p_mngr = new PermissionManager($this->mysqli);
         
-        $user_roles = UserRoleManager::getUserRolesForService($user, $service_id, false );
-        $permissions_a = $p_mngr->getPermissions($user_roles, $service_id);
-
-        if (!$p_mngr->hasPermission($permissions_a, \PERM_REQUEST_ACCESS)) {
-            $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
+        /* @var $service CoreService */
+        $service = null;
+        
+        /* @var $sdao CoreServiceDAO */
+        $sdao = new CoreServiceDAO($this->mysqli);
+        
+        try{
+            $service = $sdao->getCoreService($service_id);
+        } catch (Exception $ex) {
+            $this->log(__CLASS__ . "::" . __FUNCTION__ . ": Could not access service info.", ERROR_LOG_TYPE);
         }
-
+        
+        if(  !$service instanceof CoreService)
+        {
+            $this->throwExceptionOnError("Service not found", 0, ERROR_LOG_TYPE);
+        }
+            
+        $token = ServicePermToken::makeToken($user, $service);
+        
+        if (!$this->perm_manager->checkPermission(PERM_REQ_SERVICE_ACCESS, $token)) {
+                $this->throwExceptionOnError("Insufficient user permissions", 0, SECURITY_LOG_TYPE);
+        }
+        
         $user_id = $user->getUserID();
         
         //If operation is allowed, add request to the database

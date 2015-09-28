@@ -70,7 +70,7 @@ catch(\Exception $e)
 {
 	$err_msg = "Operation failed: Error code " . $e->getCode();
 
-	//Code 0 means that this is none-system error.
+	//Code 0 means that this is non-system error.
 	//In this case we should be able to display the message text itself.
 	if( $e->getCode() == 0 )
 	{

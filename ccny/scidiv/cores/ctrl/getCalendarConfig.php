@@ -28,7 +28,6 @@ namespace ccny\scidiv\cores\ctrl;
 
 include_once __DIR__ . '/../autoloader.php';
 include_once __DIR__ . '/../view/JSONMessageSender.php';
-include_once __DIR__ . '/../model/SystemStateManager.php';
 include_once __DIR__ . '/../model/CoreUser.php';
 
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +35,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\CalendarConfig as CalendarConfig;
-use ccny\scidiv\cores\components\CalendarConfigFactory as CalConfFactory;
+use ccny\scidiv\cores\components\CalendarConfigFactory as CalendarConfigFac;
 
 $session = new Session();
 $session->start();
@@ -55,7 +54,7 @@ if( ! $user instanceof CoreUser )
     $user = new CoreUser('anonymous');
 }
 
-$conf_factory = new CalConfFactory($user,$service_id);
+$conf_factory = new CalendarConfigFac($user,$service_id);
 
 /* @var $calconfig CalendarConfig */
 $calconfig = $conf_factory->getCalendarConifg();
