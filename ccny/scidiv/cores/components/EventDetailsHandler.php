@@ -26,16 +26,6 @@
 
 namespace ccny\scidiv\cores\components;
 
-include_once __DIR__ . '/DbConnectInfo.php';
-
-include_once __DIR__ . '/CoreComponent.php';
-include_once __DIR__ . '/SystemConstants.php';
-include_once __DIR__ . '/UserRoleManager.php';
-include_once __DIR__ . '/CryptoManager.php';
-include_once __DIR__ . '/../model/CoreUser.php';
-include_once __DIR__ . '/../model/CoreEventDetails.php';
-include_once __DIR__ . '/../model/CoreEventDetailsDAO.php';
-
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;

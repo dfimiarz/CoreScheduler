@@ -1,6 +1,6 @@
 <?php
 
-include_once __DIR__ . '/../../ccny/scidiv/cores/autoloader.php';
+include_once __DIR__ . '/../../vendor/autoload.php';
 include_once __DIR__ . '/../../ccny/scidiv/cores/config/config.php';
 include_once __DIR__ . '/../../ccny/scidiv/cores/components/SystemConstants.php';
 

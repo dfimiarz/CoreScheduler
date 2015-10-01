@@ -26,7 +26,6 @@
 
 namespace ccny\scidiv\cores\view;
 
-require_once __DIR__ . '/../../../../ext/twig/lib/Twig/Autoloader.php';
 /**
  * Description of SessionDetails
  *
@@ -38,8 +37,6 @@ class SessionDetailsView {
     private $tmpl;
     
     function __construct() {
-
-        \Twig_Autoloader::register();
 
         $loader = new \Twig_Loader_Filesystem(__DIR__ . '/templates');
         $this->twig_env = new \Twig_Environment($loader, array('debug' => true));

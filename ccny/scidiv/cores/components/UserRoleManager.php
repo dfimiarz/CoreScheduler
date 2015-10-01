@@ -31,11 +31,6 @@ namespace ccny\scidiv\cores\components;
  * @author WORK 1328
  */
 
-include_once __DIR__ . '/../model/CoreUser.php';
-include_once __DIR__ . '/../model/CoreRole.php';
-include_once __DIR__ . '/../model/CoreEvent.php';
-include_once __DIR__ . '/SystemConstants.php';
-
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\CoreRole as CoreRole;
 use ccny\scidiv\cores\model\CoreEvent as CoreEvent;

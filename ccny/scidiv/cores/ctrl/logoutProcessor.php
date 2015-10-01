@@ -26,7 +26,9 @@
 
 namespace ccny\scidiv\cores\ctrl;
 
-include_once __DIR__ . '/../view/JSONMessageSender.php';
+include_once __DIR__ . '/../../../../vendor/autoload.php';
+include_once __DIR__ . '/../config/config.php';
+include_once __DIR__ . '/../components/SystemConstants.php';
 
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 

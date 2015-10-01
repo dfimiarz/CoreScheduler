@@ -1,9 +1,7 @@
 <?php
 
-include_once '../ccny/scidiv/cores/autoloader.php';
-include_once '../ccny/scidiv/cores/components/Utils.php';
-include_once '../ccny/scidiv/cores/config/config.php';
-include_once '../ccny/scidiv/cores/view/CoreView.php';
+include_once __DIR__ . '/../vendor/autoload.php';
+include_once __DIR__ . '/../ccny/scidiv/cores/config/config.php';
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
 use Symfony\Component\HttpFoundation\Request as Request;

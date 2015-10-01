@@ -2,9 +2,6 @@
 
 namespace ccny\scidiv\cores\components;
 
-include_once __DIR__ . '/CoreComponent.php';
-include_once __DIR__ . '/DbConnectInfo.php';
-
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\model\CoreUserRegistrant as CoreUserRegistrant;

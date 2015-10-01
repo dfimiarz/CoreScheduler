@@ -30,9 +30,6 @@
 
 namespace ccny\scidiv\cores\view;
 
-include_once __DIR__ . '/../components/SystemConstants.php';
-include_once 'MessageSender.php';
-
 use Symfony\Component\HttpFoundation\Response;
 
 class JSONMessageSender extends MessageSender {

@@ -26,8 +26,6 @@
 
 namespace ccny\scidiv\cores\model;
 
-include_once __DIR__ . '/../components/SystemConstants.php';
-
 /**
  * Description of ValidationError
  *

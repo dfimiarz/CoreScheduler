@@ -24,10 +24,8 @@
  * THE SOFTWARE.
  */
 
-include_once './ccny/scidiv/cores/autoloader.php';
-include_once './ccny/scidiv/cores/components/Utils.php';
+include_once './vendor/autoload.php';
 include_once './ccny/scidiv/cores/config/config.php';
-include_once './ccny/scidiv/cores/view/CoreView.php';
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
 use Symfony\Component\HttpFoundation\Request;
