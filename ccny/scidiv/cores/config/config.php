@@ -26,8 +26,13 @@
 
 namespace ccny\scidiv\cores\config;
 
-define("SYSTEM_ICON","./images/scidivicon.ico");
-define("RECAPTCHA_PRIV_KEY","6LfQQ-kSAAAAAFJ64dbozmkTqS89FtEGdc0c1M9r");
+class Config
+{
+    const APP_ICON = "./images/scidivicon.ico";
+    const APP_EMAIL = "corelabs@ccny.cuny.edu";
+    const APP_ROOT = "corescheduler";
+    const APP_NAME = "CCNY CoreLABS";
+    
+    const RECAPTCHA_PRIV_KEY = "6LfQQ-kSAAAAAFJ64dbozmkTqS89FtEGdc0c1M9r";
+}
 
-define("SYSTEM_EMAIL","corelabs@ccny.cuny.edu");
-define("APP_ROOT","corescheduler");

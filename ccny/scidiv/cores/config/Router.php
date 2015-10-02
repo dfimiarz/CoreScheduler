@@ -26,7 +26,7 @@
 
 namespace ccny\scidiv\cores\config;
 
-include_once __DIR__ . './config.php';
+use ccny\scidiv\cores\config\Config as Config;
 
 /**
  * This class is used for by other components utilizing redirect after submit.
@@ -43,7 +43,7 @@ class Router {
          * $host and $root vairable should be set to correct values in order for redirect to work as expected
          */
         $host = $_SERVER['HTTP_HOST'];
-        $root = \APP_ROOT;
+        $root = Config::APP_ROOT;
         $this->routes['default'] = "http://$host/$root/index.php";
         $this->routes['login'] = "http://$host/$root/login.php";
     }

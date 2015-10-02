@@ -30,11 +30,11 @@
  * @author Daniel F
  */
 include_once './vendor/autoload.php';
-include_once './ccny/scidiv/cores/config/config.php';
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
 use Symfony\Component\HttpFoundation\Request as Request;
 use Symfony\Component\HttpFoundation\Session\Session as Session;
+use ccny\scidiv\cores\config\Config as Config;
 
 $request = Request::createFromGlobals();
 $session = new Session();
@@ -43,6 +43,6 @@ $session->start();
 $view = new CoreView(__DIR__ . '/ccny/scidiv/cores/view/templates/');
 $view->loadTemplate('loginproblems.html.twig');
 
-$template_vars = ["email"=>\SYSTEM_EMAIL];
+$template_vars = ["email"=>Config::APP_EMAIL];
 
 echo $view->render($template_vars);

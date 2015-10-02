@@ -23,7 +23,8 @@
             "ccny\\scidiv\\cores\\model\\": "ccny/scidiv/cores/model/",
             "ccny\\scidiv\\cores\\view\\": "ccny/scidiv/cores/view/",
             "ccny\\scidiv\\cores\\ctrl\\": "ccny/scidiv/cores/ctrl/",
-            "ccny\\scidiv\\cores\\permissions\\": "ccny/scidiv/cores/permissions/"
+            "ccny\\scidiv\\cores\\permissions\\": "ccny/scidiv/cores/permissions/",
+            "ccny\\scidiv\\cores\\config\\": "ccny/scidiv/cores/config/"
         }
     }
 }

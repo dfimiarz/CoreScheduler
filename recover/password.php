@@ -1,7 +1,6 @@
 <?php
 
 include_once __DIR__ . '/../vendor/autoload.php';
-include_once __DIR__ . '/../ccny/scidiv/cores/config/config.php';
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
 use Symfony\Component\HttpFoundation\Request as Request;
