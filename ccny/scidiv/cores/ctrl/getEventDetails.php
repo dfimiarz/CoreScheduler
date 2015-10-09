@@ -59,7 +59,7 @@ try {
     $ArrDetails = $handler->getEventDetails($params);
 
     if (!is_array($ArrDetails)) {
-        $ArrDetails = [];
+        $ArrDetails = array();
     }
     
     $view = new SessionDetailsView();

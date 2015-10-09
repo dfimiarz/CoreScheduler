@@ -51,7 +51,7 @@ class CoreUser {
         $this->user_type = null;
         $this->authenticated = false;
 
-        $this->roles = [];
+        $this->roles = array();
     }
 
     public function updateUserInfo($user_id, $user_type, $last_active, $pi_name) {

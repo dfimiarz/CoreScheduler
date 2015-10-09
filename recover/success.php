@@ -16,6 +16,6 @@ $session->remove('info_msg');
 $view = new CoreView(__DIR__ . '/view/templates');
 $view->loadTemplate('recover_success.html.twig');
 
-$template_vars = ["info_msg"=>$info_msg];
+$template_vars = array("info_msg"=>$info_msg);
 
 echo $view->render($template_vars);

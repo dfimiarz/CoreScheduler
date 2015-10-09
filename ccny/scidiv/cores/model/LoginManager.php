@@ -136,7 +136,7 @@ class LoginManager extends CoreComponent
         
         //Get user roles
         $user_id = $this->user->getUserID();
-        $roles = [];
+        $roles = array();
         $role_q = "SELECT cur.service_id,cur.role,cr.name FROM core_user_role cur,core_role cr WHERE cur.user_id = ? and cur.role = cr.id";
 
         if (!$stmt = $mysqli->prepare($role_q)) {

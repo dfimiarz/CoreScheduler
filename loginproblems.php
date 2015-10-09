@@ -43,6 +43,6 @@ $session->start();
 $view = new CoreView(__DIR__ . '/ccny/scidiv/cores/view/templates/');
 $view->loadTemplate('loginproblems.html.twig');
 
-$template_vars = ["email"=>Config::APP_EMAIL];
+$template_vars = array("email"=>Config::APP_EMAIL);
 
 echo $view->render($template_vars);

@@ -66,7 +66,7 @@ class UserRoleManager {
     
     static function getSystemRoles(CoreUser $user)
     {
-        $roles = [];
+        $roles = array();
         
         if ( $user->isAuth()) {
             $roles[] = SYS_ROLE_AUTHENTICATED;
@@ -80,7 +80,7 @@ class UserRoleManager {
     
     static function getEventRoles(CoreUser $user,CoreEvent $event )
     {
-        $roles = [];
+        $roles = array();
         
         if ($user->getUserID() == $event->getUserId()) {
             $roles[] = EVENT_ROLE_OWNER;

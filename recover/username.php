@@ -19,6 +19,6 @@ $session->remove('err_msg');
 $view = new CoreView(__DIR__ . '/view/templates');
 $view->loadTemplate('recover_username.html.twig');
 
-$template_vars = ["err_msg"=>$err_msg];
+$template_vars = array("err_msg"=>$err_msg);
 
 echo $view->render($template_vars);

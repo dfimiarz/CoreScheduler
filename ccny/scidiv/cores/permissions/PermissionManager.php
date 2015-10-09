@@ -42,7 +42,7 @@ class PermissionManager extends CoreComponent{
      * @var type $auth_criteria stores an array of criteria for each permission
      * Format $auth_criteria[$perm_id] = [];
      */
-    private $auth_criteria = [];
+    private $auth_criteria = array();
     
     /*
      * mysqli connecttion object
@@ -65,7 +65,7 @@ class PermissionManager extends CoreComponent{
          */
         if(! isset($this->auth_criteria[$permission_id]))
         {
-            $this->auth_criteria[$permission_id] = [];
+            $this->auth_criteria[$permission_id] = array();
         }
         
         //Loop through $auth_criteria 

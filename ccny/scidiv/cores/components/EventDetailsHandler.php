@@ -109,7 +109,7 @@ class EventDetailsHandler extends CoreComponent {
 
         $token = EventPermToken::makeToken($this->user, $details);
 
-        $ArrDetails = [];
+        $ArrDetails = array();
         
         $ArrDetails['username'] = $details->getUsername();
         /*

@@ -500,7 +500,7 @@ class ScheduleDataHandler extends CoreComponent {
             $this->throwExceptionOnError( __FUNCTION__ . " Invalid record ID ", 0, \SECURITY_LOG_TYPE);
         }
         
-        $result_array = [];
+        $result_array = array();
         $service_id = null;
 
         $dec_record_id = $this->crypto->decrypt($encrypted_record_id);

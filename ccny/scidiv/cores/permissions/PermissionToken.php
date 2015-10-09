@@ -41,7 +41,7 @@ abstract class PermissionToken {
    
 
     public function __construct() {
-        $this->attribs = [];
+        $this->attribs = array();
      
     }
 
