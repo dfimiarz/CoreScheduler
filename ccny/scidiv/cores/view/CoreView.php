@@ -52,7 +52,7 @@ class CoreView {
             return $this->tmpl->render($arr_variables);
         } 
            
-        return $this->tmpl->render([]);
+        return $this->tmpl->render(array());
         
     }
 

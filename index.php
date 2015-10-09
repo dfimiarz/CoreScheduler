@@ -1,6 +1,6 @@
 <?php
 
-include_once './vendor/autoload.php';
+include_once(__DIR__ . '/vendor/autoload.php');
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
 use ccny\scidiv\cores\components\Utils as Utils;
