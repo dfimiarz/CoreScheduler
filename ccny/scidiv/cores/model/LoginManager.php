@@ -31,6 +31,7 @@ use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\auth\UserAuth as UserAuth;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\CoreRole as CoreRole;
+use ccny\scidiv\cores\config\Config as Config;
 
 class LoginManager extends CoreComponent
 {
@@ -42,7 +43,6 @@ class LoginManager extends CoreComponent
     public function __construct(CoreUser $user)
     {
         parent::__construct(); 
-        
         $this->user = $user;
     }
     
@@ -52,9 +52,9 @@ class LoginManager extends CoreComponent
         
         $user_name = $this->user->getUserName();
         
-        /* @var $authenticators. An array of supported authenticators */
-        $authenticators = array("ccny\scidiv\cores\components\auth\LDAPAuth","ccny\scidiv\cores\components\auth\MySQLAuth");
-
+        /* @var $authenticators [] */
+        $authenticators = Config::getAuthenticators();
+        
         foreach ($authenticators as $auth_name) {
             
             try {
