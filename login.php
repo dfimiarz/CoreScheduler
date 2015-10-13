@@ -24,14 +24,12 @@
  * THE SOFTWARE.
  */
 
-include_once './ccny/scidiv/cores/autoloader.php';
-include_once './ccny/scidiv/cores/components/Utils.php';
-include_once './ccny/scidiv/cores/config/config.php';
-include_once './ccny/scidiv/cores/view/CoreView.php';
+include_once './vendor/autoload.php';
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
+use ccny\scidiv\cores\config\Config as Config;
 
 
 $session = new Session();
@@ -47,7 +45,7 @@ $after_login_dest = $request->query->get('dest','');
 $view = new CoreView(__DIR__ . '/ccny/scidiv/cores/view/templates/');
 $view->loadTemplate('login.html.twig');
 
-$arr_variables = ['destination'=>$after_login_dest,"error_txt"=>$error_txt,"page_title"=>"DivOfScience - Conference Room Reservations","icon"=>SYSTEM_ICON];
+$arr_variables = array('destination'=>$after_login_dest,"error_txt"=>$error_txt,"page_title"=>Config::APP_NAME,"icon"=>Config::APP_ICON);
 
 echo $view->render($arr_variables);
 

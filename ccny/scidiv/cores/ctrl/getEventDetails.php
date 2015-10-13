@@ -26,10 +26,8 @@
 
 namespace ccny\scidiv\cores\ctrl;
 
-include_once __DIR__ . '/../autoloader.php';
-include_once __DIR__ . '/../components/EventDetailsHandler.php';
-include_once __DIR__ . '/../model/CoreUser.php';
-include_once __DIR__ . '/../view/SessionDetailsView.php';
+include_once __DIR__ . '/../../../../vendor/autoload.php';
+include_once __DIR__ . '/../components/SystemConstants.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -61,7 +59,7 @@ try {
     $ArrDetails = $handler->getEventDetails($params);
 
     if (!is_array($ArrDetails)) {
-        $ArrDetails = [];
+        $ArrDetails = array();
     }
     
     $view = new SessionDetailsView();

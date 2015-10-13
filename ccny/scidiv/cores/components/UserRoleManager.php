@@ -31,29 +31,15 @@ namespace ccny\scidiv\cores\components;
  * @author WORK 1328
  */
 
-include_once __DIR__ . '/../model/CoreUser.php';
-include_once __DIR__ . '/../model/CoreRole.php';
-include_once __DIR__ . '/SystemConstants.php';
-
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\CoreRole as CoreRole;
+use ccny\scidiv\cores\model\CoreEvent as CoreEvent;
 
 class UserRoleManager {
     
-    static function getUserRolesForService(CoreUser $user, $service_id, $is_owner)
+    static function getUserRolesForService(CoreUser $user, $service_id)
     {
         $active_roles = array();
-
-        //Set up special roles first
-        if ( $user->isAuth()) {
-            $active_roles[] = \DB_ROLE_AUTHENTICATED;
-        } else {
-            $active_roles[] = \DB_ROLE_ANONYMOUS;
-        }
-
-        if ($is_owner) {
-            $active_roles[] = \DB_ROLE_OWNER;
-        }
 
         //Get roles assigned at login time from the database
         $db_roles = $user->getRoles();
@@ -68,8 +54,43 @@ class UserRoleManager {
             }
             
         }
-
+        
+        if( ! count($active_roles))
+        {
+            $active_roles[] = EVENT_NO_ROLE;
+        }
+ 
         return $active_roles;
         
+    }
+    
+    static function getSystemRoles(CoreUser $user)
+    {
+        $roles = array();
+        
+        if ( $user->isAuth()) {
+            $roles[] = SYS_ROLE_AUTHENTICATED;
+        }
+        else {
+            $roles[] = SYS_ROLE_ANONYMOUS;
+        }
+        
+        return $roles;
+    }
+    
+    static function getEventRoles(CoreUser $user,CoreEvent $event )
+    {
+        $roles = array();
+        
+        if ($user->getUserID() == $event->getUserId()) {
+            $roles[] = EVENT_ROLE_OWNER;
+        }
+        
+        if( ! count($roles))
+        {
+            $roles[] = EVENT_NO_ROLE;
+        }
+        
+        return $roles;
     }
 }

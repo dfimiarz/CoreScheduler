@@ -26,10 +26,8 @@
 
 namespace ccny\scidiv\cores\ctrl;
 
-include_once __DIR__ . '/../autoloader.php';
-include_once __DIR__ . '/../view/JSONMessageSender.php';
-include_once __DIR__ . '/../model/ScheduleDataHandler.php';
-include_once __DIR__ . '/../model/CoreUser.php';
+include_once __DIR__ . '/../../../../vendor/autoload.php';
+include_once __DIR__ . '/../components/SystemConstants.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -62,7 +60,6 @@ $event_options = new \stdClass();
 $event_options->start = $start;
 $event_options->end = $end;
 $event_options->eq_id = $eq_id;
-$event_options->user = $user;
 
 try {
     

@@ -1,8 +1,6 @@
 <?php
 
 include_once __DIR__ . '/../ccny/scidiv/cores/admin/autoloader.php';
-include_once __DIR__ . '/../ccny/scidiv/cores/config/config.php';
-include_once __DIR__ . '/../ccny/scidiv/cores/view/CoreView.php';
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
 use Symfony\Component\HttpFoundation\Request as Request;
@@ -38,7 +36,7 @@ if (!$user_details instanceof UserDetails) {
 $view = new CoreView(__DIR__ . '/../ccny/scidiv/cores/admin/view/templates');
 $view->loadTemplate('user_profile.html.twig');
 
-$template_vars = [
+$template_vars = array(
     "fname"=>$user_details->name,
     "uname"=>$user_details->username,
     "email"=>$user_details->email,
@@ -47,6 +45,6 @@ $template_vars = [
     "type"=>$user_details->type,
     "dt_active"=>$user_details->lastactive,
     "note"=>$user_details->note
-];
+);
 
 echo $view->render($template_vars);

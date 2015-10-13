@@ -31,9 +31,6 @@
  */
 namespace ccny\scidiv\cores\components;
 
-include_once 'SystemConstants.php';
-include_once 'Logger.php';
-
 use ccny\scidiv\cores\components\Logger as Logger;
 
 class CoreComponent {

@@ -71,33 +71,78 @@ class CoreEventDetailsDAO extends CoreComponent{
 
         $temp = new \stdClass();
         
-        if( ! mysqli_stmt_bind_result($stmt,$temp->record_id,$temp->user_id,$temp->firstname,$temp->lastname,$temp->username,$temp->email,$temp->piname,$temp->timestamp,$temp->start,$temp->end,$temp->note,$temp->event_state,$temp->service_id,$temp->service_name,$temp->resource_name )){
+        if( ! mysqli_stmt_bind_result($stmt,$temp->record_id,$temp->user_id,$temp->firstname,$temp->lastname,$temp->username,$temp->email,$temp->piname,$temp->timestamp,$temp->start,$temp->end,$temp->note,$temp->event_state,$temp->service_id,$temp->service_name,$temp->service_state,$temp->resource_name )){
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
         
         if (mysqli_stmt_fetch($stmt)) {
             
-            $details = new CoreEventDetails($temp->record_id,new \DateTime($temp->timestamp));
-            
-            $details->setStart(new \DateTime($temp->start));
-            $details->setEnd(new \DateTime($temp->end));
-            $details->setServiceId($temp->service_id);
-            $details->setUserId($temp->user_id);
-            $details->setEventState($temp->event_state);
-            $details->setNote($temp->note);
-            $details->setFirstname($temp->firstname);
-            $details->setLastname($temp->lastname);
-            $details->setUsername($temp->username);
-            $details->setEmail($temp->email);
-            $details->setPiname($temp->piname);
-            $details->setService($temp->service_name);
-            $details->setResource($temp->resource_name);
-            
-            
+            $details = $this->makeEventDetails($temp);
+                   
         }
 
         mysqli_stmt_close($stmt);
         
         return $details;
     }
+    
+    public function getEventDetailsForTimeRange(\DateTime $start,\DateTime $end,$resource_id)
+    {
+        //Get all sessions for given service and time range
+        $query = "SELECT * FROM core_event_details_view WHERE start <= ? AND end >= ? AND service_id IN (SELECT id from core_services WHERE resource_id = ? ) AND event_state = 1";
+
+        if (!$stmt = $this->connection->prepare($query)) {
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+
+        $start_time_str = $start->format(\DATE_RFC3339);
+        $end_time_str = $end->format(\DATE_RFC3339);
+
+        if (!$stmt->bind_param('ssi', $end_time_str, $start_time_str, $resource_id)) {
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+
+        if (!$stmt->execute()) {
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+
+        $temp = new \stdClass();
+
+        if( ! mysqli_stmt_bind_result($stmt,$temp->record_id,$temp->user_id,$temp->firstname,$temp->lastname,$temp->username,$temp->email,$temp->piname,$temp->timestamp,$temp->start,$temp->end,$temp->note,$temp->event_state,$temp->service_id,$temp->service_name,$temp->service_state,$temp->resource_name )){
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        } 
+        
+        $temp_event_array = array();
+        
+        while ($stmt->fetch()) {  
+            $temp_event_array[] = $this->makeEventDetails($temp);
+        }
+
+        $stmt->close();
+        
+        return $temp_event_array;
+    }
+    
+    private function makeEventDetails($temp) {
+
+        $details = new CoreEventDetails($temp->record_id, new \DateTime($temp->timestamp));
+
+        $details->setStart(new \DateTime($temp->start));
+        $details->setEnd(new \DateTime($temp->end));
+        $details->setServiceId($temp->service_id);
+        $details->setUserId($temp->user_id);
+        $details->setEventState($temp->event_state);
+        $details->setNote($temp->note);
+        $details->setFirstname($temp->firstname);
+        $details->setLastname($temp->lastname);
+        $details->setUsername($temp->username);
+        $details->setEmail($temp->email);
+        $details->setPiname($temp->piname);
+        $details->setService($temp->service_name);
+        $details->setResource($temp->resource_name);
+        $details->setServiceState($temp->service_state);
+
+        return $details;
+    }
+
 }

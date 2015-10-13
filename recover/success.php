@@ -1,9 +1,6 @@
 <?php
 
-include_once '../ccny/scidiv/cores/autoloader.php';
-include_once '../ccny/scidiv/cores/components/Utils.php';
-include_once '../ccny/scidiv/cores/config/config.php';
-include_once '../ccny/scidiv/cores/view/CoreView.php';
+include_once __DIR__ . '/../vendor/autoload.php';
 
 use ccny\scidiv\cores\view\CoreView as CoreView;
 use Symfony\Component\HttpFoundation\Request as Request;
@@ -19,6 +16,6 @@ $session->remove('info_msg');
 $view = new CoreView(__DIR__ . '/view/templates');
 $view->loadTemplate('recover_success.html.twig');
 
-$template_vars = ["info_msg"=>$info_msg];
+$template_vars = array("info_msg"=>$info_msg);
 
 echo $view->render($template_vars);

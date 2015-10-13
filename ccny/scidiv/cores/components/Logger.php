@@ -27,9 +27,6 @@
 
 namespace ccny\scidiv\cores\components;
 
-
-
-include_once __DIR__ . '/../autoloader.php';
 include_once __DIR__ . '/SystemConstants.php';
 
 /*

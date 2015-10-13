@@ -26,17 +26,12 @@
 
 namespace ccny\scidiv\cores\model;
 
-include_once __DIR__ . '/../components/DbConnectInfo.php';
-include_once __DIR__ . '/../components/SystemConstants.php';
-include_once __DIR__ . '/../components/CoreComponent.php';
-include_once __DIR__ . '/CoreUser.php';
-include_once __DIR__ . '/CoreRole.php';
-
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\auth\UserAuth as UserAuth;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\CoreRole as CoreRole;
+use ccny\scidiv\cores\config\Config as Config;
 
 class LoginManager extends CoreComponent
 {
@@ -48,7 +43,6 @@ class LoginManager extends CoreComponent
     public function __construct(CoreUser $user)
     {
         parent::__construct(); 
-        
         $this->user = $user;
     }
     
@@ -58,9 +52,9 @@ class LoginManager extends CoreComponent
         
         $user_name = $this->user->getUserName();
         
-        /* @var $authenticators. An array of supported authenticators */
-        $authenticators = array("ccny\scidiv\cores\components\auth\LDAPAuth","ccny\scidiv\cores\components\auth\MySQLAuth");
-
+        /* @var $authenticators [] */
+        $authenticators = Config::getAuthenticators();
+        
         foreach ($authenticators as $auth_name) {
             
             try {
@@ -142,7 +136,7 @@ class LoginManager extends CoreComponent
         
         //Get user roles
         $user_id = $this->user->getUserID();
-        $roles = [];
+        $roles = array();
         $role_q = "SELECT cur.service_id,cur.role,cr.name FROM core_user_role cur,core_role cr WHERE cur.user_id = ? and cur.role = cr.id";
 
         if (!$stmt = $mysqli->prepare($role_q)) {

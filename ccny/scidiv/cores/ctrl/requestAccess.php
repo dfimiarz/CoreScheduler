@@ -26,10 +26,8 @@
 
 namespace ccny\scidiv\cores\ctrl;
 
-include_once __DIR__ . '/../autoloader.php';
-include_once __DIR__ . '/../view/JSONMessageSender.php';
-include_once __DIR__ . '/../components/AccessRequestManager.php';
-include_once __DIR__ . '/../model/CoreUser.php';
+include_once __DIR__ . '/../../../../vendor/autoload.php';
+include_once __DIR__ . '/../components/SystemConstants.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -70,7 +68,7 @@ catch(\Exception $e)
 {
 	$err_msg = "Operation failed: Error code " . $e->getCode();
 
-	//Code 0 means that this is none-system error.
+	//Code 0 means that this is non-system error.
 	//In this case we should be able to display the message text itself.
 	if( $e->getCode() == 0 )
 	{

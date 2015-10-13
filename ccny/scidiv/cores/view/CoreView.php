@@ -25,8 +25,6 @@
  */
 
 namespace ccny\scidiv\cores\view;
-
-require_once __DIR__ . '/../../../../ext/twig/lib/Twig/Autoloader.php';
 /**
  * Description of SessionDetails
  *
@@ -38,8 +36,6 @@ class CoreView {
     private $tmpl;
     
     function __construct($template_dir) {
-
-        \Twig_Autoloader::register();
 
         $loader = new \Twig_Loader_Filesystem($template_dir);
         $this->twig_env = new \Twig_Environment($loader, array('debug' => FALSE));
@@ -56,7 +52,7 @@ class CoreView {
             return $this->tmpl->render($arr_variables);
         } 
            
-        return $this->tmpl->render([]);
+        return $this->tmpl->render(array());
         
     }
 

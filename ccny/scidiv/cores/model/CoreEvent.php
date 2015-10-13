@@ -42,6 +42,7 @@ class CoreEvent {
     /* @var $end \DateTime */
     protected $end;
     protected $service_id;
+    protected $service_state;
     protected $user_id;
     protected $note;
     protected $eventState;
@@ -87,6 +88,15 @@ class CoreEvent {
         return $this->service_id;
     }
     
+    function getServiceState() {
+        return $this->service_state;
+    }
+
+    function setServiceState($service_state) {
+        $this->service_state = $service_state;
+    }
+    
+    
     public function setUserId($user_id)
     {
         $this->user_id = $user_id;
@@ -131,7 +141,8 @@ class CoreEvent {
         
         return false;
     }
-    
+
+        
     /**
      * 
      * @return type int. Number of seconds between event end and start
@@ -141,6 +152,25 @@ class CoreEvent {
         $duration = $this->end->getTimestamp() - $this->start->getTimestamp();
 	
 	return $duration;
+    }
+    
+    /**
+     * This function computes temporal state of an event. See TimeStates.php
+     */
+    public function getTemporalState()
+    {
+        $now = new \DateTime();
+        
+        if ($this->start > $now ) {
+            return TIME_FUTURE;
+        }
+        
+        if( $this->end < $now )
+        {
+            return TIME_PAST;
+        }
+        
+        return TIME_CURRENT;
     }
     
 }

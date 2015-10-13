@@ -1,13 +1,13 @@
 <?php
 
-include_once __DIR__ . '/../../ccny/scidiv/cores/autoloader.php';
-include_once __DIR__ . '/../../ccny/scidiv/cores/config/config.php';
+include_once __DIR__ . '/../../vendor/autoload.php';
 include_once __DIR__ . '/../../ccny/scidiv/cores/components/SystemConstants.php';
 
 use ReCaptcha\ReCaptcha as ReCaptcha;
 use Symfony\Component\HttpFoundation\Request as Request;
 use Symfony\Component\HttpFoundation\Session\Session as Session;
 use ccny\scidiv\cores\components\UserManager as UserManager;
+use ccny\scidiv\cores\config\Config as Config;
 
 $un_reminder = new UsernameReminder();
 $un_reminder->runJob();
@@ -24,7 +24,7 @@ class UsernameReminder {
     private $session;
 
     public function __construct() {
-        $this->recaptcha = new ReCaptcha(\RECAPTCHA_PRIV_KEY);
+        $this->recaptcha = new ReCaptcha(Config::RECAPTCHA_PRIV_KEY);
         $this->request = Request::createFromGlobals();
 
         $this->session = new Session();

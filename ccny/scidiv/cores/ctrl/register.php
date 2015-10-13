@@ -2,9 +2,8 @@
 
 namespace ccny\scidiv\cores\components;
 
-include_once __DIR__ . '/../autoloader.php';
+include_once __DIR__ . '/../../../../vendor/autoload.php';
 include_once __DIR__ . '/../components/SystemConstants.php';
-include_once __DIR__ . '/../view/JSONMessageSender.php';
 
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use Symfony\Component\HttpFoundation\Request as Request;

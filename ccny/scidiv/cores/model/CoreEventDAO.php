@@ -54,7 +54,7 @@ class CoreEventDAO extends CoreComponent {
         $timestamp_str = $timestamp->format('Y-m-d H:i:s');
 
         //---Get session details
-        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cta.note,cta.state as eventstate,cta.time_modified FROM core_timed_activity cta WHERE cta.id = ? AND cta.time_modified = ?";
+        $query = "SELECT cta.start,cta.end,cta.user,cta.service_id,cta.note,cta.state as eventstate,cta.time_modified,cs.state as service_state FROM core_timed_activity cta,core_services cs WHERE cta.id = ? AND cta.time_modified = ? AND cs.id = cta.service_id";
 
         if (!$stmt = mysqli_prepare($this->connection, $query)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
@@ -70,7 +70,7 @@ class CoreEventDAO extends CoreComponent {
 
         $temp = new \stdClass();
 
-        if (!mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id, $temp->note, $temp->event_state, $temp->time_modified)) {
+        if (!mysqli_stmt_bind_result($stmt, $temp->start, $temp->end, $temp->user_id, $temp->service_id, $temp->note, $temp->event_state, $temp->time_modified,$temp->service_state)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
@@ -84,6 +84,7 @@ class CoreEventDAO extends CoreComponent {
             $event->setUserId($temp->user_id);
             $event->setEventState($temp->event_state);
             $event->setNote($temp->note);
+            $event->setServiceState($temp->service_state);
         }
 
         mysqli_stmt_close($stmt);
@@ -96,7 +97,7 @@ class CoreEventDAO extends CoreComponent {
      * @param CoreEvent $event
      * @return boolean
      */
-    public function saveCoreEvent(CoreEvent $event) {
+    public function updateCoreEvent(CoreEvent $event) {
         $user_id = $event->getUserId();
         $note = $event->getNote();
         $start = $event->getStart();
@@ -223,14 +224,14 @@ class CoreEventDAO extends CoreComponent {
             $this->throwExceptionOnError("Events cannot overlap", 0, \ACTIVITY_LOG_TYPE);
         }
 
-        if (!$this->saveCoreEvent($event)) {
+        if (!$this->updateCoreEvent($event)) {
             $this->throwExceptionOnError("Could not modify the event", 0, \ERROR_LOG_TYPE);
         }
 
         $this->unlockTables();
     }
 
-    private function createCoreEvent(CoreEvent $event) {
+    private function saveCoreEvent(CoreEvent $event) {
         
         $insert_q = "INSERT INTO `core_timed_activity` (`id`,`service_id`,`time_recorded`,`time_modified`,`state`,`start`,`end`,`user`,`note`) VALUES (null,?,	NOW(),NOW(),?,?,?,?,?)";
 
@@ -268,7 +269,7 @@ class CoreEventDAO extends CoreComponent {
             $this->throwExceptionOnError("Events cannot overlap", 0, \ACTIVITY_LOG_TYPE);
         }
 
-        $new_id = $this->createCoreEvent($event);
+        $new_id = $this->saveCoreEvent($event);
         
         if (! $new_id ) {
             $this->throwExceptionOnError("Could not add this event", 0, \ERROR_LOG_TYPE);
@@ -293,7 +294,7 @@ class CoreEventDAO extends CoreComponent {
         $new_start_time_str  = $new_event->getStart()->format(\DATE_RFC3339);
         $new_end_time_str = $new_event->getEnd()->format(\DATE_RFC3339);
         
-        $adjcent_check_q = "SELECT cta.id,cta.start,cta.end,cta.user,cta.service_id,cta.note,cta.state as eventstate,cta.time_modified FROM core_timed_activity cta WHERE user = ? and service_id = ? and state = 1 and (end = ? OR start = ?) ORDER BY start LIMIT 1";
+        $adjcent_check_q = "SELECT cta.id,cta.start,cta.end,cta.user,cta.service_id,cta.note,cta.state as eventstate,cta.time_modified,cs.state as service_state FROM core_timed_activity cta, core_services cs WHERE cs.id = cta.service_id AND user = ? and service_id = ? and cta.state = 1 and (end = ? OR start = ?) ORDER BY start LIMIT 1";
        
         if( ! $stmt = $this->connection->prepare($adjcent_check_q))
         {
@@ -312,7 +313,7 @@ class CoreEventDAO extends CoreComponent {
 
         $temp = new \stdClass();
 
-        if (! $stmt->bind_result($temp->id,$temp->start, $temp->end, $temp->user_id, $temp->service_id, $temp->note, $temp->event_state, $temp->time_modified)) {
+        if (! $stmt->bind_result($temp->id,$temp->start, $temp->end, $temp->user_id, $temp->service_id, $temp->note, $temp->event_state, $temp->time_modified,$temp->service_state)) {
             $this->throwDBError($stmt->error, $stmt->errno);
         }
 
@@ -326,12 +327,66 @@ class CoreEventDAO extends CoreComponent {
             $adj_event->setUserId($temp->user_id);
             $adj_event->setEventState($temp->event_state);
             $adj_event->setNote($temp->note);
+            $adj_event->setServiceState($temp->service_state);
         }
 
         $stmt->free_result();
         $stmt->close();
        
         return $adj_event;
+    }
+    
+    /**
+     * This function initializes a new CoreEvent 
+     * @param type $service_id
+     * @param \DateTime $start
+     * @param \DateTime $end
+     * @param type $user_id
+     */
+    public function initNewCoreEvent($service_id,  \DateTime $start, \DateTime $end, $user_id) {
+        
+        $new_event = new CoreEvent(null, new \DateTime());
+
+        $new_event->setStart($start);
+        $new_event->setEnd($end);
+        $new_event->setServiceId($service_id);
+        $new_event->setUserId($user_id);
+        $new_event->setEventState(1);
+        
+        /**
+         * Get service state based on event's service_id. This param is used in EventPermToken
+         */
+        $service_state_check_q = "SELECT state FROM core_services cs WHERE id = ?";
+      
+        if( ! $stmt = $this->connection->prepare($service_state_check_q))
+        {
+            $this->throwDBError($this->connection->error, $this->connection->errno);
+        }
+        
+        if( ! $stmt->bind_param('i', $service_id))
+        {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        if( ! $stmt->execute())
+        {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        $service_state = 0;
+
+        if (! $stmt->bind_result($service_state)) {
+            $this->throwDBError($stmt->error, $stmt->errno);
+        }
+
+        if ($stmt->fetch()) {
+            $new_event->setServiceState($service_state);
+        }
+
+        $stmt->free_result();
+        $stmt->close();
+        
+        return $new_event;
     }
 
 }
