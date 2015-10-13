@@ -43,9 +43,8 @@ class Router {
          * $host and $root vairable should be set to correct values in order for redirect to work as expected
          */
         $host = $_SERVER['HTTP_HOST'];
-        $root = Config::APP_ROOT;
-        $this->routes['default'] = "http://$host/$root/index.php";
-        $this->routes['login'] = "http://$host/$root/login.php";
+        $this->routes['default'] = "http://$host/index.php";
+        $this->routes['login'] = "http://$host/login.php";
     }
 
     public function getDestination($code) {
