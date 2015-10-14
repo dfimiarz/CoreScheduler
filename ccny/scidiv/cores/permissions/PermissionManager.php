@@ -39,9 +39,13 @@ use ccny\scidiv\cores\permissions\PermissionToken as PermissionToken;
 class PermissionManager extends CoreComponent{
     /**
      *
-     * @var type $auth_criteria stores an array of criteria for each permission
-     * Format $auth_criteria[$perm_id] = [];
-     */
+     * @var type $auth_criteria array.
+     * Stores an array of criteria_sets for each permission
+     * Format:
+     *  $auth_criteria [ criteria_set_0 , ..., criteria_set_n]
+     *  $criteria_set [ attribute_name: [value_0, ... , value_n],...]
+    */
+  
     private $auth_criteria = array();
     
     /*
@@ -56,27 +60,45 @@ class PermissionManager extends CoreComponent{
     
     public function checkPermission($permission_id,PermissionToken $token)
     {
+        /*
+         * Load criteria for $permission_id
+         */
         $this->loadCriteria($permission_id);
         
         $is_authorized = FALSE;
         
         /*
-         * Make sure that criteria for a given permission are defined
+         * Deny permission if criteria is not found
          */
         if(! isset($this->auth_criteria[$permission_id]))
         {
-            $this->auth_criteria[$permission_id] = array();
+            return $is_authorized;
+        }
+        
+        /*
+         * Check if $this->auth_criteria is an array
+         */
+        if( !is_array($this->auth_criteria[$permission_id]))
+        {
+            return $is_authorized;
         }
         
         //Loop through $auth_criteria 
-        foreach ($this->auth_criteria[$permission_id] as $criteria) {
-            //Evaluate each set of permission criteria agains the token
+        foreach ($this->auth_criteria[$permission_id] as $criteria_set) {
+            
+            /*
+             * If a criteria_set is not an array go to the next one 
+             */
+            if( !is_array($criteria_set)){
+                continue;
+            }
+            //Evaluate each criteria_set against the token
             $is_authorized = TRUE;
-            foreach ($criteria as $criterium_name => $criterium_values) {
+            foreach ($criteria_set as $criterion_name => $criterion_values) {
                 //Compare attributes from criteria with attributes from the token
-                $token_attr_values = $token->getAttribute($criterium_name);
+                $token_attr_values = $token->getAttribute($criterion_name);
                 
-                $result = array_intersect($criterium_values, $token_attr_values);
+                $result = array_intersect($criterion_values, $token_attr_values);
                 
                 if (!count($result)) {
                     //If there is no intersection, move to the next criteria
