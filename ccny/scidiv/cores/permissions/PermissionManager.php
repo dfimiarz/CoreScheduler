@@ -127,10 +127,12 @@ class PermissionManager extends CoreComponent{
         while ($stmt->fetch()) {     
             $json_obj = json_decode($attr_string, true);
             
-            if( !is_null($json_obj))
-            {
+            if( !is_null($json_obj)){
                 $this->auth_criteria[$permission_id][] = $json_obj; 
             }  
+            else {
+                $this->log("Permission attributes error: " . json_last_error(), ERROR_LOG_TYPE);
+            }
         }
 
         $stmt->free_result();
