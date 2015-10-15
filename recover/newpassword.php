@@ -16,7 +16,7 @@ $session->remove('err_msg');
 
 $val_code = $request->query->get('id', null);
 
-$view = new CoreView(__DIR__ . '/view/templates');
+$view = new CoreView(__DIR__ . '/resources/templates');
 $view->loadTemplate('recover_newpassword.html.twig');
 
 $template_vars = array("err_msg"=>$err_msg,"val_code"=>$val_code);

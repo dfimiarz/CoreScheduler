@@ -13,7 +13,7 @@ $session->start();
 $info_msg = $session->get('info_msg',null);
 $session->remove('info_msg');
 
-$view = new CoreView(__DIR__ . '/view/templates');
+$view = new CoreView(__DIR__ . '/resources/templates');
 $view->loadTemplate('recover_success.html.twig');
 
 $template_vars = array("info_msg"=>$info_msg);

@@ -33,6 +33,7 @@ class Config
     const APP_NAME = "CCNY CoreLABS";
     
     const RECAPTCHA_PRIV_KEY = "6LfQQ-kSAAAAAFJ64dbozmkTqS89FtEGdc0c1M9r";
+    const RECAPTCHA_PUB_KEY = "6LfQQ-kSAAAAAPPUG9Jy31yoSfKyY6N8UQmgqzmB";
     
     private static $AUTHENTICATORS = array( "LDAP"=>"ccny\scidiv\cores\components\auth\LDAPAuth",
                                             "MYSQL"=>"ccny\scidiv\cores\components\auth\MySQLAuth");
