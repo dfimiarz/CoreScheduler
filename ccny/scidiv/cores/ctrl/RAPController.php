@@ -26,12 +26,10 @@
 
 namespace ccny\scidiv\cores\ctrl;
 
-include_once __DIR__ . '/../config/Router.php';
-
 use Symfony\Component\HttpFoundation\Request as Request;
 use Symfony\Component\HttpFoundation\RedirectResponse as RedirectResponse;
 use Symfony\Component\HttpFoundation\Session\Session as Session;
-use ccny\scidiv\cores\config\Router as Router;
+use ccny\scidiv\cores\components\Router as Router;
 
 /**
  * Base class implementation of Redirect After Post controller
@@ -60,6 +58,15 @@ abstract class RAPController {
         $this->session->start();
         
         $this->router = new Router();
+        
+        /*
+         * Check if $_POST['dest'] is set. If so, save the code in the controller
+         * for future redirect
+         */
+        $dest = $this->request->request->get("dest", null);
+        if (!is_null($dest)) {
+            $this->dest_code = $dest;
+        }
         
     }
 

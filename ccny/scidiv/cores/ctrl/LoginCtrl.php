@@ -52,22 +52,12 @@ class LoginCtrl extends RAPController {
          * Clear session variables and regenerated ID
          */
         $this->session->invalidate();
-        
-        /*
-         * Check if $_POST['dest'] is set. If so, save the code in the controller
-         * for future redirect
-         */
-        $dest = $this->request->request->get("dest", null);
-        if (!is_null($dest)) {
-            $this->dest_code = $dest;
-        }
 
         /*
          * Get username and password from the $_POST
          */
         $username = $this->request->request->get("user", null);
         $password = $this->request->request->get("pass", null);
-
         /*
          * If username or password is empty, throw error
          */

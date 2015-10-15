@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace ccny\scidiv\cores\config;
+namespace ccny\scidiv\cores\components;
 
 use ccny\scidiv\cores\config\Config as Config;
 
