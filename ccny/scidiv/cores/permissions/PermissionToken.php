@@ -72,7 +72,7 @@ abstract class PermissionToken {
             return $this->attribs[$key];
         }
         
-        return [];
+        return array();
     }
     
     public function getJSON()
@@ -82,7 +82,7 @@ abstract class PermissionToken {
              return json_encode($this->attribs);
         }
         
-        return json_encode([]);
+        return json_encode(array());
         
     }
 }

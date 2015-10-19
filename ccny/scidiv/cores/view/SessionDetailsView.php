@@ -49,7 +49,7 @@ class SessionDetailsView {
             return $this->tmpl->render($ArrDetails);
         } 
            
-        return $this->tmpl->render([]);
+        return $this->tmpl->render(array());
         
     }
 
