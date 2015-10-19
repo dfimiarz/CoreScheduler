@@ -1,0 +1,7 @@
+Tools for optimizing images:
+https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization?hl=en
+
+gifsicle    create and optimize GIF images
+jpegtran    optimize JPEG images
+optipng     lossless PNG optimization
+pngquant    lossy PNG optimization
