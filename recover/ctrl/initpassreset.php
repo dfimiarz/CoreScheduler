@@ -105,7 +105,9 @@ class PasswordResetInitCtrl {
 
         $uname = $this->request->request->get('uname', null);
 
-        if (empty(\trim($uname))) {
+        $t_uname = \trim($uname);
+        
+        if (empty($t_uname)) {
             $error_obj->field = "uname";
             $error_obj->msg = "User name is empty";
             $error_obj->type = \VAL_FIELD_ERROR;
