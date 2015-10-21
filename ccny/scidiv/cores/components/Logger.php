@@ -29,46 +29,40 @@ namespace ccny\scidiv\cores\components;
 
 include_once __DIR__ . '/SystemConstants.php';
 
+use ccny\scidiv\cores\config\Config as Config;
 /*
   Class used to log error messages to a file spcified in the const ERROR_FILE
  */
 
 class Logger {
-    /*
-      Rember to place files in a directory with correct write permissions.
-      On unix this could  be /tmp
-     */
+    
+    private $log_dir;
+    
+    private $error_file_name;
+    private $warning_file_name;
+    private $security_file_name;
+    private $database_file_name;
+    private $activity_file_name;
 
-    /*
-     * UNIX log directory
-     */
-    //const LOG_DIRECTORY = '/var/log/corelabs/';
-    
-    /*
-     * WINDOWS log directory
-     */
-    const LOG_DIRECTORY = 'C:/weblogs/';
-    
-    
-    const ERROR_FILE = 'CORELABS_ERROR.log';
-    const WARNING_FILE = 'CORELABS_WARNING.log';
-    const SECURITY_FILE = 'CORELABS_SECURITY.log';
-    const DATABASE_FILE = 'CORELABS_DATABASE.log';
-    const ACTIVITY_FILE = 'CORELABS_ACTIVITY.log';
-
-    private function __construct() {
+    public function __construct() {
         
+        $this->log_dir = Config::LOG_DIR;
         
+        $this->activity_file_name = Config::APP_ID . '_ACTIVITY.log';
+        $this->database_file_name = Config::APP_ID . '_DATABASE.log';
+        $this->security_file_name = Config::APP_ID . '_SECURITY.log';
+        $this->warning_file_name = Config::APP_ID . '_WARNING.log';
+        $this->error_file_name = Config::APP_ID . '_ERROR.log';
     }
 
-    public static function log($msg, $error_type) {
+    public function log($msg, $error_type) {
         
        
         $date = date('d.m.Y h:i:s');
 
         $log = "DATE:  " . $date . "| " . $msg;
         
-        $log_dest = self::ERROR_FILE;
+        $log_dest = $this->error_file_name;
 
         /*
           Choose different log file and modify log string
@@ -76,25 +70,25 @@ class Logger {
          */
 
         if ($error_type == DATABASE_LOG_TYPE) {
-            $log_dest = self::DATABASE_FILE;
+            $log_dest = $this->database_file_name;
         }
 
         if ($error_type == WARNING_LOG_TYPE) {
-            $log_dest = self::WARNING_FILE;
+            $log_dest = $this->warning_file_name;
         }
 
         if ($error_type == ACTIVITY_LOG_TYPE) {
-            $log_dest = self::ACTIVITY_FILE;
+            $log_dest = $this->activity_file_name;
         }
 
         if ($error_type == SECURITY_LOG_TYPE) {
-            $log_dest = self::SECURITY_FILE;
+            $log_dest = $this->security_file_name;
             $log = $log . " | REMOTE IP: " . $_SERVER['REMOTE_ADDR'];
         }
 
         $log = $log . "\n";
 
-        $log_dest = self::LOG_DIRECTORY . $log_dest;
+        $log_dest = $this->log_dir . $log_dest;
 
         error_log($log, 3, $log_dest);
     }
