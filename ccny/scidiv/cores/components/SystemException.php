@@ -26,16 +26,18 @@
 
 namespace ccny\scidiv\components;
 
+
+use ccny\scidiv\cores\model\SystemExceptionDetails as SystemExceptDetails;
 /**
  * Description of CoreEventException
  *
  * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
-class CoreEventException extends \Exception {
+class SystemException extends \Exception {
    
-    public function __construct($message,$code = 0, Exception $previous = null) {
+    public function __construct(SystemExceptDetails $details, Exception $previous = null) {
         
-        parent::__construct($message, $code, $previous);
+        parent::__construct($details->getSystemMsg(), $details->getCode(), $previous);
     }
 
     // custom string representation of object
