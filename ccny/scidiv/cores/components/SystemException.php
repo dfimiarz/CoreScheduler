@@ -26,8 +26,6 @@
 
 namespace ccny\scidiv\components;
 
-
-use ccny\scidiv\cores\model\SystemExceptionDetails as SystemExceptDetails;
 /**
  * Description of CoreEventException
  *
@@ -35,9 +33,13 @@ use ccny\scidiv\cores\model\SystemExceptionDetails as SystemExceptDetails;
  */
 class SystemException extends \Exception {
    
-    public function __construct(SystemExceptDetails $details, Exception $previous = null) {
+    /* @var $ui_msg Message to pass to user UI */
+    private $ui_msg;
+    
+    public function __construct($sys_msg,$code = 0,$ui_msg = null, Exception $previous = null) {
         
-        parent::__construct($details->getSystemMsg(), $details->getCode(), $previous);
+        parent::__construct($sys_msg, $code, $previous);
+        $this->ui_msg = $ui_msg;
     }
 
     // custom string representation of object
