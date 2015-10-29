@@ -44,7 +44,7 @@ class Config
      */
     const LOG_DIR = "C:/weblogs/";
     
-    const LOG_FILE = "error.log";
+    const LOG_FILE = "CoreLABS.log";
 
     public static function getAuthenticators(){
         return self::$AUTHENTICATORS;

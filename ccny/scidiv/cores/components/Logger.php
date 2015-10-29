@@ -61,7 +61,7 @@ abstract class Logger {
         
         $log .= " | " . $date . " | " . $msg;
 
-        $log .= "\n";
+        $log .= PHP_EOL;
 
         $log_dest = Config::LOG_DIR . Config::LOG_FILE;
 
