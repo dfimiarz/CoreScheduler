@@ -34,61 +34,36 @@ use ccny\scidiv\cores\config\Config as Config;
   Class used to log error messages to a file spcified in the const ERROR_FILE
  */
 
-class Logger {
+abstract class Logger {
     
-    private $log_dir;
-    
-    private $error_file_name;
-    private $warning_file_name;
-    private $security_file_name;
-    private $database_file_name;
-    private $activity_file_name;
-
-    public function __construct() {
-        
-        $this->log_dir = Config::LOG_DIR;
-        
-        $this->activity_file_name = Config::APP_ID . '_ACTIVITY.log';
-        $this->database_file_name = Config::APP_ID . '_DATABASE.log';
-        $this->security_file_name = Config::APP_ID . '_SECURITY.log';
-        $this->warning_file_name = Config::APP_ID . '_WARNING.log';
-        $this->error_file_name = Config::APP_ID . '_ERROR.log';
-    }
-
-    public function log($msg, $error_type) {
+    static public function log($msg, $error_type) {
         
        
         $date = date('d.m.Y h:i:s');
 
-        $log = "DATE:  " . $date . "| " . $msg;
-        
-        $log_dest = $this->error_file_name;
-
-        /*
-          Choose different log file and modify log string
-          depending on the type of logging requested
-         */
-
         if ($error_type == DATABASE_LOG_TYPE) {
-            $log_dest = $this->database_file_name;
+            $log = "-- DATBASE --";
         }
 
         if ($error_type == WARNING_LOG_TYPE) {
-            $log_dest = $this->warning_file_name;
+            $log = "-- WARNING --";
         }
 
         if ($error_type == ACTIVITY_LOG_TYPE) {
-            $log_dest = $this->activity_file_name;
+            $log = "-- ACTIVITY --";
         }
 
         if ($error_type == SECURITY_LOG_TYPE) {
-            $log_dest = $this->security_file_name;
-            $log = $log . " | REMOTE IP: " . $_SERVER['REMOTE_ADDR'];
+            $log = "-- SECURITY --";
         }
+        
+        $log .= " | " . $_SERVER['REMOTE_ADDR'] . " | ";
+        
+        $log .= " | " . $date . " | " . $msg;
 
-        $log = $log . "\n";
+        $log .= "\n";
 
-        $log_dest = $this->log_dir . $log_dest;
+        $log_dest = Config::LOG_DIR . Config::LOG_FILE;
 
         error_log($log, 3, $log_dest);
     }

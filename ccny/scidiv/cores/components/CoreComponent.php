@@ -35,20 +35,20 @@ use ccny\scidiv\cores\components\Logger as Logger;
 
 class CoreComponent {
 
-    private $logger;
+
     
     protected function __construct() {
         
-        $this->logger = new Logger();
+        
     }
     
     protected function log($msg, $log_type)
     {
-        $this->logger->log($msg, $log_type);
+        Logger::log($msg, $log_type);
     }
     
     protected function throwExceptionOnError($errmsg, $errno, $log_type) {
-        $this->logger->log($errmsg, $log_type);
+        Logger::log($errmsg, $log_type);
         throw new \Exception($errmsg, $errno);
     }
     

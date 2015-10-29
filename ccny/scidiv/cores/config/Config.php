@@ -43,6 +43,8 @@ class Config
      * UNIX '/var/log/corelabs/'
      */
     const LOG_DIR = "C:/weblogs/";
+    
+    const LOG_FILE = "error.log";
 
     public static function getAuthenticators(){
         return self::$AUTHENTICATORS;
