@@ -64,7 +64,7 @@ $event_options->eq_id = $eq_id;
 try {
     
     $data_handler = new ScheduleDataHandler($user);
-    $data = $data_handler->getEventsByEq($event_options);
+    $data = $data_handler->getEventsForResource($event_options);
     
 } catch (\Exception $e) {
     $err_msg = "Operation failed: Error code " . $e->getCode();

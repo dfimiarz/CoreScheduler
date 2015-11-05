@@ -138,7 +138,7 @@ class ScheduleDataHandler extends CoreComponent {
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
     }
 
-    function getEventsByEq($event_options) {
+    function getEventsForResource($event_options) {
         
         /* @var $result_array Array returned to the client */
         $result_array = array();
