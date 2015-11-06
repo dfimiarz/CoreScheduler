@@ -35,6 +35,7 @@ use ccny\scidiv\cores\model\CoreEvent as CoreEvent;
 use ccny\scidiv\cores\model\CoreEventDAO as CoreEventDAO;
 use ccny\scidiv\cores\model\CoreService as CoreService;
 use ccny\scidiv\cores\model\CoreEventHTTPParams as CoreEventHTTPParams;
+use ccny\scidiv\cores\config\Config as Config;
 
 use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\permissions\EventPermToken as EventPermToken;
@@ -106,7 +107,7 @@ class ScheduleDataHandler extends CoreComponent {
          */
         $adj_event = null;
         
-        if ($duration > 0 && $duration <= \MIN_EVENT_DURATION * 2) {
+        if ($duration > 0 && $duration <= Config::MIN_EVENT_DURATION * 2) {
             $adj_event = $this->coreEventDAO->getAdjacentEvent($new_event);   
         }
         
@@ -231,7 +232,6 @@ class ScheduleDataHandler extends CoreComponent {
             $this->throwExceptionOnError ("Insufficient user permissions", 0, SECURITY_LOG_TYPE);
         }
 
-        //Only DB_ADMIN can modify past session
         $now_dt = new \DateTime();
 
         $new_start_dt = $event->getStart();

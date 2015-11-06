@@ -40,6 +40,12 @@ class Config
                                             "MYSQL"=>"ccny\scidiv\cores\components\auth\MySQLAuth");
     
     /*
+     * Number of seconds for minimum session lenght
+     */
+    const MIN_EVENT_DURATION = 900;
+    
+    
+    /*
      * UNIX '/var/log/corelabs/'
      */
     const LOG_DIR = "C:/weblogs/";

@@ -26,6 +26,6 @@
             "ccny\\scidiv\\cores\\permissions\\": "ccny/scidiv/cores/permissions/",
             "ccny\\scidiv\\cores\\config\\": "ccny/scidiv/cores/config/"
         },
-        "files": ["ccny/scidiv/cores/components/SystemConstants.php"]
+        "files": ["ccny/scidiv/cores/config/Constants.php"]
     }
 }
