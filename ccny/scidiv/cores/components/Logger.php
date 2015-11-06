@@ -57,6 +57,10 @@ abstract class Logger {
             $log = "-- SECURITY --";
         }
         
+        if ($error_type == ERROR_LOG_TYPE) {
+            $log = "-- ERROR --";
+        }
+        
         $log .= " | " . $_SERVER['REMOTE_ADDR'] . " | ";
         
         $log .= " | " . $date . " | " . $msg;

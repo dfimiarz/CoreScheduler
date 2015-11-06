@@ -24,17 +24,55 @@
  * THE SOFTWARE.
  */
 
-namespace ccny\scidiv\cores\ctrl;
+namespace ccny\scidiv\cores\model;
 
-include_once __DIR__ . '/../../../../vendor/autoload.php';
+/**
+ * Description of CoreErrorDetails
+ *
+ * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
+ */
+class CoreErrorDetails {
+    
+    private $sys_err_msg;
+    private $sys_err_code;
+    
+    private $ui_err_msg;
+    private $ui_err_code;
 
-use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
+    private $err_type;
 
-$msg_sender = new JSONMessageSender();
+    public function __construct($sys_err_msg,$sys_err_code,$error_type = ERROR_LOG_TYPE,$ui_err_msg = null,$ui_err_code = null) {
+        
+        $this->sys_err_code = $sys_err_code;
+        $this->sys_err_msg = $sys_err_msg;
+        $this->ui_err_code = $ui_err_code;
+        $this->ui_err_msg = $ui_err_msg;
+        $this->err_type = $error_type;
+    
+        
+    }
+    
+    function getSysErrMsg() {
+        return $this->sys_err_msg;
+    }
 
-session_start();
-session_unset();
-session_destroy();
+    function getSysErrCode() {
+        return $this->sys_err_code;
+    }
+
+    function getUIErrMsg() {
+        return $this->ui_err_msg;
+    }
+
+    function getUIErrCode() {
+        return $this->ui_err_code;
+    }
+
+    function getErrType() {
+        return $this->err_type;
+    }
 
 
-$msg_sender->onResult(null,'OK');
+
+
+}

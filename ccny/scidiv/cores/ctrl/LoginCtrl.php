@@ -27,7 +27,6 @@
 namespace ccny\scidiv\cores\ctrl;
 
 include_once __DIR__ . '/../../../../vendor/autoload.php';
-include_once __DIR__ . '/../components/SystemConstants.php';
 
 use ccny\scidiv\cores\model\LoginManager as LoginManager;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;

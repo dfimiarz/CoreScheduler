@@ -162,7 +162,7 @@ class FacilityDataHandler extends CoreComponent {
             $resource->id = $temp->id;
             $resource->label = $temp->short_name;
 
-            if ($temp->state == \SERVICE_STATE_LOCKED) {
+            if ($temp->state == SERVICE_STATE_LOCKED) {
                 $resource->label .= " (LOCKED)";
             }
 
