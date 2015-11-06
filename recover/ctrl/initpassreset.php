@@ -1,7 +1,6 @@
 <?php
 
 include_once __DIR__ . '/../../vendor/autoload.php';
-include_once __DIR__ . '/../../ccny/scidiv/cores/components/SystemConstants.php';
 
 use Symfony\Component\HttpFoundation\Request as Request;
 use Symfony\Component\HttpFoundation\Session\Session as Session;

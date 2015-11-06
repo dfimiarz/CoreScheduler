@@ -26,9 +26,6 @@
 
 namespace ccny\scidiv\cores\components\auth;
 
-include_once __DIR__ . '/../SystemConstants.php';
-include_once __DIR__ . '/../DbConnectInfo.php';
-
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\auth\UserAuth as UserAuth;
 

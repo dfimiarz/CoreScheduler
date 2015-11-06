@@ -26,10 +26,9 @@
 
 namespace ccny\scidiv\cores\components\auth;
 
-include_once(__DIR__ . '/../CoreComponent.php');
-include_once(__DIR__ . '/../SystemConstants.php');
+use ccny\scidiv\cores\components\CoreComponent as CoreComponent;
 
-abstract class UserAuth extends \ccny\scidiv\cores\components\CoreComponent {
+abstract class UserAuth extends CoreComponent {
     
     public function __construct() {
         parent::__construct();

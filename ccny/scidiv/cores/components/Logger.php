@@ -27,8 +27,6 @@
 
 namespace ccny\scidiv\cores\components;
 
-include_once __DIR__ . '/SystemConstants.php';
-
 use ccny\scidiv\cores\config\Config as Config;
 /*
   Class used to log error messages to a file spcified in the const ERROR_FILE
