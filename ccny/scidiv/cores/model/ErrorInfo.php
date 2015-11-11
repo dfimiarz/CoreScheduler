@@ -31,46 +31,48 @@ namespace ccny\scidiv\cores\model;
  *
  * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
-class CoreErrorDetails {
+class ErrorInfo {
     
-    private $sys_err_msg;
-    private $sys_err_code;
+    private $errMsgSystem;
+    private $errCode;
     
-    private $ui_err_msg;
-    private $ui_err_code;
+    private $logType;
+    
+    private $errMsgClient;
 
-    private $err_type;
-
-    public function __construct($sys_err_msg,$sys_err_code,$error_type = ERROR_LOG_TYPE,$ui_err_msg = null,$ui_err_code = null) {
+    public function __construct($errMsgSystem, $errCode, $errMsgClient = null , $logtype = ERROR_LOG_TYPE ) {
         
-        $this->sys_err_code = $sys_err_code;
-        $this->sys_err_msg = $sys_err_msg;
-        $this->ui_err_code = $ui_err_code;
-        $this->ui_err_msg = $ui_err_msg;
-        $this->err_type = $error_type;
-    
+        $this->errCode = $errCode;
+        $this->errMsgSystem = $errMsgSystem;
+        $this->errMsgClient = $errMsgClient;
+        $this->logType = $logtype;
         
     }
     
-    function getSysErrMsg() {
-        return $this->sys_err_msg;
+    function getErrMsg() {
+        return $this->errMsgSystem;
     }
 
-    function getSysErrCode() {
-        return $this->sys_err_code;
+    function getErrCode() {
+        return $this->errCode;
     }
 
-    function getUIErrMsg() {
-        return $this->ui_err_msg;
+    function getLogType() {
+        return $this->logType;
     }
 
-    function getUIErrCode() {
-        return $this->ui_err_code;
+    function getErrMsgClient() {
+        return $this->errMsgClient;
     }
 
-    function getErrType() {
-        return $this->err_type;
+    function setLogType($logType) {
+        $this->logType = $logType;
     }
+
+    function setErrMsgClient($errMsgClient) {
+        $this->errMsgClient = $errMsgClient;
+    }
+
 
 
 

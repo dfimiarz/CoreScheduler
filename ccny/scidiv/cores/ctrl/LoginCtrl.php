@@ -48,7 +48,7 @@ class LoginCtrl extends RAPController {
 
     public function run() {
         /*
-         * Clear session variables and regenerated ID
+         * Clear session variables and regenerate ID
          */
         $this->session->invalidate();
 

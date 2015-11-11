@@ -32,6 +32,8 @@
 namespace ccny\scidiv\cores\components;
 
 use ccny\scidiv\cores\components\Logger as Logger;
+use ccny\scidiv\cores\model\ErrorInfo as ErrorInfo;
+use ccny\scidiv\components\SystemException as SystemException;
 
 class CoreComponent {
 
@@ -47,14 +49,15 @@ class CoreComponent {
         Logger::log($msg, $log_type);
     }
     
-    protected function throwExceptionOnError($errmsg, $errno, $log_type) {
-        Logger::log($errmsg, $log_type);
-        throw new \Exception($errmsg, $errno);
+    protected function throwExceptionOnError(ErrorInfo $errinfo) {
+        Logger::log($errinfo->getErrMsg(), $errinfo->getLogType());
+        throw new SystemException($errinfo->getErrMsg(), $errinfo->getErrCode(), $errinfo->getErrMsgClient());       
     }
     
-    protected function throwDBError($errmsg, $errno )
+    protected function throwDBError($msg,$code)
     {
-        $this->throwExceptionOnError($errmsg, $errno, \DATABASE_LOG_TYPE);
+        $errinfo = new \ErrorInfo($msg, $code, "DB ERROR. Try again later", DATABASE_LOG_TYPE );
+        $this->throwExceptionOnError($errinfo);
     }
 
 }
