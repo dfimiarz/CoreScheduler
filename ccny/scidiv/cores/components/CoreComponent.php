@@ -33,7 +33,7 @@ namespace ccny\scidiv\cores\components;
 
 use ccny\scidiv\cores\components\Logger as Logger;
 use ccny\scidiv\cores\model\ErrorInfo as ErrorInfo;
-use ccny\scidiv\components\SystemException as SystemException;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 class CoreComponent {
 
@@ -56,7 +56,7 @@ class CoreComponent {
     
     protected function throwDBError($msg,$code)
     {
-        $errinfo = new \ErrorInfo($msg, $code, "DB ERROR. Try again later", DATABASE_LOG_TYPE );
+        $errinfo = new ErrorInfo($msg, $code, "DATABASE ERROR: " . $code, DATABASE_LOG_TYPE );
         $this->throwExceptionOnError($errinfo);
     }
 

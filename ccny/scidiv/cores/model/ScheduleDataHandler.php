@@ -36,6 +36,7 @@ use ccny\scidiv\cores\model\CoreEventDAO as CoreEventDAO;
 use ccny\scidiv\cores\model\CoreService as CoreService;
 use ccny\scidiv\cores\model\CoreEventHTTPParams as CoreEventHTTPParams;
 use ccny\scidiv\cores\config\Config as Config;
+use ccny\scidiv\cores\model\ErrorInfo as ErrorInfo;
 
 use ccny\scidiv\cores\permissions\PermissionManager as PermissionManager;
 use ccny\scidiv\cores\permissions\EventPermToken as EventPermToken;
@@ -127,9 +128,10 @@ class ScheduleDataHandler extends CoreComponent {
         
         $token = EventPermToken::makeToken($this->user, $new_event);
 
-        //Check if user can delete an event
         if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
-            $this->throwExceptionOnError ("Insufficient user permissions", 0, \SECURITY_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": ADDING EVENT DENIED. USER: " . $this->user->getUserName();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Event cannot be created here", ACTIVITY_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
 
         $new_event_id = $this->coreEventDAO->insertCoreEvent($new_event);
@@ -223,13 +225,17 @@ class ScheduleDataHandler extends CoreComponent {
         
         if(! $event instanceof CoreEvent )
         {
-            $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": EVENT not found. USER: " . $this->user->getUserName();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Event not found or already modified", ERROR_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
 
         $token = EventPermToken::makeToken($this->user, $event);
        
         if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT_START, $token)) {
-            $this->throwExceptionOnError ("Insufficient user permissions", 0, SECURITY_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": MOVING EVENT denied. USER: " . $this->user->getUserName() . " EVENT: " . $event->getId();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "This event cannot be moved", ACTIVITY_LOG_TYPE);   
+            $this->throwExceptionOnError($err_ino);
         }
 
         $now_dt = new \DateTime();
@@ -264,7 +270,9 @@ class ScheduleDataHandler extends CoreComponent {
          * Allow move if new sessions can be created
          */
         if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT_START, $token)) {
-            $this->throwExceptionOnError ("Moving event failed. Permission denied", 0, SECURITY_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": MOVING TO PAST denied. USER: " . $this->user->getUserName() . " EVENT: " . $event->getId();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Event cannot be moved to past time", ACTIVITY_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
         
         $this->coreEventDAO->modifyEventTime($event);
@@ -287,13 +295,17 @@ class ScheduleDataHandler extends CoreComponent {
         
         if(! $event instanceof CoreEvent )
         {
-            $this->throwExceptionOnError ("Event not found or already modified", 0, \ERROR_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": EVENT not found. USER: " . $this->user->getUserName();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Event not found or already modified", ERROR_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
 
         $token = EventPermToken::makeToken($this->user, $event);
 
         if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT_DURATION, $token)) {
-            $this->throwExceptionOnError ("Insufficient permissions", 0, \SECURITY_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": Action not permitted. USER: " . $this->user->getUserName() . ". Event: " . $event->getId();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Unable to resize event", SECURITY_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
 
         $now_dt = new \DateTime();
@@ -318,7 +330,9 @@ class ScheduleDataHandler extends CoreComponent {
 
         //Make sure that end time is after start time
         if ($new_end_dt <= $new_start_dt) {
-            $this->throwExceptionOnError ("Start date and end date incorrect", 0, \SECURITY_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": INCORRECT START and END values. USER: " . $this->user->getUserName();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Incorrect start and end time", SECURITY_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
         
         //Modify the event end time and check if new session can be created with new params
@@ -327,7 +341,9 @@ class ScheduleDataHandler extends CoreComponent {
         $token = EventPermToken::makeToken($this->user, $event);
 
         if (!$this->permMngr->checkPermission(PERM_EDIT_EVENT_DURATION, $token)) {
-            $this->throwExceptionOnError ("Resize failed. Permission denied", 0, \SECURITY_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": Action not permitted with NEW params. USER: " . $this->user->getUserName() . " EVENT: " . $event->getId();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Unable to resize event", ACTIVITY_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
         
         $this->coreEventDAO->modifyEventTime($event);

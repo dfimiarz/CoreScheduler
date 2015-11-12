@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace ccny\scidiv\components;
+namespace ccny\scidiv\cores\components;
 
 /**
  * Description of CoreEventException
@@ -45,5 +45,10 @@ class SystemException extends \Exception {
     // custom string representation of object
     public function __toString() {
         return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+    }
+    
+    function getUIMsg()
+    {
+        return $this->ui_msg;
     }
 }
