@@ -50,8 +50,8 @@ class CoreComponent {
     }
     
     protected function throwExceptionOnError(ErrorInfo $errinfo) {
-        Logger::log($errinfo->getErrMsg(), $errinfo->getLogType());
-        throw new SystemException($errinfo->getErrMsg(), $errinfo->getErrCode(), $errinfo->getErrMsgClient());       
+        Logger::log($errinfo->getErrMsg(), $errinfo->getLogLvl());
+        throw new SystemException($errinfo->getErrMsg(), $errinfo->getErrCode(), $errinfo->getClientErrMsg());       
     }
     
     protected function throwDBError($msg,$code)

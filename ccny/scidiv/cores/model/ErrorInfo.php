@@ -33,44 +33,44 @@ namespace ccny\scidiv\cores\model;
  */
 class ErrorInfo {
     
-    private $errMsgSystem;
+    private $systemErrMsg;
     private $errCode;
     
-    private $logType;
+    private $loglvl;
     
-    private $errMsgClient;
+    private $clientErrMsg;
 
-    public function __construct($errMsgSystem, $errCode, $errMsgClient = null , $logtype = ERROR_LOG_TYPE ) {
+    public function __construct($errMsgSystem, $errCode, $errMsgClient = null , $loglvl = ERROR_LOG_TYPE ) {
         
         $this->errCode = $errCode;
-        $this->errMsgSystem = $errMsgSystem;
-        $this->errMsgClient = $errMsgClient;
-        $this->logType = $logtype;
+        $this->systemErrMsg = $errMsgSystem;
+        $this->clientErrMsg = $errMsgClient;
+        $this->loglvl = $loglvl;
         
     }
     
     function getErrMsg() {
-        return $this->errMsgSystem;
+        return $this->systemErrMsg;
     }
 
     function getErrCode() {
         return $this->errCode;
     }
 
-    function getLogType() {
-        return $this->logType;
+    function getLogLvl() {
+        return $this->loglvl;
     }
 
-    function getErrMsgClient() {
-        return $this->errMsgClient;
+    function getClientErrMsg() {
+        return $this->clientErrMsg;
     }
 
-    function setLogType($logType) {
-        $this->logType = $logType;
+    function setLogLvl($logClass) {
+        $this->loglvl = $logClass;
     }
 
-    function setErrMsgClient($errMsgClient) {
-        $this->errMsgClient = $errMsgClient;
+    function setClientErrMsg($clientErrMsg) {
+        $this->clientErrMsg = $clientErrMsg;
     }
 
 

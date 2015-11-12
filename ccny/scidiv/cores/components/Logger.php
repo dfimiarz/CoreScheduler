@@ -24,50 +24,58 @@
  * THE SOFTWARE.
  */
 
-
 namespace ccny\scidiv\cores\components;
 
 use ccny\scidiv\cores\config\Config as Config;
+
 /*
   Class used to log error messages to a file spcified in the const ERROR_FILE
  */
 
 abstract class Logger {
-    
-    static public function log($msg, $error_type) {
-        
-       
+
+    static public function log($msg, $loglvl) {
+
+
         $date = date('d.m.Y h:i:s');
-
-        if ($error_type == DATABASE_LOG_TYPE) {
-            $log = "-- DATBASE --";
-        }
-
-        if ($error_type == WARNING_LOG_TYPE) {
-            $log = "-- WARNING --";
-        }
-
-        if ($error_type == ACTIVITY_LOG_TYPE) {
-            $log = "-- ACTIVITY --";
-        }
-
-        if ($error_type == SECURITY_LOG_TYPE) {
-            $log = "-- SECURITY --";
-        }
         
-        if ($error_type == ERROR_LOG_TYPE) {
-            $log = "-- ERROR --";
-        }
-        
-        $log .= " | " . $_SERVER['REMOTE_ADDR'] . " | ";
-        
-        $log .= " | " . $date . " | " . $msg;
+        $logline = "";
 
-        $log .= PHP_EOL;
+        switch ($loglvl) {
+            case DATABASE_LOG_TYPE:
+                $logline = "-- DATBASE --";
+                break;
+
+            case WARNING_LOG_TYPE:
+                $logline = "-- WARNING --";
+                break;
+
+            case ACTIVITY_LOG_TYPE:
+                $logline = "-- ACTIVITY --";
+                break;
+
+            case SECURITY_LOG_TYPE:
+                $logline = "-- SECURITY --";
+                break;
+
+            case ERROR_LOG_TYPE:
+                $logline = "-- ERROR --";
+                break;
+
+            default:
+                $logline = "-- UNKNOWN --";
+                break;
+        }
+
+        $logline .= " | " . $_SERVER['REMOTE_ADDR'] . " | ";
+
+        $logline .= " | " . $date . " | " . $msg;
+
+        $logline .= PHP_EOL;
 
         $log_dest = Config::LOG_DIR . Config::LOG_FILE;
 
-        error_log($log, 3, $log_dest);
+        error_log($logline, 3, $log_dest);
     }
 
 }
