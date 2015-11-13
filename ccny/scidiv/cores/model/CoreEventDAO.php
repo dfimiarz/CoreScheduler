@@ -221,11 +221,15 @@ class CoreEventDAO extends CoreComponent {
         $this->lockTables();
 
         if (!$this->isTimeslotAvailable($event)) {
-            $this->throwExceptionOnError("Events cannot overlap", 0, \ACTIVITY_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": EVENTS CANNOT OVERLAP. EVENT: " . $event->getId();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Events cannot overlap", ACTIVITY_LOG_TYPE);   
+            $this->throwExceptionOnError($err_ino);
         }
 
         if (!$this->updateCoreEvent($event)) {
-            $this->throwExceptionOnError("Could not modify the event", 0, \ERROR_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": COULD NOT MODIFY. EVENT " . $event->getId();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Error modifying event", ERROR_LOG_TYPE);   
+            $this->throwExceptionOnError($err_ino);
         }
 
         $this->unlockTables();
@@ -266,13 +270,17 @@ class CoreEventDAO extends CoreComponent {
         $this->lockTables();
         
         if (!$this->isTimeslotAvailable($event)) {
-            $this->throwExceptionOnError("Events cannot overlap", 0, \ACTIVITY_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": EVENTS CANNOT OVERLAP";
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Events cannot overlap", ACTIVITY_LOG_TYPE);   
+            $this->throwExceptionOnError($err_ino);
         }
 
         $new_id = $this->saveCoreEvent($event);
         
         if (! $new_id ) {
-            $this->throwExceptionOnError("Could not add this event", 0, \ERROR_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": ERROR ADDING EVENT";
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Error adding event", ERROR_LOG_TYPE);   
+            $this->throwExceptionOnError($err_ino);
         }
         
         $this->unlockTables();
