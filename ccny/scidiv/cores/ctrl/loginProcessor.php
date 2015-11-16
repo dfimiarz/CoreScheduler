@@ -33,6 +33,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\LoginManager as LoginManager;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 //Initialize session
 $session = new Session();
@@ -80,7 +81,18 @@ try{
         throw new \Exception("Could not locate user account", 0);
     }
         
-} catch (\Exception $e) {
+}
+catch (SystemException $e){
+    
+    $client_error = $e->getUIMsg();
+    
+    if( empty($client_error)){
+        $client_error = "Operation failed: Error code " . $e->getCode();
+    }
+    
+    $msg_sender->onError(null, $client_error);
+}
+catch (\Exception $e) {
     $err_msg = "Login failed: Error code " . $e->getCode();
 
     //Code 0 means that this is none-system error.
