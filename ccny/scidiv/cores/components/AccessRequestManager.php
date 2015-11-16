@@ -76,18 +76,22 @@ class AccessRequestManager extends CoreComponent
         try{
             $service = $sdao->getCoreService($service_id);
         } catch (Exception $ex) {
-            $this->log(__CLASS__ . "::" . __FUNCTION__ . ": Could not access service info.", ERROR_LOG_TYPE);
+            $this->log(__FUNCTION__ . ": Could not access service info.", ERROR_LOG_TYPE);
         }
         
         if(  !$service instanceof CoreService)
         {
-            $this->throwExceptionOnError("Service not found", 0, ERROR_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": SERVICE NOT FOUND. USER: " . $this->user->getUserName();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Service not found", ERROR_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
             
         $token = ServicePermToken::makeToken($user, $service);
         
         if (!$this->perm_manager->checkPermission(PERM_REQ_SERVICE_ACCESS, $token)) {
-                $this->throwExceptionOnError("Insufficient user permissions", 0, SECURITY_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": Request Access denied " . $this->user->getUserName();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Permission denied", SECURITY_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
         
         $user_id = $user->getUserID();
