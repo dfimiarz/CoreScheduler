@@ -65,7 +65,18 @@ try {
 
     $html = $view->render($ArrDetails);
     
-} catch(\Exception $e){
+}
+catch (SystemException $e){
+    
+    $client_error = $e->getUIMsg();
+    
+    if( empty($client_error)){
+        $client_error = "Operation failed: Error code " . $e->getCode();
+    }
+    
+    $html = $client_error;
+}
+catch(\Exception $e){
 	$err_msg = "Fetching data failed: Error code " . $e->getCode();
 
 	//Code 0 means that this is none-system error.

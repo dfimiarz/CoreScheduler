@@ -60,13 +60,7 @@ $user = new CoreUser($username);
 
 $login_manager = new LoginManager($user);
 
-try {
-    $login_manager->authenticateUser($password);   
-}
-catch( \Exception $e)
-{
-    $msg_sender->onError(null, "Authentication failed. ERROR ID:  ". $e->getCode());
-}
+$login_manager->authenticateUser($password);   
 
 if(! $user->isAuth())
 {
@@ -76,11 +70,9 @@ if(! $user->isAuth())
 
 try{
     
-    if( ! $login_manager->getAccountInfo())
-    {
-        throw new \Exception("Could not locate user account", 0);
-    }
-        
+    if( ! $login_manager->getAccountInfo()) {
+        $msg_sender->onError(null, "Could not load account info");
+    }    
 }
 catch (SystemException $e){
     

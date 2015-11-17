@@ -33,6 +33,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\ScheduleDataHandler as ScheduleDataHandler;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 $session = new Session();
 $session->start();
@@ -66,7 +67,16 @@ try {
     $data = $data_handler->getEventsForResource($event_options);
     
 }
-
+catch (SystemException $e){
+    
+    $client_error = $e->getUIMsg();
+    
+    if( empty($client_error)){
+        $client_error = "Operation failed: Error code " . $e->getCode();
+    }
+    
+    $msg_sender->onError(null, $client_error);
+}
 catch (\Exception $e) {
     $err_msg = "Operation failed: Error code " . $e->getCode();
 

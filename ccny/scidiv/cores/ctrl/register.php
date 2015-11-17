@@ -49,7 +49,7 @@ class RegistrationCtrl {
                 $this->sendError($error);
             }
 
-            //Check if the email is already in the sytem
+            //Check if the email is already in the system
             if ($handler->checkEmail($new_user->email)) {
                 $error = new ValidationError();
                 $error->setMsg("An account with this e-mail address already exists");

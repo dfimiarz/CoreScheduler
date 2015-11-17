@@ -56,7 +56,7 @@ class CoreComponent {
     
     protected function throwDBError($msg,$code)
     {
-        $errinfo = new ErrorInfo($msg, $code, "DATABASE ERROR: " . $code, DATABASE_LOG_TYPE );
+        $errinfo = new ErrorInfo($msg, $code, "Crytical database error. Code: " . $code, DATABASE_LOG_TYPE );
         $this->throwExceptionOnError($errinfo);
     }
 

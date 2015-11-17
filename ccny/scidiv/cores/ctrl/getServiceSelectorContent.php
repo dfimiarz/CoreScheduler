@@ -39,7 +39,18 @@ if (isset($_POST['rid']) && !empty($_POST['rid']))
 try {
     $data_handler = new FacilityDataHandler();
     $data = $data_handler->getServiceSelectorContent($resource_name);
-} catch (\Exception $e) {
+} 
+catch (SystemException $e){
+    
+    $client_error = $e->getUIMsg();
+    
+    if( empty($client_error)){
+        $client_error = "Operation failed: Error code " . $e->getCode();
+    }
+    
+    $msg_sender->onError(null, $client_error);
+}
+catch (\Exception $e) {
     $err_msg = "Operation failed: Error code " . $e->getCode();
 
     //Code 0 means that this is none-system error.
