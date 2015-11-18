@@ -27,13 +27,13 @@
 namespace ccny\scidiv\cores\ctrl;
 
 include_once __DIR__ . '/../../../../vendor/autoload.php';
-include_once __DIR__ . '/../components/SystemConstants.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\ScheduleDataHandler as ScheduleDataHandler;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 $session = new Session();
 $session->start();
@@ -64,17 +64,21 @@ $event_options->eq_id = $eq_id;
 try {
     
     $data_handler = new ScheduleDataHandler($user);
-    $data = $data_handler->getEventsByEq($event_options);
+    $data = $data_handler->getEventsForResource($event_options);
     
-} catch (\Exception $e) {
-    $err_msg = "Operation failed: Error code " . $e->getCode();
-
-    //Code 0 means that this is none-system error.
-    //In this case we should be able to display the message text itself.
-    if ($e->getCode() == 0) {
-        $err_msg = "Operation failed: " . $e->getMessage();
+}
+catch (SystemException $e){
+    
+    $client_error = $e->getUIMsg();
+    
+    if( empty($client_error)){
+        $client_error = "Operation failed: Error code " . $e->getCode();
     }
-
+    
+    $msg_sender->onError(null, $client_error);
+}
+catch (\Exception $e) {
+    $err_msg = "Unexpected error:  " . $e->getCode();
     $msg_sender->onError(null, $err_msg);
 }
 

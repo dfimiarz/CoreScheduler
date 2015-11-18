@@ -27,13 +27,13 @@
 namespace ccny\scidiv\cores\ctrl;
 
 include_once __DIR__ . '/../../../../vendor/autoload.php';
-include_once __DIR__ . '/../components/SystemConstants.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\LoginManager as LoginManager;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 //Initialize session
 $session = new Session();
@@ -60,13 +60,7 @@ $user = new CoreUser($username);
 
 $login_manager = new LoginManager($user);
 
-try {
-    $login_manager->authenticateUser($password);   
-}
-catch( \Exception $e)
-{
-    $msg_sender->onError(null, "Authentication failed. ERROR ID:  ". $e->getCode());
-}
+$login_manager->authenticateUser($password);   
 
 if(! $user->isAuth())
 {
@@ -76,20 +70,22 @@ if(! $user->isAuth())
 
 try{
     
-    if( ! $login_manager->getAccountInfo())
-    {
-        throw new \Exception("Could not locate user account", 0);
+    if( ! $login_manager->getAccountInfo()) {
+        $msg_sender->onError(null, "Could not load account info");
+    }    
+}
+catch (SystemException $e){
+    
+    $client_error = $e->getUIMsg();
+    
+    if( empty($client_error)){
+        $client_error = "Operation failed: Error code " . $e->getCode();
     }
-        
-} catch (\Exception $e) {
-    $err_msg = "Login failed: Error code " . $e->getCode();
-
-    //Code 0 means that this is none-system error.
-    //In this case we should be able to display the message text itself.
-    if ($e->getCode() == 0) {
-        $err_msg = "Login failed: " . $e->getMessage();
-    }
-
+    
+    $msg_sender->onError(null, $client_error);
+}
+catch (\Exception $e) {
+    $err_msg = "Unexpected error:  " . $e->getCode();
     $msg_sender->onError(null, $err_msg);
 }
 

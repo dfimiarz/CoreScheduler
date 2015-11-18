@@ -26,6 +26,8 @@
 
 namespace ccny\scidiv\cores\components;
 
+use ccny\scidiv\cores\config\Config as Config;
+
 /**
  * This class will be used to encrypt and decrypt database strings before
  * they are sent to clients
@@ -34,7 +36,6 @@ namespace ccny\scidiv\cores\components;
  */
 class CryptoManager {
     
-    private $key = "lENb2bPRk)c&k0ebY0nSxiq9iKgg8WYU";
    
     private $iv;
     
@@ -50,7 +51,7 @@ class CryptoManager {
      */
     public function decrypt($encrypted_value)
     {
-        $record_id = \trim(\mcrypt_decrypt(\MCRYPT_RIJNDAEL_128, $this->key, \base64_decode($encrypted_value), \MCRYPT_MODE_ECB, $this->iv));
+        $record_id = \trim(\mcrypt_decrypt(\MCRYPT_RIJNDAEL_128, Config::APP_ENC_KEY, \base64_decode($encrypted_value), \MCRYPT_MODE_ECB, $this->iv));
         
         return $record_id;
         
@@ -58,7 +59,7 @@ class CryptoManager {
     
     public function encrypt($plain_text)
     {
-        $encrypted_value = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $this->key, $plain_text, MCRYPT_MODE_ECB, $this->iv));
+        $encrypted_value = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, Config::APP_ENC_KEY, $plain_text, MCRYPT_MODE_ECB, $this->iv));
         
         return $encrypted_value;
     }

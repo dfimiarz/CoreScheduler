@@ -27,11 +27,11 @@
 namespace ccny\scidiv\cores\ctrl;
 
 include_once __DIR__ . '/../../../../vendor/autoload.php';
-include_once __DIR__ . '/../components/SystemConstants.php';
 
 use ccny\scidiv\cores\model\LoginManager as LoginManager;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\ctrl\RAPController as RAPController;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 /**
  * Allows for a login through a POST request (using the Redirect After Post
@@ -49,7 +49,7 @@ class LoginCtrl extends RAPController {
 
     public function run() {
         /*
-         * Clear session variables and regenerated ID
+         * Clear session variables and regenerate ID
          */
         $this->session->invalidate();
 
@@ -68,29 +68,26 @@ class LoginCtrl extends RAPController {
         $user = new CoreUser($username);
 
         $login_manager = new LoginManager($user);
-
-        try {
-            $login_manager->authenticateUser($password);
-        } catch (\Exception $e) {
-            $this->failure("Authentication failed. ERROR ID:  " . $e->getCode());
-        }
-
+        $login_manager->authenticateUser($password);
+       
         if (!$user->isAuth()) {
-            $this->failure("Could not log in. Please check your password and try again.");
+            $this->failure("Login failed. Please check your password and try again.");
         }
 
         try {
-
             if (!$login_manager->getAccountInfo()) {
-                throw new \Exception("Could not locate user account", 0);
+                $this->failure("Could not load user account");
             }
+        } catch (SystemException $e) {
+            $client_error = $e->getUIMsg();
+
+            if (empty($client_error)) {
+                $client_error = "Operation failed: Error code " . $e->getCode();
+            }
+
+            $this->failure($client_error);
         } catch (\Exception $e) {
-            $err_msg = "Login failed: Error code " . $e->getCode();
-
-            if ($e->getCode() == 0) {
-                $err_msg = "Login failed: " . $e->getMessage();
-            }
-
+            $err_msg = "Unexpected error:  " . $e->getCode();
             $this->failure($err_msg);
         }
 
@@ -114,7 +111,7 @@ class LoginCtrl extends RAPController {
         /*
          * Upon failure, send user back to the login form
          */
-        $this->dest_code = 'login';
+        $this->dest_page = 'login';
         
         /*
          * If the $_POST['dest'] was set, pass it back to the form as a $_GET

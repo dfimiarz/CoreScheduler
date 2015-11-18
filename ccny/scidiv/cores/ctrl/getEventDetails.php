@@ -27,7 +27,6 @@
 namespace ccny\scidiv\cores\ctrl;
 
 include_once __DIR__ . '/../../../../vendor/autoload.php';
-include_once __DIR__ . '/../components/SystemConstants.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -66,17 +65,20 @@ try {
 
     $html = $view->render($ArrDetails);
     
-} catch(\Exception $e){
-	$err_msg = "Fetching data failed: Error code " . $e->getCode();
-
-	//Code 0 means that this is none-system error.
-	//In this case we should be able to display the message text itself.
-	if( $e->getCode() == 0 )
-	{
-		$err_msg = "Fetching data failed: ". $e->getMessage();
-	}
-
-	$html = $err_msg;
+}
+catch (SystemException $e){
+    
+    $client_error = $e->getUIMsg();
+    
+    if( empty($client_error)){
+        $client_error = "Operation failed: Error code " . $e->getCode();
+    }
+    
+    $html = $client_error;
+}
+ catch (\Exception $e) {
+    $err_msg = "Unexpected error:  " . $e->getCode();
+    $html = $err_msg;
 }
 
 echo $html;

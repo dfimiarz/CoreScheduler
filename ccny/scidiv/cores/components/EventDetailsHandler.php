@@ -100,7 +100,9 @@ class EventDetailsHandler extends CoreComponent {
         
         if( ! $details instanceof CoreEventDetails)
         {
-            $this->throwExceptionOnError("Event not found", 0, \ERROR_LOG_TYPE);
+            $sys_err_msg = __FUNCTION__ . ": EVENT NOT FOUND. USER: " . $this->user->getUserName();
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Event not found or already modified", ERROR_LOG_TYPE);   
+            $this->throwExceptionOnError ($err_ino);
         }
         
         $start_dt = $details->getStart();

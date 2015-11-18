@@ -131,6 +131,11 @@ class LoginManager extends CoreComponent
          */
         if( $rows != 1 )
         {
+            $stmt->free_result();
+            $stmt->close();
+        
+            $mysqli->close();
+            
             return false;
         }
         

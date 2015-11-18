@@ -34,7 +34,6 @@ class FacilityDataHandler extends CoreComponent {
     private $mysqli;
     private $stateInfo = null;
     private $time_requested = null;
-    private $key = "This is a test";
 
     //Class constructor
     function __construct() {
@@ -162,7 +161,7 @@ class FacilityDataHandler extends CoreComponent {
             $resource->id = $temp->id;
             $resource->label = $temp->short_name;
 
-            if ($temp->state == \SERVICE_STATE_LOCKED) {
+            if ($temp->state == SERVICE_STATE_LOCKED) {
                 $resource->label .= " (LOCKED)";
             }
 

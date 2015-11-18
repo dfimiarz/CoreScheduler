@@ -26,8 +26,6 @@
 
 namespace ccny\scidiv\cores\components;
 
-include_once __DIR__ . '/SystemConstants.php';
-
 use ccny\scidiv\cores\components\DbConnectInfo as DbConnectInfo;
 use ccny\scidiv\cores\components\CryptoManager as CryptoManager;
 use ccny\scidiv\cores\components\CoreComponent as CoreComponent;

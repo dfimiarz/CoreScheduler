@@ -46,7 +46,7 @@ abstract class RAPController {
     /** @var Router */
     protected $router;
     /** @var String */
-    protected $dest_code = 'default';
+    protected $dest_page = 'default';
      /** @var String */
     protected $dest_params = '';
     
@@ -63,9 +63,9 @@ abstract class RAPController {
          * Check if $_POST['dest'] is set. If so, save the code in the controller
          * for future redirect
          */
-        $dest = $this->request->request->get("dest", null);
-        if (!is_null($dest)) {
-            $this->dest_code = $dest;
+        $dest_page_code = $this->request->request->get("dest", null);
+        if (!is_null($dest_page_code)) {
+            $this->dest_page = $dest_page_code;
         }
         
     }
@@ -73,7 +73,7 @@ abstract class RAPController {
     abstract public function run();
 
     protected function redirect(){
-        $dest_url = $this->router->getDestination($this->dest_code);
+        $dest_url = $this->router->getDestination($this->dest_page);
         
         $url = $dest_url . $this->dest_params;
         

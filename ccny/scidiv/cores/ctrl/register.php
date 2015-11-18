@@ -3,13 +3,13 @@
 namespace ccny\scidiv\cores\components;
 
 include_once __DIR__ . '/../../../../vendor/autoload.php';
-include_once __DIR__ . '/../components/SystemConstants.php';
 
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use Symfony\Component\HttpFoundation\Request as Request;
 use ccny\scidiv\cores\model\ValidationError as ValidationError;
 use ccny\scidiv\cores\model\CoreUserRegistrant as CoreUserRegistrant;
 use ccny\scidiv\cores\components\RegistrationManager as RegistrationManager;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 $ctrl = new RegistrationCtrl();
 $ctrl->registerUser();
@@ -45,31 +45,46 @@ class RegistrationCtrl {
                 $error->setMsg("User name already exists");
                 $error->setField("uname");
                 $error->setCode(0);
-                $error->setType(\VAL_FIELD_ERROR);
+                $error->setType(VAL_FIELD_ERROR);
 
                 $this->sendError($error);
             }
 
-            //Check if the email is already in the sytem
+            //Check if the email is already in the system
             if ($handler->checkEmail($new_user->email)) {
                 $error = new ValidationError();
                 $error->setMsg("An account with this e-mail address already exists");
                 $error->setField("email1");
                 $error->setCode(0);
-                $error->setType(\VAL_FIELD_ERROR);
+                $error->setType(VAL_FIELD_ERROR);
 
                 $this->sendError($error);
             }
 
             $handler->registerUser($new_user);
+        } catch (SystemException $e) {
+
+            $client_error = $e->getUIMsg();
+
+            if (empty($client_error)) {
+                $client_error = "Operation failed";
+            }
+            
+            $error = new ValidationError();
+            $error->setMsg($client_error);
+            $error->setCode($e->getCode());
+            $error->setType(VAL_SYSTEM_ERROR);
+            
+            $this->sendError($error);
+            
         } catch (Exception $e) {
 
             $error = new ValidationError();
-            $error->setMsg($e->getMessage());
+            $error->setMsg("Unexpected error");
             $error->setCode($e->getCode());
             $error->setType(VAL_SYSTEM_ERROR);
 
-            $this->sendError($error->toStdClass());
+            $this->sendError($error);
         }
 
 

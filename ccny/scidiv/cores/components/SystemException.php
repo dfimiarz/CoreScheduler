@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * The MIT License
  *
@@ -25,45 +24,31 @@
  * THE SOFTWARE.
  */
 
-
-//These are values used by the database to encode each user role in the system
-//If changes are made to the database, these values should be corrected here as well
 namespace ccny\scidiv\cores\components;
 
-//User roles
-include_once(__DIR__  . '/attribs/UserRoles.php');
-
-//Service states
-include_once(__DIR__  . '/attribs/ServiceStates.php');
-
-//Event States
-include_once(__DIR__  . '/attribs/TimeStates.php');
-
-//Permissions
-include_once(__DIR__  . '/attribs/Permissions.php');
-
-define("DB_NO_ROLE",0);
-define("DB_ACCESS_PENDING",1);
-define("DB_USER",2);
-define("DB_ADMIN",3);
-
-//These are types of log types to use in the system
-define("DATABASE_LOG_TYPE",0);
-define("WARNING_LOG_TYPE",1);
-define("SECURITY_LOG_TYPE",2);
-define("ERROR_LOG_TYPE",3);
-define("ACTIVITY_LOG_TYPE",4);
-
-/*
- * Minimum event duration (seconds).
- * Used by event merging check during new event creation.
- * TODO: In the future should be linked to fullcalendar event duration as well.
+/**
+ * Description of CoreEventException
+ *
+ * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
  */
-define("MIN_EVENT_DURATION",15*60);
+class SystemException extends \Exception {
+   
+    /* @var $ui_msg Message to pass to user UI */
+    private $ui_msg;
+    
+    public function __construct($sys_msg,$code = 0,$ui_msg = null, Exception $previous = null) {
+        
+        parent::__construct($sys_msg, $code, $previous);
+        $this->ui_msg = $ui_msg;
+    }
 
-/*
- * Validation error codes
- */
-define("VAL_NO_ERROR", 0);
-define("VAL_FIELD_ERROR", 1);
-define("VAL_SYSTEM_ERROR", 2);
+    // custom string representation of object
+    public function __toString() {
+        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+    }
+    
+    function getUIMsg()
+    {
+        return $this->ui_msg;
+    }
+}

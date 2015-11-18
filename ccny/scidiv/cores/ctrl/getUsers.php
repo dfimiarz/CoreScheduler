@@ -27,13 +27,12 @@
 namespace ccny\scidiv\cores\ctrl;
 
 include_once __DIR__ . '/../../../../vendor/autoload.php';
-include_once __DIR__ . '/../components/SystemConstants.php';
-
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\ScheduleDataHandler as ScheduleDataHandler;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 $session = new Session();
 $session->start();
@@ -53,16 +52,20 @@ try {
     //Create the datahandler and insert the data
     $datahandler = new ScheduleDataHandler($user);
     $users = $datahandler->getAuthorizedUsers($record_id);
-} catch (Exception $e) {
-    $err_msg = "Operation failed: Error code " . $e->getCode();
-
-    //Code 0 means that this is none-system error.
-    //In this case we should be able to display the message text itself.
-    if ($e->getCode() == 0) {
-        $err_msg = "Operation failed: " . $e->getMessage();
+} 
+catch (SystemException $e){
+    
+    $client_error = $e->getUIMsg();
+    
+    if( empty($client_error)){
+        $client_error = "Operation failed: Error code " . $e->getCode();
     }
-
-    onError($err_msg);
+    
+    onError($client_error);
+}
+catch (Exception $e) {
+    $err_msg = "Unexpected error:  " . $e->getCode();
+    $msg_sender->onError(null, $err_msg);
 }
 
 onResult($users, "OK");

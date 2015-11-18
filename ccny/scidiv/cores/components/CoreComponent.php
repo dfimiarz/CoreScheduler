@@ -32,29 +32,32 @@
 namespace ccny\scidiv\cores\components;
 
 use ccny\scidiv\cores\components\Logger as Logger;
+use ccny\scidiv\cores\model\ErrorInfo as ErrorInfo;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 class CoreComponent {
 
-    private $logger;
+
     
     protected function __construct() {
         
-        $this->logger = new Logger();
+        
     }
     
     protected function log($msg, $log_type)
     {
-        $this->logger->log($msg, $log_type);
+        Logger::log($msg, $log_type);
     }
     
-    protected function throwExceptionOnError($errmsg, $errno, $log_type) {
-        $this->logger->log($errmsg, $log_type);
-        throw new \Exception($errmsg, $errno);
+    protected function throwExceptionOnError(ErrorInfo $errinfo) {
+        Logger::log($errinfo->getErrMsg(), $errinfo->getLogLvl());
+        throw new SystemException($errinfo->getErrMsg(), $errinfo->getErrCode(), $errinfo->getClientErrMsg());       
     }
     
-    protected function throwDBError($errmsg, $errno )
+    protected function throwDBError($msg,$code)
     {
-        $this->throwExceptionOnError($errmsg, $errno, \DATABASE_LOG_TYPE);
+        $errinfo = new ErrorInfo($msg, $code, "Crytical database error. Code: " . $code, DATABASE_LOG_TYPE );
+        $this->throwExceptionOnError($errinfo);
     }
 
 }

@@ -27,7 +27,6 @@
 namespace ccny\scidiv\cores\ctrl;
 
 include_once __DIR__ . '/../../../../vendor/autoload.php';
-include_once __DIR__ . '/../components/SystemConstants.php';
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -35,6 +34,7 @@ use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\CoreUser as CoreUser;
 use ccny\scidiv\cores\model\CalendarConfig as CalendarConfig;
 use ccny\scidiv\cores\components\CalendarConfigFactory as CalendarConfigFac;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 $session = new Session();
 $session->start();
@@ -53,9 +53,25 @@ if( ! $user instanceof CoreUser )
     $user = new CoreUser('anonymous');
 }
 
+try{
 $conf_factory = new CalendarConfigFac($user,$service_id);
 
 /* @var $calconfig CalendarConfig */
 $calconfig = $conf_factory->getCalendarConifg();
+}
+catch( SystemException $e)
+{
+    $client_error = $e->getUIMsg();
+    
+    if( empty($client_error)){
+        $client_error = "Operation failed: Error code " . $e->getCode();
+    }
+    
+    $msg_sender->onError(null, $client_error);
+}
+catch( \Exception $e){
+    $err_msg = "Unexpected error:  " . $e->getCode();
+    $msg_sender->onError(null, $err_msg);
+}
 
 $msg_sender->onResult($calconfig->toStdClass(), 'OK');

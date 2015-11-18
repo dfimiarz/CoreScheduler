@@ -1483,7 +1483,7 @@ function registerUser()
 
                                 break;
                             case 2:
-                                $("#reg_error_msg").text("Database error: " + err_msg);
+                                $("#reg_error_msg").text("System error: " + err_msg);
                                 break;
                             default:
                                 $("#reg_error_msg").text('Unknown error');

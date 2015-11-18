@@ -32,6 +32,7 @@ class Config
     const APP_EMAIL = "corelabs@ccny.cuny.edu";
     const APP_NAME = "CCNY CoreLABS";
     const APP_ID = "CORELABS";
+    const APP_ENC_KEY = "lENb2bPRk)c&k0ebY0nSxiq9iKgg8WYU";
     
     const RECAPTCHA_PRIV_KEY = "6LfQQ-kSAAAAAFJ64dbozmkTqS89FtEGdc0c1M9r";
     const RECAPTCHA_PUB_KEY = "6LfQQ-kSAAAAAPPUG9Jy31yoSfKyY6N8UQmgqzmB";
@@ -40,9 +41,17 @@ class Config
                                             "MYSQL"=>"ccny\scidiv\cores\components\auth\MySQLAuth");
     
     /*
+     * Number of seconds for minimum session lenght
+     */
+    const MIN_EVENT_DURATION = 900;
+    
+    
+    /*
      * UNIX '/var/log/corelabs/'
      */
     const LOG_DIR = "C:/weblogs/";
+    
+    const LOG_FILE = "CoreLABS.log";
 
     public static function getAuthenticators(){
         return self::$AUTHENTICATORS;

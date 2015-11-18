@@ -1,6 +1,6 @@
 <?php
 
-/* 
+/*
  * The MIT License
  *
  * Copyright 2015 Daniel Fimiarz <dfimiarz@ccny.cuny.edu>.
@@ -24,8 +24,57 @@
  * THE SOFTWARE.
  */
 
+namespace ccny\scidiv\cores\model;
 
-//Event states
-define("TIME_FUTURE",0);
-define("TIME_CURRENT",1);
-define("TIME_PAST",2);
+/**
+ * Description of CoreErrorDetails
+ *
+ * @author Daniel Fimiarz <dfimiarz@ccny.cuny.edu>
+ */
+class ErrorInfo {
+    
+    private $systemErrMsg;
+    private $errCode;
+    
+    private $loglvl;
+    
+    private $clientErrMsg;
+
+    public function __construct($errMsgSystem, $errCode, $errMsgClient = null , $loglvl = ERROR_LOG_TYPE ) {
+        
+        $this->errCode = $errCode;
+        $this->systemErrMsg = $errMsgSystem;
+        $this->clientErrMsg = $errMsgClient;
+        $this->loglvl = $loglvl;
+        
+    }
+    
+    function getErrMsg() {
+        return $this->systemErrMsg;
+    }
+
+    function getErrCode() {
+        return $this->errCode;
+    }
+
+    function getLogLvl() {
+        return $this->loglvl;
+    }
+
+    function getClientErrMsg() {
+        return $this->clientErrMsg;
+    }
+
+    function setLogLvl($logClass) {
+        $this->loglvl = $logClass;
+    }
+
+    function setClientErrMsg($clientErrMsg) {
+        $this->clientErrMsg = $clientErrMsg;
+    }
+
+
+
+
+
+}
