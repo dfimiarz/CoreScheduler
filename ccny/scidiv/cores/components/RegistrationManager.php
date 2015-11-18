@@ -44,7 +44,7 @@ class RegistrationManager extends CoreComponent
         $insert_proc_call = "CALL add_new_user(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         if (!($stmt = $this->mysqli->prepare($insert_proc_call))) {
-            $this->throwDBExceptionOnError($this->mysqli->errno, $this->mysqli->error);
+             $this->throwDBError($stmt->error, $stmt->errno);
         }
 
         if (!($stmt->bind_param("ssssssssssssss", $new_user->fname, $new_user->lname, $new_user->phone, $new_user->email, $new_user->uname, $new_user->psw, $new_user->pi_name, $new_user->pi_email, $new_user->pi_phone, $new_user->pi_address_1, $new_user->pi_address_2, $new_user->pi_city, $new_user->pi_state, $new_user->pi_zip))) {

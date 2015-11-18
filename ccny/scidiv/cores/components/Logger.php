@@ -69,7 +69,7 @@ abstract class Logger {
 
         $logline .= " | " . $_SERVER['REMOTE_ADDR'] . " | ";
 
-        $logline .= " | " . $date . " | " . $msg;
+        $logline .= " | " . $date . " | " . trim($msg);
 
         $logline .= PHP_EOL;
 

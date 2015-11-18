@@ -74,18 +74,9 @@ catch (SystemException $e){
     
     $msg_sender->onError(null, $client_error);
 }
-catch(\Exception $e)
-{
-	$err_msg = "Operation failed: Error code " . $e->getCode();
-
-	//Code 0 means that this is non-system error.
-	//In this case we should be able to display the message text itself.
-	if( $e->getCode() == 0 )
-	{
-		$err_msg = "Operation failed: ". $e->getMessage();
-	}
-
-	$msg_sender->onError(null,$err_msg);
+ catch (\Exception $e) {
+   $err_msg = "Unexpected error:  " . $e->getCode();
+   $msg_sender->onError(null, $err_msg);
 }
 
 $msg_sender->onResult(null,"OK");

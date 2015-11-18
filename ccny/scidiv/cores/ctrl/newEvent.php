@@ -103,9 +103,8 @@ catch (SystemException $e){
 }
 catch (\Exception $e) {
 
-    $err_msg = "Operation failed: Error code " . $e->getCode();
-    
-    $msg_sender->onError(null, $err_msg);
+  $err_msg = "Unexpected error:  " . $e->getCode();
+  $msg_sender->onError(null, $err_msg);
 }
 
 $msg_sender->onResult(null, 'OK');

@@ -76,17 +76,9 @@ catch (SystemException $e){
     
     $html = $client_error;
 }
-catch(\Exception $e){
-	$err_msg = "Fetching data failed: Error code " . $e->getCode();
-
-	//Code 0 means that this is none-system error.
-	//In this case we should be able to display the message text itself.
-	if( $e->getCode() == 0 )
-	{
-		$err_msg = "Fetching data failed: ". $e->getMessage();
-	}
-
-	$html = $err_msg;
+ catch (\Exception $e) {
+    $err_msg = "Unexpected error:  " . $e->getCode();
+    $html = $err_msg;
 }
 
 echo $html;

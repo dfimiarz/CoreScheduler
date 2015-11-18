@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request as Request;
 use ccny\scidiv\cores\model\ValidationError as ValidationError;
 use ccny\scidiv\cores\model\CoreUserRegistrant as CoreUserRegistrant;
 use ccny\scidiv\cores\components\RegistrationManager as RegistrationManager;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 $ctrl = new RegistrationCtrl();
 $ctrl->registerUser();
@@ -44,7 +45,7 @@ class RegistrationCtrl {
                 $error->setMsg("User name already exists");
                 $error->setField("uname");
                 $error->setCode(0);
-                $error->setType(\VAL_FIELD_ERROR);
+                $error->setType(VAL_FIELD_ERROR);
 
                 $this->sendError($error);
             }
@@ -55,20 +56,35 @@ class RegistrationCtrl {
                 $error->setMsg("An account with this e-mail address already exists");
                 $error->setField("email1");
                 $error->setCode(0);
-                $error->setType(\VAL_FIELD_ERROR);
+                $error->setType(VAL_FIELD_ERROR);
 
                 $this->sendError($error);
             }
 
             $handler->registerUser($new_user);
+        } catch (SystemException $e) {
+
+            $client_error = $e->getUIMsg();
+
+            if (empty($client_error)) {
+                $client_error = "Operation failed";
+            }
+            
+            $error = new ValidationError();
+            $error->setMsg($client_error);
+            $error->setCode($e->getCode());
+            $error->setType(VAL_SYSTEM_ERROR);
+            
+            $this->sendError($error);
+            
         } catch (Exception $e) {
 
             $error = new ValidationError();
-            $error->setMsg($e->getMessage());
+            $error->setMsg("Unexpected error");
             $error->setCode($e->getCode());
             $error->setType(VAL_SYSTEM_ERROR);
 
-            $this->sendError($error->toStdClass());
+            $this->sendError($error);
         }
 
 

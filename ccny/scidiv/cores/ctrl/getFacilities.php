@@ -29,6 +29,7 @@ include_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\FacilityDataHandler as FacilityDataHandler;
+use ccny\scidiv\cores\components\SystemException as SystemException;
 
 $msg_sender = new JSONMessageSender();
 
@@ -47,14 +48,7 @@ catch (SystemException $e){
     
     $msg_sender->onError(null, $client_error);
 }catch (\Exception $e) {
-    $err_msg = "Operation failed: Error code " . $e->getCode();
-
-    //Code 0 means that this is none-system error.
-    //In this case we should be able to display the message text itself.
-    if ($e->getCode() == 0) {
-        $err_msg = "Operation failed: " . $e->getMessage();
-    }
-
+    $err_msg = "Unexpected error:  " . $e->getCode();
     $msg_sender->onError(null, $err_msg);
 }
 

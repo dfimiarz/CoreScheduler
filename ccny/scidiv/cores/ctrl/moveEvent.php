@@ -77,8 +77,7 @@ catch (SystemException $e){
     $msg_sender->onError(null, $client_error);
 }
 catch (\Exception $e) {
-    $err_msg = "Operation failed: Error code " . $e->getCode();
-
+    $err_msg = "Unexpected error:  " . $e->getCode();
     $msg_sender->onError(null, $err_msg);
 }
 
