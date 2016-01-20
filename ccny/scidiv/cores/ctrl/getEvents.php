@@ -69,6 +69,7 @@ try {
 }
 catch (SystemException $e){
     
+    /* @var $client_error string */
     $client_error = $e->getUIMsg();
     
     if( empty($client_error)){

@@ -26,6 +26,8 @@
 
 namespace ccny\scidiv\cores\components;
 
+use Symfony\Component\HttpFoundation\Request as Request;
+
 class Utils {
 
     // Hold an instance of the class
@@ -51,12 +53,10 @@ class Utils {
     }
 
     function getRID() {
-        $res_id = "";
-
-        if (isset($_GET['RID']) && !empty($_GET['RID'])) {
-            $res_id = $_GET['RID'];
-        }
-
+        
+        $request = Request::createFromGlobals();
+        $res_id = $request->get('RID',null);
+        
         return $res_id;
     }
 

@@ -29,12 +29,11 @@ namespace ccny\scidiv\cores\ctrl;
 include_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
+use Symfony\Component\HttpFoundation\Session\Session as Session;
 
 $msg_sender = new JSONMessageSender();
 
-session_start();
-session_unset();
-session_destroy();
-
+$session = new Session();
+$session->invalidate();
 
 $msg_sender->onResult(null,'OK');

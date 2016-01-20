@@ -31,10 +31,10 @@ a, img
 
 #credits
 {
-	font-family: arial,sans-serif;
-	font-size: x-small;
-	margin-top: 15px;
-	text-align: center;
+    font-family: arial,sans-serif;
+    font-size: x-small;
+    margin-top: 15px;
+    text-align: center;
 }
 
 .ui-widget 
@@ -63,22 +63,20 @@ a, img
 .corecal_gen_container
 {
 
-font-family: arial,sans-serif;
-font-size: 1em;
-border: 1px solid;
-border-color: #c0c0c0 #D9D9D9 #D9D9D9;
-border-radius: 5px;
-overflow: hidden;
-vertical-align: middle;
-background-color: #deedf7;
-background-image: url(../images/panelbackground.png);
-background-image: -webkit-linear-gradient(#fff,#deedf7);
-background-image: -moz-linear-gradient(#fff,#deedf7);
-background-image: -o-linear-gradient(#fff,#deedf7);
-background-image: linear-gradient(#fff,#deedf7);
+    font-family: arial,sans-serif;
+    font-size: 1em;
+    border: 1px solid;
+    border-color: #c0c0c0 #D9D9D9 #D9D9D9;
+    border-radius: 5px;
+    overflow: hidden;
+    vertical-align: middle;
+    background-color: #deedf7;
+    background-image: url(../images/panelbackground.png);
+    background-image: -webkit-linear-gradient(#fff,#deedf7);
+    background-image: -moz-linear-gradient(#fff,#deedf7);
+    background-image: -o-linear-gradient(#fff,#deedf7);
+    background-image: linear-gradient(#fff,#deedf7);
 }
-
-//Properties of the stats window elements
 
 img.help_icon
 {
@@ -225,7 +223,6 @@ img.help_icon_small
     text-align: center;
 }
 
-//--START--Info panel styles--
 
 #info{
 
@@ -233,7 +230,7 @@ img.help_icon_small
 
 }
 
-//--END--Info Panel Styles--
+
 
 .left_aligned_panel{
 
@@ -404,7 +401,7 @@ img.help_icon_small
 {
     font-size: 1.7em;
     font-family: arial,sans-serif;
-    
+
 }
 
 .medium_dialog_txt
@@ -485,7 +482,7 @@ img.help_icon_small
 
 #user_details_btn
 {
-    
+
     color: white;
     font-size: small;
     border: 1px solid;
@@ -500,6 +497,6 @@ img.help_icon_small
     margin-left: 5px;
     text-decoration: underline;
     float: right;
-    
+
 }
 

@@ -26,16 +26,15 @@
 
 include_once __DIR__ . '/../../../../vendor/autoload.php';
 
+use Symfony\Component\HttpFoundation\Request as Request;
 use ccny\scidiv\cores\view\JSONMessageSender as JSONMessageSender;
 use ccny\scidiv\cores\model\FacilityDataHandler as FacilityDataHandler;
 use ccny\scidiv\cores\components\SystemException as SystemException;
 
 $msg_sender = new JSONMessageSender();
 
-$facility_id = null;
-
-if (isset($_POST['facility_id']))
-    $facility_id = $_POST['facility_id'];
+$request = Request::createFromGlobals();
+$facility_id = $request->request->get('facility_id',null);
 
 try {
     $data_handler = new FacilityDataHandler();
