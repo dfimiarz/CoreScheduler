@@ -12,6 +12,6 @@ $app->register(new \Silex\Provider\TwigServiceProvider(),array(
 
 $app->register(new Silex\Provider\AssetServiceProvider(), array());
 
-$app->get("/", 'ccny\scidiv\cores\ctrl\HomePageController::indexAction')->bind('homepage');
+$app->get("/", 'ccny\\scidiv\\cores\\ctrl\\HomePageController::indexAction')->bind('homepage');
 
 $app->run();

@@ -538,6 +538,7 @@ function createNewEvent(s_time, e_time, allDay)
     var selected = $("#service_select option:selected");
     var serv_id = selected.val();
 
+    console.log(s_time);
     //pass the data to the server. Time should be a unix timestamp
     var event_data = {};
     event_data.start = Math.round(s_time.getTime() / 1000);
