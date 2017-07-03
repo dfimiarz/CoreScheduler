@@ -95,8 +95,8 @@ class CoreEventDetailsDAO extends CoreComponent{
             $this->throwDBError($this->connection->error, $this->connection->errno);
         }
 
-        $start_time_str = $start->format(\DATE_RFC3339);
-        $end_time_str = $end->format(\DATE_RFC3339);
+        $start_time_str = $start->format('Y-m-d H:i:s');
+        $end_time_str = $end->format('Y-m-d H:i:s');
 
         if (!$stmt->bind_param('ssi', $end_time_str, $start_time_str, $resource_id)) {
             $this->throwDBError($this->connection->error, $this->connection->errno);

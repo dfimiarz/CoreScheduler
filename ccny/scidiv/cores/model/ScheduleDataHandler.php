@@ -103,7 +103,7 @@ class ScheduleDataHandler extends CoreComponent {
         $duration = $new_event->getDuration();
 
         /**
-         * If the event is of a relativly short duration find another event
+         * If the event is of a relatively short duration find another event
          * that can be extended instead.
          */
         $adj_event = null;
@@ -130,13 +130,13 @@ class ScheduleDataHandler extends CoreComponent {
 
         if (!$this->permMngr->checkPermission(PERM_CREATE_EVENT, $token)) {
             $sys_err_msg = __FUNCTION__ . ": PERMISSION DENIED. USER: " . $this->user->getUserName();
-            $err_ino = new ErrorInfo($sys_err_msg, 0, "Event cannot be created here", ACTIVITY_LOG_TYPE);   
+            $err_ino = new ErrorInfo($sys_err_msg, 0, "Request denied", ACTIVITY_LOG_TYPE);   
             $this->throwExceptionOnError ($err_ino);
         }
 
         $new_event_id = $this->coreEventDAO->insertCoreEvent($new_event);
 
-        $log_text = __FUNCTION__ . ": Event added. ID: " . $new_event_id;
+        $log_text = __FUNCTION__ . ": Event added. ID: " . $new_event_id . " USER: " . $this->user->getUserName();
         
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
     }
@@ -174,9 +174,9 @@ class ScheduleDataHandler extends CoreComponent {
             $event->title = $temp_event->getUsername();
 
             $event->description = $temp_event->getService();
-            $event->start = $t_start->format("Y-m-d\TH:i:s\Z");
-            $event->end = $t_end->format("Y-m-d\TH:i:s\Z");
-            $event->timestamp = $t_timestamp->format(\DATE_RFC3339);
+            $event->start = $t_start->format('Y-m-d H:i:s');
+            $event->end = $t_end->format("Y-m-d H:i:s");
+            $event->timestamp = $t_timestamp->format("Y-m-d H:i:s");
 
             $event->allDay = false;
 
@@ -382,7 +382,7 @@ class ScheduleDataHandler extends CoreComponent {
         
         $this->coreEventDAO->updateCoreEvent($event);
 
-        $log_text = __FUNCTION__ . ": EVENT " . $dec_record_id . " CANCELED";
+        $log_text = __FUNCTION__ . ": EVENT " . $dec_record_id . " CANCELED. USER: " . $this->user->getUserName();
         $this->log($log_text, \ACTIVITY_LOG_TYPE);
 
         return 1;

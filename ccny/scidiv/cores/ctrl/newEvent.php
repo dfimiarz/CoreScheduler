@@ -45,21 +45,34 @@ $request = Request::createFromGlobals();
 /* @var $user ccny\scidiv\cores\model\CoreUser */
 $user = $session->get('coreuser', null);
 
-if( ! $user instanceof CoreUser )
-{
+if( ! $user instanceof CoreUser ){
     $user = new CoreUser('anonymous');
 }
 
 //Expecting unix time stamp is s_time and e_time
-$start_time = trim($request->request->get('start',null));
-$end_time = trim($request->request->get('end',null));
-$all_day = trim($request->request->get('allday',0));
-$service_id = trim($request->request->get('service',null));
+$start_time = \trim($request->request->get('start',null));
+$end_time = \trim($request->request->get('end',null));
+$all_day = \trim($request->request->get('allday',0));
+$service_id = \trim($request->request->get('service',null));
+
+
+if (\filter_var($start_time, \FILTER_VALIDATE_INT, array("options" => array("min_range"=>0, "max_range"=>\PHP_INT_MAX)))=== false){
+    $msg_sender->onError(null, "Invalid START time");
+}
+
+if (\filter_var($end_time, \FILTER_VALIDATE_INT, array("options" => array("min_range"=>0, "max_range"=>\PHP_INT_MAX))) === false){
+    $msg_sender->onError(null, "Invalid END time");
+}
+
+if( $end_time < $start_time ){
+    $msg_sender->onError(null, "END less than START");
+}
 
 //validate the service_id
-if (!filter_var($service_id, FILTER_VALIDATE_INT))
+if (\filter_var($service_id, \FILTER_VALIDATE_INT) === false ){
     $msg_sender->onError(null, "Service ID is not valid");
-
+}
+    
 $event_options = new \stdClass();
 $event_options->start = $start_time;
 $event_options->end = $end_time;

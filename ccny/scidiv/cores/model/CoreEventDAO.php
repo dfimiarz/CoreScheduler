@@ -107,9 +107,9 @@ class CoreEventDAO extends CoreComponent {
         $timestamp = $event->getTimestamp();
         $note = $event->getNote();
 
-        $start_str = $start->format(\DATE_RFC3339);
-        $end_str = $end->format(\DATE_RFC3339);
-        $timestamp_str = $timestamp->format(\DATE_RFC3339);
+        $start_str = $start->format('Y-m-d H:i:s');
+        $end_str = $end->format('Y-m-d H:i:s');
+        $timestamp_str = $timestamp->format('Y-m-d H:i:s');
 
         $change_user_q = "UPDATE core_timed_activity SET user = ?,note = ?,start = ?,end = ?,state = ?, note = ? WHERE id = ? AND time_modified = ?";
 
@@ -171,8 +171,8 @@ class CoreEventDAO extends CoreComponent {
             $check_q = $update_check_q;
         }
 
-        $new_start_time_str = $event->getStart()->format(\DATE_RFC3339);
-        $new_end_time_str = $event->getEnd()->format(\DATE_RFC3339);
+        $new_start_time_str = $event->getStart()->format('Y-m-d H:i:s');
+        $new_end_time_str = $event->getEnd()->format('Y-m-d H:i:s');
 
         $service_id = $event->getServiceId();
         $event_id = $event->getId();
@@ -245,8 +245,8 @@ class CoreEventDAO extends CoreComponent {
 
         $service_id = $event->getServiceId();
         $state = $event->getEventState();
-        $start_time_str = $event->getStart()->format(\DATE_RFC3339);
-        $end_time_str = $event->getEnd()->format(\DATE_RFC3339);
+        $start_time_str = $event->getStart()->format('Y-m-d H:i:s');
+        $end_time_str = $event->getEnd()->format('Y-m-d H:i:s');
         $user_id = $event->getUserId();
         $note = $event->getNote();
         
@@ -289,7 +289,7 @@ class CoreEventDAO extends CoreComponent {
     }
     
     /**
-     * The function check for existance of an adjecent event.
+     * The function check for existence of an adjacent event.
      * @param CoreEvent $new_event
      * @return CoreEvent
      */
@@ -299,8 +299,8 @@ class CoreEventDAO extends CoreComponent {
         
         $user_id = $new_event->getUserId(); 
         $service_id = $new_event->getServiceId();
-        $new_start_time_str  = $new_event->getStart()->format(\DATE_RFC3339);
-        $new_end_time_str = $new_event->getEnd()->format(\DATE_RFC3339);
+        $new_start_time_str  = $new_event->getStart()->format('Y-m-d H:i:s');
+        $new_end_time_str = $new_event->getEnd()->format('Y-m-d H:i:s');
         
         $adjcent_check_q = "SELECT cta.id,cta.start,cta.end,cta.user,cta.service_id,cta.note,cta.state as eventstate,cta.time_modified,cs.state as service_state FROM core_timed_activity cta, core_services cs WHERE cs.id = cta.service_id AND user = ? and service_id = ? and cta.state = 1 and (end = ? OR start = ?) ORDER BY start LIMIT 1";
        
