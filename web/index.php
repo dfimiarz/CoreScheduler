@@ -10,8 +10,12 @@ $app->register(new \Silex\Provider\TwigServiceProvider(),array(
     'twig.path' => __DIR__ . '/resources/corescheduler/views',
 ));
 
+$app->register(new Silex\Provider\SessionServiceProvider());
+
 $app->register(new Silex\Provider\AssetServiceProvider(), array());
 
-$app->get("/", 'ccny\\scidiv\\cores\\ctrl\\HomePageController::indexAction')->bind('homepage');
+$app->get("/", 'ccny\\scidiv\\cores\\ctrl\\HomeController::indexAction')->bind('home');
+
+$app->get("/login", 'ccny\\scidiv\\cores\\ctrl\\UserController::loginAction')->bind('login');
 
 $app->run();

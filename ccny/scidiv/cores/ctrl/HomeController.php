@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Request as Request;
  * THE SOFTWARE.
  */
 
-class HomePageController{
+class HomeController{
     
     public function indexAction(Application $app, Request $request){
         return $app['twig']->render("start.twig");
