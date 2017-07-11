@@ -28,10 +28,19 @@ use Symfony\Component\HttpFoundation\Request as Request;
  * THE SOFTWARE.
  */
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 class UserController{
     
     public function loginAction(Application $app, Request $request){
         return $app['twig']->render("user/login.html.twig");
+    }
+    
+    public function doLoginAction(Application $app, Request $request){
+        $username = $request->request->get('username', '');
+        $password = $request->request->get('password', '');
+        
+        return $app->redirect('/');
     }
      
 }

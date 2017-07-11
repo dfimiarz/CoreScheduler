@@ -2,34 +2,49 @@
 
 {% block title %} Login {% endblock %}
 
+{% block css %}
+ 
+    {{parent()}}
+    
+    <style>
+    .main_content{
+        margin-top: 20px;
+    }
+    </style>
+    
+{% endblock %}
+
+
 {% block content %}
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2">
-                <img class="" src="{{ asset('resources/corescheduler/img/logo.png') }}" alt="CoreLABS Logo">
+            <div class="col-sm-6 col-sm-offset-3">
+                <img class="img-responsive center-block" src="{{ asset('resources/corescheduler/img/logo.png') }}" alt="CoreLABS Logo">
             </div>
         </div>
+    </div>
+    <div class="container main_content">
         <div class="row">
-            <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-4">
-                <form>
+            <div class="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+                <form action="{{ path('doLogin') }}" method="post">
                     <div class="form-group">
-                        <label for="username">User name</label>
-                        <input type="email" class="form-control" id="username" placeholder="Username">
+                        <label for="username">User name:</label>
+                        <input type="text" name="username" class="form-control" id="username" placeholder="Username">
                     </div>
                     <div class="form-group">
-                        <label for="password1">Password</label>
-                        <input type="password" class="form-control" id="password1" placeholder="Password">
+                        <label for="password1">Password:</label>
+                        <input type="password" name="password" class="form-control" id="password1" placeholder="Password">
                     </div>
                     <button type="submit" class="btn btn-default">Submit</button>
                 </form>
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-4">
-                
+            <div class="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+
                 <span style="margin-top: 20px;margin-bottom: 20px;"><h4>Sign In Help</h4></span>
-                <span>Forgot your username or password? <a herf="loginhelp">Get help here</a></span>
-                <span>Need an account? <a herf="register">Click here to register.</span>
+                <span><h6>Forgot your username or password? <a herf="loginhelp">Get help here</a></h6></span>
+                <span><h6>Need an account? <a herf="register">Click here to register.</h6></span>
             </div>
         </div>
     </div>       
