@@ -29,18 +29,41 @@ use Symfony\Component\HttpFoundation\Request as Request;
  */
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class UserController{
     
     public function loginAction(Application $app, Request $request){
-        return $app['twig']->render("user/login.html.twig");
+        
+        /* @var $session Session */
+        $session = $app['session'];
+        $errors = $session->getFlashBag()->get('login_error');
+        
+        
+        $templ_vars = [];
+        
+        if( ! empty($errors )){
+            $templ_vars['errors'] = $errors;
+        }
+        
+        
+        return $app['twig']->render("user/login.html.twig",$templ_vars);
     }
     
     public function doLoginAction(Application $app, Request $request){
         $username = $request->request->get('username', '');
         $password = $request->request->get('password', '');
         
-        return $app->redirect('/');
+        /* @var $session Session */
+        $session = $app['session'];
+        
+        if(! (strcmp($username, 'test') == 0 && strcmp($password,'test') == 0)){
+            $session->getFlashBag()->add('login_error','Incorrect username or password');
+            return $app->redirect('/login');
+        }
+        else{
+            return $app->redirect('/');
+        }
     }
      
 }
