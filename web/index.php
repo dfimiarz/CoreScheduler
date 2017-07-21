@@ -18,6 +18,8 @@ $app->get("/", 'ccny\\scidiv\\cores\\ctrl\\HomeController::indexAction')->bind('
 
 $app->get("/login", 'ccny\\scidiv\\cores\\ctrl\\UserController::loginAction')->bind('login');
 
-$app->post("/login", 'ccny\\scidiv\\cores\\ctrl\\UserController::doLoginAction')->bind('doLogin');
+$app->post("/login", 'ccny\\scidiv\\cores\\ctrl\\UserController::doLoginAction')->bind('dologin');
+
+$app->get("/users", 'ccny\\scidiv\\cores\\ctrl\\UserController::findUsersAction')->bind('findusers');
 
 $app->run();

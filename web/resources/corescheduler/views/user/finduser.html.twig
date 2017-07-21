@@ -1,0 +1,107 @@
+{% extends "base.template.html.twig" %}
+
+{% block title %} Find users {% endblock %}
+
+{% block css %}
+
+    {{parent()}}
+
+    <style>
+        .main_content{
+            margin-top: 20px;
+        }
+
+        .user_container{
+            border: 1px solid; 
+            margin: 10px 0px;
+            padding: 5px 0px;
+            border-radius: 5px;
+            box-shadow: 3px 3px 1px #888888;
+        }
+
+
+    </style>
+
+{% endblock %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+                <img class="img-responsive center-block" src="{{ asset('resources/corescheduler/img/logo.png') }}" alt="CoreLABS Logo">
+            </div>
+        </div>
+    </div>
+    <div class="container main_content">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
+                <div>Find a user:</div>
+                {% if errors is defined %}
+                    <div class="alert alert-danger">
+                        <div><strong>Error:</strong></div>
+                        <ul>
+                            {% for error in errors %}
+                                <li>{{ error|e }}</li>
+                                {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                <form action="{{ path('findusers') }}" method="get">
+                    <div class="form-group">
+                        <div>
+                            <label for="querytype">Search by:</label>
+                            <select name="qt" id="querytype">
+                                <option value="un">Username</option>
+                                <option value="ln">Lastname</option>
+                                <option value="pi">Mentor/PI name</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>
+                                <input type="radio" checked="checked" name="qo" value="s"/>Starts with
+                            </label>
+                            <label>
+                                <input type="radio" name="qo" value="c"/>Contains
+                            </label>
+                        </div>
+                        <div>
+                            <input type="text" name="q" class="form-control" id="userquery" placeholder="">
+                        </div>
+
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>                    
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
+                {% for user in users %}
+                    <div class="row user_container">
+                        <div class="col-sm-6">
+                            Name: {{ user.name }}
+                        </div>
+                        <div class="col-sm-6">
+                            Username: {{ user.uname }}
+                        </div>
+                        <div class="col-sm-6">
+                            Email: {{ user.email }}
+                        </div>
+                        <div class="col-sm-6">
+                            Phone: {{ user.phone }}
+                        </div>
+                        <div class="col-sm-12">
+                            <a href="./user/{{ user.uid }}" class="btn btn-sm btn-info pull-right"> more details </a>
+                        </div>
+                    </div>
+
+                {% else %}
+                    No users found
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>    
+
+{% endblock %}

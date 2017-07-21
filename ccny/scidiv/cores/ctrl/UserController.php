@@ -65,6 +65,40 @@ class UserController{
             return $app->redirect('/');
         }
     }
+    
+    public function findUsersAction(Application $app, Request $request){
+        
+        /* @var $session Session */
+        $session = $app['session'];
+        
+        $query = $request->query->get('q', null);
+        $query_type = $request->query->get('qt', null);
+        $query_option = $request->query->get('qo', null );
+        
+        
+        $errors = [];
+        $templ_vars = [];
+        
+        if( !is_null($query) && \strlen($query)  < 2 ){
+            $errors[] = "Search query should contain at least 2 charcters";
+        }
+        
+        $templ_vars['query'] = $query;
+        
+        if( ! empty($errors )){
+            $templ_vars['errors'] = $errors;
+        }
+        
+        $users = [  ["uid"=>"23","name"=>"Jorge Morales","uname"=>"jmorales","email"=>"jmorales@ccny.cuny.edu","phone"=>"(212) 650-8596"],
+                    ["uid"=>"23","name"=>"Jorge Morales","uname"=>"jmorales","email"=>"jmorales@ccny.cuny.edu","phone"=>"(212) 650-8596"],
+                    ["uid"=>"23","name"=>"Jorge Morales","uname"=>"jmorales","email"=>"jmorales@ccny.cuny.edu","phone"=>"(212) 650-8596"],
+            
+                 ];        
+        
+        $templ_vars['users'] = [];
+        
+        return $app['twig']->render("user/finduser.html.twig",$templ_vars);
+    }
      
 }
 
