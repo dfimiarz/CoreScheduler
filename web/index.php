@@ -20,6 +20,6 @@ $app->get("/login", 'ccny\\scidiv\\cores\\ctrl\\UserController::loginAction')->b
 
 $app->post("/login", 'ccny\\scidiv\\cores\\ctrl\\UserController::doLoginAction')->bind('dologin');
 
-$app->get("/users", 'ccny\\scidiv\\cores\\ctrl\\UserController::findUsersAction')->bind('findusers');
+$app->get("/accounts", 'ccny\\scidiv\\cores\\ctrl\\UserController::findAccountAction')->bind('findaccount');
 
 $app->run();

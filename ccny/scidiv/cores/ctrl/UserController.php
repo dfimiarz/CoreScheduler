@@ -66,7 +66,7 @@ class UserController{
         }
     }
     
-    public function findUsersAction(Application $app, Request $request){
+    public function findAccountAction(Application $app, Request $request){
         
         /* @var $session Session */
         $session = $app['session'];
@@ -89,15 +89,15 @@ class UserController{
             $templ_vars['errors'] = $errors;
         }
         
-        $users = [  ["uid"=>"23","name"=>"Jorge Morales","uname"=>"jmorales","email"=>"jmorales@ccny.cuny.edu","phone"=>"(212) 650-8596"],
+        $accounts = [  ["uid"=>"23","name"=>"Jorge Morales","uname"=>"jmorales","email"=>"jmorales@ccny.cuny.edu","phone"=>"(212) 650-8596"],
                     ["uid"=>"23","name"=>"Jorge Morales","uname"=>"jmorales","email"=>"jmorales@ccny.cuny.edu","phone"=>"(212) 650-8596"],
                     ["uid"=>"23","name"=>"Jorge Morales","uname"=>"jmorales","email"=>"jmorales@ccny.cuny.edu","phone"=>"(212) 650-8596"],
             
                  ];        
         
-        $templ_vars['users'] = [];
+        $templ_vars['accounts'] = $accounts;
         
-        return $app['twig']->render("user/finduser.html.twig",$templ_vars);
+        return $app['twig']->render("user/findaccount.html.twig",$templ_vars);
     }
      
 }

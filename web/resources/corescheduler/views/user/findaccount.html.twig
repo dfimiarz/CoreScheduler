@@ -11,7 +11,7 @@
             margin-top: 20px;
         }
 
-        .user_container{
+        .account_cont{
             border: 1px solid; 
             margin: 10px 0px;
             padding: 5px 0px;
@@ -36,7 +36,7 @@
     <div class="container main_content">
         <div class="row">
             <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
-                <div>Find a user:</div>
+                <div>Find an account:</div>
                 {% if errors is defined %}
                     <div class="alert alert-danger">
                         <div><strong>Error:</strong></div>
@@ -47,7 +47,7 @@
                         </ul>
                     </div>
                 {% endif %}
-                <form action="{{ path('findusers') }}" method="get">
+                <form action="{{ path('findaccount') }}" method="get">
                     <div class="form-group">
                         <div>
                             <label for="querytype">Search by:</label>
@@ -70,34 +70,34 @@
                         </div>
 
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>                    
+                    <button type="submit" class="btn btn-primary">Find account</button>                    
                 </form>
             </div>
         </div>
 
         <div class="row">
             <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
-                {% for user in users %}
-                    <div class="row user_container">
+                {% for account in accounts %}
+                    <div class="row account_cont">
                         <div class="col-sm-6">
-                            Name: {{ user.name }}
+                            Name: {{ account.name }}
                         </div>
                         <div class="col-sm-6">
-                            Username: {{ user.uname }}
+                            Username: {{ account.uname }}
                         </div>
                         <div class="col-sm-6">
-                            Email: {{ user.email }}
+                            Email: {{ account.email }}
                         </div>
                         <div class="col-sm-6">
-                            Phone: {{ user.phone }}
+                            Phone: {{ account.phone }}
                         </div>
                         <div class="col-sm-12">
-                            <a href="./user/{{ user.uid }}" class="btn btn-sm btn-info pull-right"> more details </a>
+                            <a href="./user/{{ account.uid }}" class="btn btn-sm btn-info pull-right"> details </a>
                         </div>
                     </div>
 
                 {% else %}
-                    No users found
+                    No account found
                 {% endfor %}
             </div>
         </div>
