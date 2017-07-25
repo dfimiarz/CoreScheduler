@@ -40,4 +40,6 @@ $account_details->bind('account_details');
 
 $manage->get("/accounts/find", 'ccny\\scidiv\\cores\\ctrl\\AccountController::find')->bind('account_find');
 
+$manage->get("/accounts/pending", 'ccny\\scidiv\\cores\\ctrl\\AccountController::listPending')->bind('account_pending');
+
 return $manage;

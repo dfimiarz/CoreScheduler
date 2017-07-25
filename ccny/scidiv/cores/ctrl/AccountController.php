@@ -78,5 +78,14 @@ class AccountController {
 
         return $app['twig']->render("account/findaccount.html.twig", $templ_vars);
     }
+    
+    public function listPending(Application $app, Request $request){
+        
+        $templ_vars = [];
+        
+        $templ_vars['accounts'] = [["uid" => "23", "name" => "Jorge Morales", "uname" => "jmorales", "email" => "jmorales@ccny.cuny.edu", "phone" => "(212) 650-8596"],
+            ["uid" => "23", "name" => "Jorge Morales", "uname" => "jmorales", "email" => "jmorales@ccny.cuny.edu", "phone" => "(212) 650-8596"]];
+        return $app['twig']->render("account/pendingaccounts.html.twig", $templ_vars);
+    }
 
 }

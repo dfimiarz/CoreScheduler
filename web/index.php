@@ -1,5 +1,8 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Request;
+use Silex\Application;
+
 include __DIR__ . "/../vendor/autoload.php";
 
 $app = new Silex\Application();
@@ -33,7 +36,7 @@ $app->get("/login", 'ccny\\scidiv\\cores\\ctrl\\UserController::loginAction')->b
 $app->post("/login", 'ccny\\scidiv\\cores\\ctrl\\UserController::doLoginAction')->bind('dologin');
 
 $app->mount("manage", include_once __DIR__ . '/../ccny/scidiv/cores/app/routes/manage.php')->before(
-    function(\Symfony\Component\HttpFoundation\Request $request, Silex\Application $app ){
+    function(Request $request, Application $app ){
         $request->attributes->set("is_admin", false);
     }
 );

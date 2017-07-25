@@ -1,0 +1,71 @@
+{% extends "base.template.html.twig" %}
+
+{% block title %} Find users {% endblock %}
+
+{% block css %}
+
+    {{parent()}}
+
+    <style>
+        .main_content{
+            margin-top: 20px;
+        }
+
+        .account_cont{
+            border: 1px solid; 
+            margin: 10px 0px;
+            padding: 5px 0px;
+            border-radius: 5px;
+            box-shadow: 3px 3px 1px #888888;
+        }
+
+
+    </style>
+
+{% endblock %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+                <img class="img-responsive center-block" src="{{ asset('resources/corescheduler/img/logo.png') }}" alt="CoreLABS Logo">
+            </div>
+        </div>
+    </div>
+    <div class="container main_content">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+                <h1>Listing of pending accounts</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1 col-sm-6 col-sm-offset-3">
+                {% for account in accounts %}
+                    <div class="row account_cont">
+                        <div class="col-sm-6">
+                            Name: {{ account.name }}
+                        </div>
+                        <div class="col-sm-6">
+                            Username: {{ account.uname }}
+                        </div>
+                        <div class="col-sm-6">
+                            Email: {{ account.email }}
+                        </div>
+                        <div class="col-sm-6">
+                            Phone: {{ account.phone }}
+                        </div>
+                        <div class="col-sm-12">
+                            <a href="./user/{{ account.uid }}" class="btn btn-sm btn-info pull-right"> edit </a>
+                        </div>
+                    </div>
+
+                {% else %}
+                    No account found
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>    
+
+{% endblock %}
