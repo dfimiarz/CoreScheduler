@@ -44,19 +44,19 @@
                 {% for account in accounts %}
                     <div class="row account_cont">
                         <div class="col-sm-6">
-                            Name: {{ account.name }}
+                            Name: {{ account.getFirstname }} {{ account.getLastname }}
                         </div>
                         <div class="col-sm-6">
-                            Username: {{ account.uname }}
+                            Username: {{ account.getUsername }}
                         </div>
                         <div class="col-sm-6">
-                            Email: {{ account.email }}
+                            Email: {{ account.getEmail }}
                         </div>
                         <div class="col-sm-6">
-                            Phone: {{ account.phone }}
+                            Phone: {{ account.getPhone }}
                         </div>
                         <div class="col-sm-12">
-                            <a href="./user/{{ account.uid }}" class="btn btn-sm btn-info pull-right"> edit </a>
+                            <a href="./user/{{ account.getId }}" class="btn btn-sm btn-info pull-right"> edit </a>
                         </div>
                     </div>
 

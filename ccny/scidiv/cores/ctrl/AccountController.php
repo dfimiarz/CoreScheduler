@@ -5,6 +5,8 @@ namespace ccny\scidiv\cores\ctrl;
 use Silex\Application as Application;
 use Symfony\Component\HttpFoundation\Request as Request;
 
+use ccny\scidiv\cores\model\CoreAccountDAO;
+
 /*
  * The MIT License
  *
@@ -83,8 +85,7 @@ class AccountController {
         
         $templ_vars = [];
         
-        $templ_vars['accounts'] = [["uid" => "23", "name" => "Jorge Morales", "uname" => "jmorales", "email" => "jmorales@ccny.cuny.edu", "phone" => "(212) 650-8596"],
-            ["uid" => "23", "name" => "Jorge Morales", "uname" => "jmorales", "email" => "jmorales@ccny.cuny.edu", "phone" => "(212) 650-8596"]];
+        $templ_vars['accounts'] = CoreAccountDAO::getPendingAccounts($app['db']);
         return $app['twig']->render("account/pendingaccounts.html.twig", $templ_vars);
     }
 
