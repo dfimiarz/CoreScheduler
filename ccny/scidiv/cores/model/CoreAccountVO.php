@@ -31,7 +31,7 @@ namespace ccny\scidiv\cores\model;
  *
  * @author WORK 1328
  */
-class CoreAccount {
+class CoreAccountVO {
     
     
     private $id;

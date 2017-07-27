@@ -83,9 +83,11 @@ class AccountController {
     
     public function listPending(Application $app, Request $request){
         
+        $accountDAO = new CoreAccountDAO($app['db']);
+        
         $templ_vars = [];
         
-        $templ_vars['accounts'] = CoreAccountDAO::getPendingAccounts($app['db']);
+        $templ_vars['accounts'] = $accountDAO->getPendingAccounts($app['db']);
         return $app['twig']->render("account/pendingaccounts.html.twig", $templ_vars);
     }
 
