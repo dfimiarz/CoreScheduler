@@ -56,7 +56,7 @@
                             Phone: {{ account.getPhone }}
                         </div>
                         <div class="col-sm-12">
-                            <a href="./user/{{ account.getId }}" class="btn btn-sm btn-info pull-right"> edit </a>
+                            <a href="{{ path('account_details', {'acc_id': account.getId}) }}" class="btn btn-sm btn-info pull-right"> edit </a>
                         </div>
                     </div>
 

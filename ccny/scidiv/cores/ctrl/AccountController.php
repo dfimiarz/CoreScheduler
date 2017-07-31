@@ -44,8 +44,8 @@ class AccountController {
         }
     }
 
-    public function details(Application $app, Request $request) {
-        return "Account details";
+    public function details(Application $app, Request $request, $acc_id) {
+        return "Account details for " . $acc_id;
     }
 
     public function find(Application $app, Request $request) {
@@ -83,11 +83,11 @@ class AccountController {
     
     public function listPending(Application $app, Request $request){
         
-        $accountDAO = new CoreAccountDAO($app['db']);
-        
         $templ_vars = [];
         
-        $templ_vars['accounts'] = $accountDAO->getPendingAccounts($app['db']);
+        $accountDAO = new CoreAccountDAO($app['db']);
+        
+        $templ_vars['accounts'] = $accountDAO->getPendingAccounts();
         return $app['twig']->render("account/pendingaccounts.html.twig", $templ_vars);
     }
 

@@ -76,7 +76,7 @@ class CoreAccountDAO {
     * @param array $row 
     * @return CoreAccountVO
     */
-    private function createAccountFromDBRow(Object $row) {
+    private function createAccountFromDBRow(\stdClass $row) {
 
         $account = new CoreAccountVO();
 
