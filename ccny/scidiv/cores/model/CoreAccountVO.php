@@ -39,13 +39,15 @@ class CoreAccountVO {
     private $lastname;
     private $phone;
     private $email;
-    private $pi;
+    private $piId;
+    private $piFullname;
     private $username;
     private $password;
-    private $usertype;
-    private $activeflag;
-    private $lastactive;
-    private $notes;
+    private $userType;
+    private $userTypeId;
+    private $activeFlag;
+    private $lastActive;
+    private $note;
     
     function getId() {
         return $this->id;
@@ -67,8 +69,12 @@ class CoreAccountVO {
         return $this->email;
     }
 
-    function getPi() {
-        return $this->pi;
+    function getPiId() {
+        return $this->piId;
+    }
+
+    function getPiFullname() {
+        return $this->piFullname;
     }
 
     function getUsername() {
@@ -79,20 +85,20 @@ class CoreAccountVO {
         return $this->password;
     }
 
-    function getUsertype() {
-        return $this->usertype;
+    function getUserType() {
+        return $this->userType;
     }
 
-    function getActiveflag() {
-        return $this->activeflag;
+    function getActiveFlag() {
+        return $this->activeFlag;
     }
 
-    function getLastactive() {
-        return $this->lastactive;
+    function getLastActive() {
+        return $this->lastActive;
     }
 
-    function getNotes() {
-        return $this->notes;
+    function getNote() {
+        return $this->note;
     }
 
     function setId($id) {
@@ -115,8 +121,12 @@ class CoreAccountVO {
         $this->email = $email;
     }
 
-    function setPi($pi) {
-        $this->pi = $pi;
+    function setPiId($piId) {
+        $this->piId = $piId;
+    }
+
+    function setPiFullname($piFullname) {
+        $this->piFullname = $piFullname;
     }
 
     function setUsername($username) {
@@ -127,22 +137,31 @@ class CoreAccountVO {
         $this->password = $password;
     }
 
-    function setUsertype($usertype) {
-        $this->usertype = $usertype;
+    function setUserType($userType) {
+        $this->userType = $userType;
     }
 
-    function setActiveflag($activeflag) {
-        $this->activeflag = $activeflag;
+    function setActiveFlag($activeFlag) {
+        $this->activeFlag = $activeFlag;
     }
 
-    function setLastactive($lastactive) {
-        $this->lastactive = $lastactive;
+    function setLastActive($lastActive) {
+        $this->lastActive = $lastActive;
     }
 
-    function setNotes($notes) {
-        $this->notes = $notes;
+    function setNote($note) {
+        $this->note = $note;
+    }
+
+    function getUserTypeId() {
+        return $this->userTypeId;
+    }
+
+    function setUserTypeId($userTypeId) {
+        $this->userTypeId = $userTypeId;
     }
 
 
-  
+    
+    
 }

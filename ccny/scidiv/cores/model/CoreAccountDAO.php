@@ -37,10 +37,11 @@ use ccny\scidiv\cores\model\CoreAccountVO;
 class CoreAccountDAO {
 
     private $connection;
-    
+
     public function __construct(Connection $conn) {
         $this->connection = $conn;
     }
+
     /**
      * Retrieves pending accounts from the database
      * 
@@ -53,16 +54,18 @@ class CoreAccountDAO {
 
         $qbuilder = $this->connection->createQueryBuilder();
 
-        $qbuilder->select("*")
-                ->from("core_users")
-                ->where("pi = ?")
+        $qbuilder->select("u.id", "u.firstname", "u.lastname", "u.phone", "u.email", "u.pi as piid", "concat(p.first_name,' ',p.last_name) as pifullname", "u.username", "u.password", "u.user_type as usertypeid", "cut.short_name as usertype", "u.active_flag as activeflag", "u.last_active as lastactive", "u.note")
+                ->from("core_users", "u")
+                ->innerJoin("u", "people", "p", "u.pi = p.individual_id")
+                ->innerJoin("u", "core_user_types", "cut", "u.user_type = cut.id")
+                ->where("u.pi = ?")
                 ->setParameter(0, 557, \PDO::PARAM_INT);
 
         /* @var $stmt ResultCacheStatement|Statement */
         $stmt = $qbuilder->execute();
 
         while ($row = $stmt->fetch(\PDO::FETCH_OBJ)) {
-            
+
             //This should be set as a trait
             $pendingAccounts[] = $this->createAccountFromDBRow($row);
         }
@@ -71,11 +74,11 @@ class CoreAccountDAO {
     }
 
     /**
-    * 
-    * 
-    * @param array $row 
-    * @return CoreAccountVO
-    */
+     * 
+     * 
+     * @param array $row 
+     * @return CoreAccountVO
+     */
     private function createAccountFromDBRow(\stdClass $row) {
 
         $account = new CoreAccountVO();
@@ -85,13 +88,15 @@ class CoreAccountDAO {
         $account->setLastname($row->lastname);
         $account->setPhone($row->phone);
         $account->setEmail($row->email);
-        $account->setPi($row->pi);
+        $account->setPiId($row->piid);
         $account->setUsername($row->username);
         $account->setPassword($row->password);
-        $account->setUsertype($row->user_type);
-        $account->setActiveflag($row->active_flag);
-        $account->setLastactive($row->last_active);
-        $account->setNotes($row->note);
+        $account->setUserType($row->usertype);
+        $account->setUserTypeId($row->usertypeid);
+        $account->setActiveflag($row->activeflag);
+        $account->setLastactive($row->lastactive);
+        $account->setNote($row->note);
+        $account->setPiFullname($row->pifullname);
 
         return $account;
     }
